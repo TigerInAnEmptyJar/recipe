@@ -1,0 +1,99 @@
+/**
+\page recipe_spec Recipe specification
+The program recipe is meant to manage a set of recipes and their ingredients. It shall be possible
+to define a weekly plan specifying the number of servings to prepare per meal and generate a shopping
+list out of that plan.
+\section recipe_spec_def Definitions
+\subsection recipe_spec_def_recipe Recipe
+A recipe contains a list of ingredients and a list of instructions how to prepare the ingredients
+into a meal. Along with these two lists, it has also different properties:
+- Title: The name of the recipe
+- Number of servings: The number of servings to prepare with the given amount of ingredients
+- Preparation time: The estimated time it takes to prepare the meal for the given number of servings
+- Nutrition: This comes in several numbers: Carbohydrates, fats, proteins come in grams, while
+    energy will be given both in Joules as well as calories.
+- Source: Here the author of the recipe can provide a hint to where the recipe was taken from.
+- Meal-type: Here the basic type of the meal can be specified, whether it contains meat or fish,
+    whether it is vegetarian or vegan or whether it is a sweet dish/dessert.
+- Tags: This is a list of strings that can further specify the type of meal the recipe describes.
+    Along with the meal type, this is a property that can be used for filtering.
+- Potential Eaters: Like tags, this is a list of strings, each one defining a person that would eat
+    this dish. This is a property that can be filtered for.
+- Ingredients: This is a list of items that is needed to prepare the meal.
+- Instructions: The instructions are a list of strings that describe how to create the meal out of
+    the ingredients.
+- Image: A picture of the prepared meal.
+
+\subsection recipe_spec_def_ingredient Ingredient
+An ingredient is an object used in preparing a dish, that is consumed in the process. It has the
+following properties:
+- Name: the name of the ingredient
+- Category: the type of ingredient. This defines both where to find the ingredient in the shop as
+    well as whether it has to be cooled or not.
+- Default amount type: In a recipe, an ingredient comes with an amount. The amount can be defined
+    either in volume, in weight or in pieces. This property defines which of these types shall be
+    the default for the ingredient.
+- Sectioned: this flag defines where the ingredient shall appear on sectioned shopping lists.
+- Image: an image of the ingredient.
+
+\subsection recipe_spec_def_amount_ingredient Amounted ingredient
+This object is the type of thing that is used in both recipe as well as the shopping list. It is
+based on the ingredient, but also contains different amount definitions for it.
+
+\subsubsection recipe_spec_def_amount Amount
+An amount is a numeric value aling with the unit, which can be either a volume type (liter, ml,
+cups, etc.), a mass type (grams, kg, ounces, etc.) or a piece type (can, piece, bundle, etc.).
+Amounts of same type can be added.
+
+\subsection recipe_spec_def_plan Week plan
+The week plan defines a table with a specified amount of meals per day and a specified amount of
+days (defaults to 7).
+\subsubsection recipe_spec_def_plan_meal Meal
+A meal is one item on the weekly plan. It consists of a recipe and the number of dishes to be
+cooked.
+
+\subsection recipe_spec_def_shopping_list Shopping list
+The shopping list is created out of a weekly plan and summs up all ingredients of all recipes
+planned for the week. The shopping list is sorted by ingredient category to enable easy find of the
+object in the shop.
+Optionally a section can be defined in the weekly plan so the shopping list is generated in the
+following way: Ingredients that are marked as sectioned will appear in the section they are defined;
+ingredients not marked as sectioned will appear in the first section of the shopping list no matter
+where on the plan the corresponging recipe is located.
+
+\section recipe_spec_ui Graphical User Interface
+The recipe program comes with a graphical user interface on several devices: desktop pc for planning
+and recipe/ingredient management, mobile for display of the shopping list.
+
+Here come the different views:
+\subsection recipe_spec_ui_ingredient Ingredient view
+This view shows the individual ingredient including it's properties. It comes with a readonly
+property.
+
+\subsection recipe_spec_ui_recipe Recipe view
+This view shows a single recipe. It comes with a readonly property.
+
+\subsection recipe_spec_ui_ingredient_list Ingredient list
+The ingredient list displays a list of ingredients. It is used to display the ingredients in a
+recipe and in the shopping list. It shows the image and the name of the ingredient as well as the
+corresponding amounts.
+
+\subsection recipe_spec_ui_recipe_list Recipe list
+This list shows the filtered list of recipes. Each item shows the image and the title of the recipe.
+
+\subsection recipe_spec_ui_raw_ingredient_list Raw ingredient list
+This list shows the ingredient's image as well as the name in a list to select when a recipe is
+edited.
+
+\subsection recipe_spec_ui_planner Week plan
+\subsection recipe_spec_ui_shopping_list Shopping list
+\section recipe_spec_def_io Persistence
+The structures to persist are:
+- List of recipes
+- List of ingredients
+- Week plan
+- Shopping list
+
+To support different formats, there is an interface structure, with one implementation; a Json
+format.
+*/
