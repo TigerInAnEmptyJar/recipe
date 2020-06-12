@@ -18,6 +18,7 @@ namespace io {
 class recipe_io
 {
 public:
+  //! The function-type for providing access to the stored ingredients.
   using finder_t = std::function<std::optional<ingredient>(boost::uuids::uuid)>;
 
   /*!

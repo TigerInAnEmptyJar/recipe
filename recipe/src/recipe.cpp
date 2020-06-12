@@ -35,13 +35,21 @@ std::filesystem::__cxx11::path recipe::image_path() const { return _image_path; 
 
 recipe& recipe::image_path(std::filesystem::__cxx11::path const& path) { _image_path = path; return *this;}
 
-uint8_t recipe::calories() const { return _calories; }
+uint16_t recipe::calories() const { return _calories; }
 
-recipe& recipe::calories(uint8_t c) { _calories = c; return *this;}
+recipe& recipe::calories(uint16_t c)
+{
+  _calories = c;
+  return *this;
+}
 
-uint8_t recipe::joules() const { return _joules; }
+uint16_t recipe::joules() const { return _joules; }
 
-recipe& recipe::joules(uint8_t c) { _joules = c; return *this;}
+recipe& recipe::joules(uint16_t c)
+{
+  _joules = c;
+  return *this;
+}
 
 uint8_t recipe::g_fat() const { return _g_fat; }
 

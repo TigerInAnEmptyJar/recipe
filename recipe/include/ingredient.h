@@ -53,7 +53,6 @@ public:
   ingredient& operator=(ingredient const&) = default;
   ingredient& operator=(ingredient&&) = default;
   ~ingredient() = default;
-
   bool operator==(ingredient const& other) const = default;
 
   /*!

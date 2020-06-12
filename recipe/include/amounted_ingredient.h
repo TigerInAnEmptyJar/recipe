@@ -35,6 +35,7 @@ public:
     can,
   };
 
+  //! Iterators to iterate over individual amounts.
   using iterator = std::map<amount_t, float>::iterator;
   using const_iterator = std::map<amount_t, float>::const_iterator;
 

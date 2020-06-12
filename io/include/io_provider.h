@@ -12,6 +12,10 @@
 namespace recipe {
 namespace io {
 
+/*!
+ * \brief The io_provider class
+ * This class provides access to all installed input/output formats.
+ */
 class io_provider
 {
 public:
