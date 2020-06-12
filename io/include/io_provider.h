@@ -15,6 +15,8 @@ namespace io {
 class io_provider
 {
 public:
+  void setup();
+
   std::shared_ptr<amounted_io> amounted(boost::uuids::uuid id) const;
   std::shared_ptr<ingredient_io> ingredient(boost::uuids::uuid id) const;
   std::shared_ptr<recipe_io> recipe(boost::uuids::uuid id) const;

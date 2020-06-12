@@ -1,9 +1,26 @@
 #include "io_provider.h"
 
+#include "amounted_json_io.hpp"
+#include "ingredient_json_io.hpp"
+#include "recipe_json_io.hpp"
+
+#include <boost/uuid/string_generator.hpp>
+
 #include <algorithm>
 
 namespace recipe {
 namespace io {
+
+void io_provider::setup()
+{
+  boost::uuids::string_generator gen;
+  install(gen("b7ae614d-4f41-439a-b23f-b3c366416991"), "Json Shopping-list Format",
+          std::make_shared<amounted_json_io>());
+  install(gen("67af15f6-ea32-42e9-aa9e-27d4df5d804d"), "Json Ingredient Format",
+          std::make_shared<ingredient_json_io>());
+  install(gen("0e7b4a59-96cc-4fe4-8b61-cc80096ad698"), "Json Recipe Format",
+          std::make_shared<recipe_json_io>());
+}
 
 std::shared_ptr<amounted_io> io_provider::amounted(boost::uuids::uuid id) const
 {

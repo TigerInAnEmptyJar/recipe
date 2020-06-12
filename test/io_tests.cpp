@@ -315,3 +315,13 @@ TEST_F(io_test, recipe_version)
   ASSERT_EQ(read->size(), _recipes.size());
   EXPECT_EQ(*read, _recipes);
 }
+
+TEST_F(io_test, provider_setup)
+{
+  recipe::io::io_provider provider;
+
+  provider.setup();
+  EXPECT_EQ(provider.installed_amounted().size(), 1);
+  EXPECT_EQ(provider.installed_ingredient().size(), 1);
+  EXPECT_EQ(provider.installed_recipe().size(), 1);
+}
