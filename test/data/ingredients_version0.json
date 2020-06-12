@@ -1,0 +1,30 @@
+{
+    "content": [
+        {
+            "category": 5,
+            "default-amount": 1,
+            "id": "7a806cd3-3ec2-42e9-8786-8859d5211785",
+            "image-path": "/tmp/milk.jpg",
+            "name": "Milk",
+            "sectioned": true
+        },
+        {
+            "category": 2,
+            "default-amount": 1,
+            "id": "a5356323-4586-4dba-a3da-445e9f59668c",
+            "image-path": "/tmp/ham.jpg",
+            "name": "Ham",
+            "sectioned": true
+        },
+        {
+            "category": 0,
+            "default-amount": 2,
+            "id": "4b6e5242-7b2c-4876-9f7b-b75783646eb1",
+            "image-path": "/tmp/apple.jpg",
+            "name": "Apple",
+            "sectioned": false
+        }
+    ],
+    "file-type": "ingredients",
+    "version": 0
+}

@@ -1,0 +1,106 @@
+{
+    "content": [
+        {
+            "calories": 13,
+            "carbohydrates": 12,
+            "eaters": [
+                "John",
+                "Jane"
+            ],
+            "fats": 10,
+            "id": "00000001-9845-19fe-7f00-00e8984519fe",
+            "image-path": "/tmp/recipe1.jpeg",
+            "ingredients": [
+                {
+                    "id": "7370d976-2595-4b27-bf62-d21b2324a792",
+                    "values": [
+                        {
+                            "unit": 0,
+                            "value": 1
+                        },
+                        {
+                            "unit": 3,
+                            "value": 100
+                        }
+                    ]
+                },
+                {
+                    "id": "bf5987c6-5f29-4d41-bb63-31d880821baa",
+                    "values": [
+                        {
+                            "unit": 3,
+                            "value": 200
+                        },
+                        {
+                            "unit": 7,
+                            "value": 1
+                        }
+                    ]
+                },
+                {
+                    "id": "7b613cc3-9727-46c2-9075-2d4ed55562ea",
+                    "values": [
+                        {
+                            "unit": 7,
+                            "value": 10
+                        }
+                    ]
+                }
+            ],
+            "instructions": "my instructions 1",
+            "joules": 14,
+            "meal-type": 1,
+            "preparation-time": 15,
+            "proteins": 11,
+            "servings": 2,
+            "source": "My Cook book",
+            "tags": [
+                "tag1",
+                "tag2"
+            ],
+            "title": "Recipe 1"
+        },
+        {
+            "calories": 15,
+            "carbohydrates": 14,
+            "eaters": [
+                "Kate",
+                "William"
+            ],
+            "fats": 12,
+            "id": "00000001-d904-4a0d-5600-00f0954519fe",
+            "image-path": "/tmp/recipe2.jpeg",
+            "ingredients": [
+                {
+                    "id": "7370d976-2595-4b27-bf62-d21b2324a792",
+                    "values": [
+                    ]
+                },
+                {
+                    "id": "bf5987c6-5f29-4d41-bb63-31d880821baa",
+                    "values": [
+                    ]
+                },
+                {
+                    "id": "7b613cc3-9727-46c2-9075-2d4ed55562ea",
+                    "values": [
+                    ]
+                }
+            ],
+            "instructions": "my instructions 2",
+            "joules": 16,
+            "meal-type": 0,
+            "preparation-time": 45,
+            "proteins": 13,
+            "servings": 4,
+            "source": "My Cook book",
+            "tags": [
+                "tag2",
+                "tag4"
+            ],
+            "title": "Recipe 2"
+        }
+    ],
+    "file-type": "ingredients",
+    "version": 0
+}

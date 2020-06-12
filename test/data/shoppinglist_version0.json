@@ -1,0 +1,73 @@
+{
+    "content": [
+        {
+            "id": "0caca5b7-82a8-49aa-bfad-80c94c2eddad",
+            "values": [
+                {
+                    "unit": 0,
+                    "value": 1
+                },
+                {
+                    "unit": 3,
+                    "value": 100
+                }
+            ]
+        },
+        {
+            "id": "0caca5b7-82a8-49aa-bfad-80c94c2eddad",
+            "values": [
+            ]
+        },
+        {
+            "id": "7be59fd4-abe1-47ad-a42c-e656a29be949",
+            "values": [
+                {
+                    "unit": 3,
+                    "value": 200
+                },
+                {
+                    "unit": 7,
+                    "value": 1
+                }
+            ]
+        },
+        {
+            "id": "c73931f0-641a-4fac-9eab-9cf7296e7832",
+            "values": [
+                {
+                    "unit": 7,
+                    "value": 10
+                }
+            ]
+        },
+        {
+            "id": "7be59fd4-abe1-47ad-a42c-e656a29be949",
+            "values": [
+            ]
+        },
+        {
+            "id": "c73931f0-641a-4fac-9eab-9cf7296e7832",
+            "values": [
+            ]
+        },
+        {
+            "id": "0caca5b7-82a8-49aa-bfad-80c94c2eddad",
+            "values": [
+                {
+                    "unit": 0,
+                    "value": 1.100000023841858
+                },
+                {
+                    "unit": 8,
+                    "value": 1
+                },
+                {
+                    "unit": 9,
+                    "value": 1
+                }
+            ]
+        }
+    ],
+    "file-type": "shoppinglist",
+    "version": 0
+}
