@@ -54,6 +54,8 @@ public:
   ingredient& operator=(ingredient&&) = default;
   ~ingredient() = default;
 
+  bool operator==(ingredient const& other) const = default;
+
   /*!
    * \brief name
    * \return the name of the ingredient

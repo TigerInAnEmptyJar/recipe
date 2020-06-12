@@ -55,6 +55,7 @@ public:
   recipe& operator=(recipe const&) = default;
   recipe& operator=(recipe&&) = default;
   ~recipe() = default;
+  bool operator==(recipe const& other) const = default;
 
   /*!
    * \brief Constructor for recipe
@@ -63,40 +64,40 @@ public:
   recipe(std::string const& t);
 
   std::string title() const;
-  void title(std::string const& t);
+  recipe& title(std::string const& t);
 
   meal_t meal_type() const;
-  void meal_type(meal_t t);
+  recipe& meal_type(meal_t t);
 
   uint8_t servings() const;
-  void servings(uint8_t s);
+  recipe& servings(uint8_t s);
 
   std::string instructions() const;
-  void instructions(std::string const& i);
+  recipe& instructions(std::string const& i);
 
   std::chrono::minutes preparation_time() const;
-  void preparation_time(std::chrono::minutes time);
+  recipe& preparation_time(std::chrono::minutes time);
 
   std::string source() const;
-  void source(std::string const& s);
+  recipe& source(std::string const& s);
 
   std::filesystem::path image_path() const;
-  void image_path(std::filesystem::path const& path);
+  recipe& image_path(std::filesystem::path const& path);
 
   uint8_t calories() const;
-  void calories(uint8_t c);
+  recipe& calories(uint8_t c);
 
   uint8_t joules() const;
-  void joules(uint8_t c);
+  recipe& joules(uint8_t c);
 
   uint8_t g_fat() const;
-  void g_fat(uint8_t c);
+  recipe& g_fat(uint8_t c);
 
   uint8_t g_proteins() const;
-  void g_proteins(uint8_t c);
+  recipe& g_proteins(uint8_t c);
 
   uint8_t g_carbohydrates() const;
-  void g_carbohydrates(uint8_t c);
+  recipe& g_carbohydrates(uint8_t c);
 
   const_iterator begin() const;
   iterator begin();
@@ -109,16 +110,16 @@ public:
 
   std::string tags() const;
   std::vector<std::string> tagList() const;
-  void addTag(std::string const& tag);
+  recipe& addTag(std::string const& tag);
   void removeTag(std::string const& tag);
 
   std::string eaters() const;
   std::vector<std::string> eaterList() const;
-  void addEater(std::string const& eater);
+  recipe& addEater(std::string const& eater);
   void removeEater(std::string const& eater);
 
   boost::uuids::uuid id() const;
-  void id(boost::uuids::uuid i);
+  recipe& id(boost::uuids::uuid i);
 
 private:
   std::string _title;
