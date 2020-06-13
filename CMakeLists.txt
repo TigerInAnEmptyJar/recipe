@@ -5,13 +5,19 @@ project (recipe VERSION 1.0.0)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_SOURCE_DIR}/cmake")
 include(utils)
 
+find_package(Qt5 COMPONENTS Core Quick Qml Gui REQUIRED)
+
 add_subdirectory(recipe)
 add_subdirectory(io)
+add_subdirectory(gui)
 add_subdirectory(documentation)
-
 
 enable_testing()
 find_package(GTest REQUIRED)

@@ -1,5 +1,3 @@
-find_package(Qt5 REQUIRED Core)
-
 my_add_library(inpput_output
   HEADER
     include/amounted_io.h

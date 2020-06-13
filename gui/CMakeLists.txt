@@ -1,0 +1,19 @@
+my_add_executable(recipe-gui
+  HEADER
+    models/ingredient_model.hpp
+    models/recipe_model.hpp
+  SOURCE
+    models/ingredient_model.cpp
+    models/recipe_model.cpp
+    src/main.cpp
+    qml/qml.qrc
+  INCLUDES
+    PRIVATE models/
+  DEPENDS
+    recipe::Recipe
+    recipe::IO
+    Qt5::Core
+    Qt5::Qml
+    Qt5::Quick
+    Qt5::Gui
+)

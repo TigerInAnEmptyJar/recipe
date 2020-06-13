@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>IngredientControls.qml</file>
+        <file>IngredientList.qml</file>
+        <file>IngredientPage.qml</file>
+        <file>IngredientView.qml</file>
+        <file>RButton.qml</file>
+    </qresource>
+</RCC>
