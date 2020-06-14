@@ -4,6 +4,7 @@ find_package(Doxygen
 
 set(directories_to_document
   ${CMAKE_CURRENT_SOURCE_DIR}/recipe_general.dox
+  ${CMAKE_CURRENT_SOURCE_DIR}/recipe_desktop_ui.dox
   ${CMAKE_SOURCE_DIR}/recipe/
   ${CMAKE_SOURCE_DIR}/io/
 )

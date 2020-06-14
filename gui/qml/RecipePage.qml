@@ -36,6 +36,11 @@ Rectangle {
         Layout.fillHeight: true
         object: recipeList.currentObject
       }
+      Item {
+        visible: recipeList.currentObject === undefined
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+      }
     }
   }
 }

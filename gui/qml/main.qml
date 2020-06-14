@@ -2,6 +2,8 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
+import "common/"
+
 ApplicationWindow {
   visible: true
   width: 640
@@ -16,22 +18,23 @@ ApplicationWindow {
       Layout.fillHeight: true
       width: 100
       model: ListModel {
-        ListElement {name: "Ingredients"; hue: 0.17}
-        ListElement {name: "Recipes"; hue: 0}
-        ListElement {name: "Week-plan"; hue: 0.33}
-        ListElement {name: "Shopping list"; hue: 0.66}
+        ListElement {name: "info"; value: 3}
+        ListElement {name: "Ingredients"; value: 0}
+        ListElement {name: "Recipes"; value: 1}
+        ListElement {name: "Week-plan"; value: 2}
+        ListElement {name: "Shopping list"; value: 3}
       }
       delegate: Rectangle {
-        height: 30
+        height: Common.controlHeight
         width: control.width
-        color: Qt.hsva(hue, 0.1, 1)
-        border.color: Qt.hsva(hue, 0.9, 1)
-        border.width: 2
+        color: Common.backgroundColor[value]
+        border.color: Common.borderColor[value]
+        border.width: Common.borderWidth
         Text {
           anchors.fill: parent
-          anchors.margins: 3
+          anchors.margins: Common.margin
           text: model.name
-          color: Qt.hsva(hue, 1, 0.8)
+          color: Common.textColor[value]
           horizontalAlignment: Text.AlignHCenter
           verticalAlignment: Text.AlignVCenter
           MouseArea{
@@ -46,6 +49,11 @@ ApplicationWindow {
       id: view
       Layout.fillHeight: true
       Layout.fillWidth: true
+      Text {
+        text: qsTr("Program: Recipe")
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+      }
       IngredientPage{
       }
       RecipePage {

@@ -65,6 +65,8 @@ where on the plan the corresponging recipe is located.
 The recipe program comes with a graphical user interface on several devices: desktop pc for planning
 and recipe/ingredient management, mobile for display of the shopping list.
 
+A more detailed description is provided in \ref recipe_ui_page.
+
 Here come the different views:
 \subsection recipe_spec_ui_ingredient Ingredient view
 This view shows the individual ingredient including it's properties. It comes with a readonly

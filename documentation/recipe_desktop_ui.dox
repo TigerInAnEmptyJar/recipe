@@ -1,0 +1,126 @@
+/*! \page recipe_ui_page Graphical user interface specification
+
+\section recipe_ui_spec_overview Overview
+The recipe application comes with different graphical user interfaces:
+- A desktop application for planning and management
+- A web server providing a rest-API for subscribing to meals of a given plan
+- An Android mobile application for display of shopping lists
+- An Android mobile application for displaying a recipe
+
+The desktop planning application can incorporate the web server (not yet decided) and the two
+Android use-cases can be part of the same application.
+
+\subsection recipe_ui_spec_overview_desktop Desktop planning application
+The planning application is as the other user interfaces created with Qt's QML framework.
+
+\subsubsection recipe_ui_spec_overview_desktop_control_pannel Control pannel
+On the left side, a pannel is visible, showing the list of different possible views: Ingredients,
+Recipes, Week-planner and Shopping-list. This is the control pannel. Clicking on one of the items
+will activate the corresponding view on the right side of the window.
+
+\subsubsection recipe_ui_spec_overview_desktop_view View
+The right part of the window is reserved for the view in question. It is a stack view containing
+the views for the different object categories to manage. Its appearance depends on the type of
+object presented:
+
+\paragraph recipe_ui_spec_overview_desktop_view_ingredients Ingredients
+This view has a list of currently loaded ingredients on the left. Each item in the list shows the
+name of the ingredient and its image. A click activates an item. The currently selected item is
+highlighted. The ingredients are displayed sorted by categories, inside categories alphabetically by
+name.
+
+On the right side, two items are presented: controls for the ingredients are shown on top, a view
+showing all properties of the ingredient is shown on the bottom.
+
+The controls contain six buttons: "Load", "Save", "Save as", "New", "Delete", "Edit".
+- Load: This button opens a file-dialog. Upon successfully selecting a file, the ingredients in this
+    file will be loaded and they will replace the currently present list of ingredients,
+- Save: This will save the current list of ingredients to the last file loaded.
+- Save as: This button opens a file-dialog. Upon successfully selecting a file, the current list of
+    ingredients will be written to file.
+- New: This will append an item with default values to the list of ingredients. The new ingredient
+    is selected automatically and displayed in editing mode.
+- Delete: This button is only enabled, if an ingredient is selected. Pressing this button will
+    delete the currently selected ingredient after confirming a message-box.
+- Edit: This button is only enabled, if an ingredient is selected. It enables the display of the
+    ingredient for changing.
+
+The display of the selected ingredient shows the following values:
+- Name: the name of the ingredient.
+- Category: the category in which the ingredient is displayed
+- Default amount type: the amount type which is preselected when this ingredient is added to a
+    recipe
+- Image path: the path to the image to display. If it is a valid image, the image is displayed here
+    as well
+- Is sectioned: as check-box, the property describing whether in a sectioned shopping list, this
+    ingredient shall be in the main section or in the sub section.
+
+In editing mode, the following controls are used:
+- Name: line-edit
+- Category: combo-box
+- Default amount type: combo-box
+- Image path: a button at the end of the line opens a file-open dialog
+
+An "Apply" button at the bottom of the view will set the changed values into the ingredient,
+selecting an other ingredient will discard the changes.
+
+\paragraph recipe_ui_spec_overview_desktop_view_recipes Recipes
+This view has a list of currently loaded recipes on the left. Each item in the list shows the
+name of the recipe and its image. A click activates an item. The currently selected item is
+highlighted. The recipes can be sorted and/or filtered. The currently applied filter is shown above
+the list. Below the filter is a button, opening a widget to select a filter and a sorting method.
+
+On the right side, two items are presented: controls for the recipes are shown on top, a view
+showing all properties of the recipe is shown on the bottom.
+
+The controls contain six buttons: "Load", "Save", "Save as", "New", "Delete", "Edit".
+- Load: This button opens a file-dialog. Upon successfully selecting a file, the recipes in this
+    file will be loaded and they will replace the currently present list of recipes,
+- Save: This will save the current list of recipes to the last file loaded.
+- Save as: This button opens a file-dialog. Upon successfully selecting a file, the current list of
+    recipes will be written to file.
+- New: This will append an item with default values to the list of recipes. The new recipe is
+    selected automatically and displayed in editing mode.
+- Delete: This button is only enabled, if a recipe is selected. Pressing this button will delete the
+    currently selected recipe after confirming a message-box.
+- Edit: This button is only enabled, if a recipe is selected. It enables the display of the recipe
+    for changing.
+
+The display of the selected recipe shows the following values:
+- Title: the title of the recipe
+- Servings: the number of servings
+- Meal-type: the meal type of the recipe
+- Ingredients: the list of amounted ingredients
+- Image: the image of the recipe is shown right to the list of ingredients. In editing mode,
+    clicking on the image will open a file-open-dialog to change the recipe image
+- Instructions: the instructions are shown in a text-edit
+- Source: is shown below the instructions
+- Nutrition values: the five nutrition values are shown at the bottom of the recipe in a row.
+
+In editing mode, the following controls are used:
+- Title: line-edit
+- Servings: spin-box
+- Meal-type: combo-box
+- Instructions: the text edit is enabled for editing
+- Source: line-edit
+- Nutrition values: each nutrition value can be changed with a spin-box
+
+An "Apply" button at the bottom of the view will set the changed values into the recipe,
+selecting an other recipe will discard the changes.
+
+\section recipe_ui_spec_color Color schema
+To make it easily distinguishable which list is which and which display shows which type of item,
+each item type has its own hue in which it is shown:
+- Ingredients: are shown in yellow: hue 60
+- Recipes: are shown in red: hue 360
+- Week-plans: are shown in green: hue 120
+- Shopping-lists: are shown in blue: hue 240
+
+Each view has a border with the hue of the displayed type, value and saturation are both maximal.
+The background of the views is value 100%, the saturation 10%.
+
+The control-buttons have a saturation of 90% and a value of 100%, the button text has saturation of
+100%, but a value of 10%. Disabled buttons have a value of only 50%.
+
+In the lists, the saturation is 100%, the value is 50%.
+*/
