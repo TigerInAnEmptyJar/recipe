@@ -11,11 +11,13 @@ Item {
   property bool enabled: true
 
   height: Common.textHeight
+  implicitWidth: text.implicitWidth
 
   Rectangle {
     anchors.fill: parent
     color: button.enabled ? Common.buttonColor[context] : Common.disabledButtonColor[context]
     Text {
+      id: text
       anchors.fill:parent
       horizontalAlignment: Text.AlignHCenter
       verticalAlignment: Text.AlignVCenter

@@ -10,5 +10,6 @@
         <file>common/Common.qml</file>
         <file>common/qmldir</file>
         <file>RecipePage.qml</file>
+        <file>common/SortFilterModel.qml</file>
     </qresource>
 </RCC>

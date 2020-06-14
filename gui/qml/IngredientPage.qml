@@ -27,6 +27,9 @@ Rectangle {
         model: ingredients
         currentObject: ingredientList.currentObject
         text: "ingredient"
+        onEditRequested: ingredientView.readonly = false
+        onNewRequested: ingredients.addItem()
+        onDeleteRequested: ingredients.deleteItem(ingredientList.currentIndex)
       }
 
       IngredientView {

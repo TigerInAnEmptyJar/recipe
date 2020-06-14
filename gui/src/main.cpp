@@ -13,7 +13,7 @@ int main(int argc, char** argv)
   QGuiApplication app(argc, argv);
 
   recipe::gui::ingredient_model ingredients;
-  ingredients.load(QUrl("/tmp/ingredients.json"));
+  ingredients.loadLast();
 
   QUrl const url(QStringLiteral("qrc:/main.qml"));
 

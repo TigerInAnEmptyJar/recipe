@@ -12,6 +12,10 @@ Rectangle {
   property var currentObject
   property string text: "ingredient"
 
+  signal editRequested()
+  signal newRequested()
+  signal deleteRequested()
+
   border{
     color: Common.borderColor[context]
     width: Common.borderWidth
@@ -22,7 +26,7 @@ Rectangle {
 
     anchors.fill: parent
     anchors.margins: Common.margin
-    columns: 2
+    columns: 3
     columnSpacing: Common.spacing
     rowSpacing: Common.spacing
     RButton {
@@ -36,18 +40,29 @@ Rectangle {
         nameFilters: [ page.text + " json files (*.json)", "All files (*)" ]
         selectExisting: true
         selectMultiple: false
+        folder: "file://" + model.databasePath() + "/"
         onAccepted: {
           page.model.load(loadDialog.fileUrl)
-          visible = false
+          close()
         }
         onRejected: {
-          visible = false
+          close()
         }
       }
-      onClicked: loadDialog.visible = true
+      onClicked: {
+        loadDialog.folder = "file://" + model.databasePath() + "/"
+        loadDialog.visible = true
+      }
     }
     RButton {
-      text: "Store"
+      text: "Save"
+      Layout.fillHeight: true
+      Layout.fillWidth: true
+      context: page.context
+      onClicked: page.model.storeLast()
+    }
+    RButton {
+      text: "Save as"
       Layout.fillHeight: true
       Layout.fillWidth: true
       context: page.context
@@ -57,21 +72,34 @@ Rectangle {
         nameFilters: [ page.text + " json files (*.json)", "All files (*)" ]
         selectExisting: false
         selectMultiple: false
+        folder: "file://" + model.databasePath() + "/"
         onAccepted: {
           page.model.store(storeDialog.fileUrl)
-          visible = false
+          close()
         }
         onRejected: {
-          visible = false
+          close()
         }
       }
-      onClicked: storeDialog.visible = true
+      onClicked: {
+        storeDialog.folder = "file://" + model.databasePath() + "/"
+        storeDialog.open()
+      }
+    }
+    RButton {
+      text: "Edit"
+      Layout.fillHeight: true
+      Layout.fillWidth: true
+      context: page.context
+      enabled: page.currentObject !== undefined
+      onClicked: editRequested()
     }
     RButton {
       text: "New"
       Layout.fillHeight: true
       Layout.fillWidth: true
       context: page.context
+      onClicked: newRequested()
     }
     RButton {
       text: "Delete"
@@ -79,6 +107,7 @@ Rectangle {
       Layout.fillWidth: true
       context: page.context
       enabled: page.currentObject !== undefined
+      onClicked: deleteRequested()
     }
   }
 }
