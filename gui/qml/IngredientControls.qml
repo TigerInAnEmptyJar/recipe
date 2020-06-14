@@ -3,6 +3,8 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
 
+import "common/"
+
 Rectangle {
   id: page
   property int context: 0
@@ -11,18 +13,18 @@ Rectangle {
   property string text: "ingredient"
 
   border{
-    color: Qt.hsva(0.17, 1, 1)
-    width: 3
+    color: Common.borderColor[context]
+    width: Common.borderWidth
   }
   color: Qt.hsva(0.17, 0.1, 1)
 
   GridLayout {
 
     anchors.fill: parent
-    anchors.margins: 10
+    anchors.margins: Common.margin
     columns: 2
-    columnSpacing: 10
-    rowSpacing: 10
+    columnSpacing: Common.spacing
+    rowSpacing: Common.spacing
     RButton {
       text: "Load"
       Layout.fillHeight: true

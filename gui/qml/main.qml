@@ -48,8 +48,7 @@ ApplicationWindow {
       Layout.fillWidth: true
       IngredientPage{
       }
-      Text {
-        text: qsTr("Recipes")
+      RecipePage {
       }
       Text {
         text: qsTr("Week-plan")

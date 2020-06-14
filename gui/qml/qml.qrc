@@ -7,5 +7,8 @@
         <file>IngredientPage.qml</file>
         <file>IngredientView.qml</file>
         <file>RButton.qml</file>
+        <file>common/Common.qml</file>
+        <file>common/qmldir</file>
+        <file>RecipePage.qml</file>
     </qresource>
 </RCC>

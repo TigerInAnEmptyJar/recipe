@@ -1,6 +1,8 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 
+import "common/"
+
 Item {
   id: button
   signal clicked()
@@ -8,19 +10,18 @@ Item {
   property string text: "button"
   property bool enabled: true
 
+  height: Common.textHeight
+
   Rectangle {
-    property real value: button.enabled ? 0.5 : 0.1
-    property real saturation: button.enabled ? 1 : 0.5
-    property var contextColor: [Qt.hsva(0.17, value, saturation),
-      Qt.hsva(0, value, saturation),
-      Qt.hsva(0.5, value, saturation)]
     anchors.fill: parent
-    color: contextColor[context]
+    color: button.enabled ? Common.buttonColor[context] : Common.disabledButtonColor[context]
     Text {
       anchors.fill:parent
       horizontalAlignment: Text.AlignHCenter
       verticalAlignment: Text.AlignVCenter
       text: button.text
+      color: Common.buttonTextColor[context]
+      font.pointSize: Common.fontSize
     }
     MouseArea{
       anchors.fill: parent

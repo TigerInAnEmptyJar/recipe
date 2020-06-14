@@ -2,26 +2,31 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 
+import "common/"
 
 Rectangle {
   property var currentObject
+  property int context: 0
   border{
-    color: Qt.hsva(0.17, 1, 1)
-    width: 3
+    color: Common.borderColor[context]
+    width: Common.borderWidth
   }
-  color: Qt.hsva(0.17, 0.1, 1)
+  color: Common.backgroundColor[context]
 
   Component {
     id: ingredientDelegate
     Rectangle {
-      height: 20
+      height: Common.textHeight
       width: iView.width
-      color: Qt.hsva(0.17, 0.1, 1)
+      color: Common.backgroundColor[context]
       RowLayout {
         width: parent.width
         Image {source: image_path}
-        Text { text: name
-          color: Qt.hsva(0.17, 1, 0.5)
+        Text {
+          text: name
+          color: Common.textColor[context]
+          font.pointSize: Common.fontSize
+          height: Common.textHeight
         }
       }
       MouseArea{
@@ -34,7 +39,7 @@ Rectangle {
   ListView {
     id: iView
     anchors.fill: parent
-    anchors.margins: 5
+    anchors.margins: Common.margin
     model: ingredients
     delegate: ingredientDelegate
     focus: true

@@ -6,7 +6,7 @@ import "common/"
 
 Rectangle {
   id: page
-  property int context: 0
+  property int context: 1
   border{
     color: Common.borderColor[context]
     width: Common.borderWidth
@@ -15,7 +15,8 @@ Rectangle {
   RowLayout {
     anchors.fill: parent
     IngredientList{
-      id: ingredientList
+      id: recipeList
+      context: page.context
       width: 200
       Layout.fillHeight: true
     }
@@ -25,15 +26,15 @@ Rectangle {
         height: 100
         context: page.context
         model: ingredients
-        currentObject: ingredientList.currentObject
-        text: "ingredient"
+        currentObject: recipeList.currentObject
+        text: "recipe"
       }
 
       IngredientView {
-        id: ingredientView
+        id: recipeView
         Layout.fillWidth: true
         Layout.fillHeight: true
-        object: ingredientList.currentObject
+        object: recipeList.currentObject
       }
     }
   }

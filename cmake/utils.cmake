@@ -1,5 +1,5 @@
 function(my_add_library _NAME)
-  cmake_parse_arguments(A "INTERFACE;STATIC" "ALIAS" "HEADER;SOURCE;DEPENDS;INCLUDES;DEFINES" ${ARGN})
+  cmake_parse_arguments(A "INTERFACE;STATIC;AUTORCC;AUTOMOC;AUTOUIC" "ALIAS" "HEADER;SOURCE;DEPENDS;INCLUDES;DEFINES" ${ARGN})
   message(STATUS "Adding library ${_NAME} (alias: ${A_ALIAS})")
   if(${A_INTERFACE})
     add_library(${_NAME} INTERFACE ${A_HEADER})
@@ -23,13 +23,23 @@ function(my_add_library _NAME)
     target_compile_definitions(${_NAME} ${A_DEFINES})
   endif()
 
+  if (A_AUTORCC)
+    set_target_properties(${_NAME} PROPERTIES AUTORCC ON)
+  endif()
+  if (A_AUTOMOC)
+    set_target_properties(${_NAME} PROPERTIES AUTOMOC ON)
+  endif()
+  if (A_AUTOUIC)
+    set_target_properties(${_NAME} PROPERTIES AUTOUIC ON)
+  endif()
+
   if (A_ALIAS)
     add_library(${A_ALIAS} ALIAS ${_NAME})
   endif()
 endfunction()
 
 function(my_add_executable _NAME)
-  cmake_parse_arguments(A "" "" "HEADER;SOURCE;DEPENDS;INCLUDES;DEFINES" ${ARGN})
+  cmake_parse_arguments(A "AUTORCC;AUTOMOC;AUTOUIC" "" "HEADER;SOURCE;DEPENDS;INCLUDES;DEFINES" ${ARGN})
   message(STATUS "Adding executable ${_NAME}")
   add_executable(${_NAME} ${A_HEADER} ${A_SOURCE})
 
@@ -44,10 +54,21 @@ function(my_add_executable _NAME)
   if (A_DEFINES)
     target_compile_definitions(${_NAME} ${A_DEFINES})
   endif()
+
+  if (A_AUTORCC)
+    set_target_properties(${_NAME} PROPERTIES AUTORCC ON)
+  endif()
+  if (A_AUTOMOC)
+    set_target_properties(${_NAME} PROPERTIES AUTOMOC ON)
+  endif()
+  if (A_AUTOUIC)
+    set_target_properties(${_NAME} PROPERTIES AUTOUIC ON)
+  endif()
+
 endfunction()
 
 function(my_add_test _NAME)
-  cmake_parse_arguments(A "" "" "HEADER;SOURCE;DEPENDS;INCLUDES;DEFINES" ${ARGN})
+  cmake_parse_arguments(A "AUTORCC;AUTOMOC;AUTOUIC" "" "HEADER;SOURCE;DEPENDS;INCLUDES;DEFINES" ${ARGN})
   message(STATUS "Adding tests ${_NAME}")
   add_executable(${_NAME} ${A_HEADER} ${A_SOURCE})
 
@@ -64,6 +85,16 @@ function(my_add_test _NAME)
   endif()
 
   target_link_libraries(${_NAME} gtest gtest_main)
+
+  if (A_AUTORCC)
+    set_target_properties(${_NAME} PROPERTIES AUTORCC ON)
+  endif()
+  if (A_AUTOMOC)
+    set_target_properties(${_NAME} PROPERTIES AUTOMOC ON)
+  endif()
+  if (A_AUTOUIC)
+    set_target_properties(${_NAME} PROPERTIES AUTOUIC ON)
+  endif()
 
   gtest_add_tests(TARGET ${_NAME}
                   SOURCES ${A_SOURCE}

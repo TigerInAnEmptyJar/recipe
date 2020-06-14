@@ -16,4 +16,6 @@ my_add_executable(recipe-gui
     Qt5::Qml
     Qt5::Quick
     Qt5::Gui
+  AUTORCC
+  AUTOMOC
 )
