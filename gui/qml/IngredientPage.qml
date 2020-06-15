@@ -37,6 +37,7 @@ Rectangle {
         Layout.fillWidth: true
         Layout.fillHeight: true
         object: ingredientList.currentObject
+        onApplyClicked: ingredientList.sort()
       }
       Item {
         visible: ingredientList.currentObject === undefined

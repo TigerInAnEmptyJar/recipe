@@ -10,6 +10,9 @@ Rectangle {
   property var currentObject
   property int context: 0
   property int currentIndex : -1
+  function sort() {
+    sortFilterModel.sort(sortFilterModel.lessThan)
+  }
 
   border{
     color: Common.borderColor[context]

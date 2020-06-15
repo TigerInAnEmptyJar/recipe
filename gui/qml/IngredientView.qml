@@ -10,6 +10,7 @@ Item {
   property var object
   property bool readonly: true
   property int context: 0
+  signal applyClicked()
 
   Rectangle{
     anchors.fill: parent
@@ -201,6 +202,7 @@ Item {
           object.category = objectCategoryInput.currentIndex
           object.default_amount = objectAmountInput.currentindex
           object.isSectioned = objectSectioned.checked
+          applyClicked()
         }
       }
     }
