@@ -263,5 +263,15 @@ QString ingredient_model::databasePath() const
   return QString::fromStdString(_database_path.native());
 }
 
+std::optional<ingredient> ingredient_model::findIngredient(boost::uuids::uuid const& id)
+{
+  auto item =
+      std::find_if(std::begin(_data), std::end(_data), [id](auto item) { return item.id() == id; });
+  if (item != std::end(_data)) {
+    return *item;
+  }
+  return {};
+}
+
 } // namespace gui
 } // namespace recipe

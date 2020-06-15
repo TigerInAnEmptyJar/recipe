@@ -14,7 +14,7 @@ Rectangle {
 
   RowLayout {
     anchors.fill: parent
-    IngredientList{
+    RecipeList{
       id: recipeList
       context: page.context
       width: 200
@@ -25,16 +25,20 @@ Rectangle {
         Layout.fillWidth: true
         height: 100
         context: page.context
-        model: ingredients
+        model: recipes
         currentObject: recipeList.currentObject
         text: "recipe"
+        onEditRequested: recipeView.readonly = false
+        onNewRequested: recipes.addItem()
+        onDeleteRequested: recipes.deleteItem(recipeList.currentIndex)
       }
 
-      IngredientView {
+      RecipeView {
         id: recipeView
         Layout.fillWidth: true
         Layout.fillHeight: true
         object: recipeList.currentObject
+        context: 1
       }
       Item {
         visible: recipeList.currentObject === undefined

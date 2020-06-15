@@ -1,36 +1,45 @@
 #pragma once
 
-#include "ingredient.h"
+#include "recipe.h"
 
 #include <QAbstractListModel>
 
 namespace recipe {
 namespace gui {
 
-class ingredient_model : public QAbstractListModel
+class recipe_model : public QAbstractListModel
 {
   Q_OBJECT
 
-  enum IngredientRoles
+  enum RecipeRoles
   {
-    name_role = Qt::UserRole + 1,
-    category_role,
-    amount_role,
-    sectioned_role,
+    title_role = Qt::UserRole + 1,
+    type_role,
+    servings_role,
+    time_role,
+    ingredient_role,
+    instructions_role,
     image_path_role,
     image_role,
+    fat_role,
+    protein_role,
+    carbo_role,
+    calories_role,
+    joules_role,
+    source_role,
+    tag_role,
+    eater_role,
   };
 
 public:
   using QAbstractListModel::QAbstractListModel;
 
-  int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+  int rowCount(QModelIndex const& parent = QModelIndex()) const override;
 
-  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+  QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const override;
   QHash<int, QByteArray> roleNames() const override;
 
-  Q_INVOKABLE QStringList categories() const;
-  Q_INVOKABLE QStringList amounts() const;
+  Q_INVOKABLE QStringList meal_types() const;
 
   Qt::ItemFlags flags(QModelIndex const& index) const override;
   bool setData(QModelIndex const& index, QVariant const& value, int role = Qt::EditRole) override;
@@ -45,11 +54,12 @@ public:
 
   Q_INVOKABLE QString databasePath() const;
 
-  std::optional<ingredient> findIngredient(boost::uuids::uuid const& id);
+  void setFinder(std::function<std::optional<ingredient>(boost::uuids::uuid const&)> finder);
 
 private:
-  std::vector<ingredient> _data;
+  std::vector<recipe> _data;
   std::filesystem::path _database_path;
+  std::function<std::optional<ingredient>(boost::uuids::uuid const&)> _finder;
 };
 
 } // namespace gui
