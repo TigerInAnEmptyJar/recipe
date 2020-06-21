@@ -26,6 +26,13 @@ Rectangle {
       height: Common.textHeight
       width: iView.width
       color: Common.backgroundColor[context]
+      Drag.active: mouseArea.drag.active
+      Drag.dragType: Drag.Automatic
+      Drag.supportedActions: Qt.LinkAction
+      Drag.mimeData: {
+          "text/plain": "Copied ingredient: " + name
+      }
+      Drag.source: model
       RowLayout {
         anchors.fill: parent
         Image {
@@ -43,7 +50,12 @@ Rectangle {
         }
       }
       MouseArea{
+        id: mouseArea
         anchors.fill: parent
+        drag.target: parent
+        onPressed: parent.grabToImage(function(result) {
+            parent.Drag.imageSource = result.url
+        })
         onClicked: {
           ingredientList.currentIndex = index
           ingredientList.currentObject = model

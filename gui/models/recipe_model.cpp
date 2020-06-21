@@ -6,6 +6,8 @@
 #include <QSettings>
 #include <QUrl>
 
+#include <boost/uuid/string_generator.hpp>
+
 #include <iostream>
 
 namespace {
@@ -244,6 +246,60 @@ void recipe_model::deleteItem(int index)
   beginRemoveRows({}, index, index);
   _data.erase(_data.begin() + index);
   endRemoveRows();
+}
+
+void recipe_model::addTag(int index, QString const& tag)
+{
+  if (static_cast<size_t>(index) >= _data.size() || index < 0) {
+    return;
+  }
+
+  _data[index].addTag(tag.toStdString());
+  dataChanged(this->index(index), this->index(index), {tag_role});
+}
+
+void recipe_model::removeTag(int index, QString const& tag)
+{
+  if (static_cast<size_t>(index) >= _data.size() || index < 0) {
+    return;
+  }
+
+  _data[index].removeTag(tag.toStdString());
+  dataChanged(this->index(index), this->index(index), {tag_role});
+}
+
+void recipe_model::addEater(int index, QString const& eater)
+{
+  if (static_cast<size_t>(index) >= _data.size() || index < 0) {
+    return;
+  }
+
+  _data[index].addEater(eater.toStdString());
+  dataChanged(this->index(index), this->index(index), {eater_role});
+}
+
+void recipe_model::removeEater(int index, QString const& eater)
+{
+  if (static_cast<size_t>(index) >= _data.size() || index < 0) {
+    return;
+  }
+
+  _data[index].removeEater(eater.toStdString());
+  dataChanged(this->index(index), this->index(index), {eater_role});
+}
+
+void recipe_model::addIngredient(int index, QString const& id)
+{
+  if (static_cast<size_t>(index) >= _data.size() || index < 0) {
+    return;
+  }
+
+  boost::uuids::string_generator gen;
+  auto ingredient = _finder(gen(id.toStdString()));
+  if (ingredient.has_value()) {
+    _data[index].add(amounted_ingredient{*ingredient});
+    dataChanged(this->index(index), this->index(index), {ingredient_role});
+  }
 }
 
 void recipe_model::loadLast()

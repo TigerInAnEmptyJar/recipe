@@ -19,6 +19,7 @@ class ingredient_model : public QAbstractListModel
     sectioned_role,
     image_path_role,
     image_role,
+    id_role
   };
 
 public:

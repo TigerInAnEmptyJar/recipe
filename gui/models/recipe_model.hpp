@@ -46,6 +46,11 @@ public:
 
   Q_INVOKABLE void addItem();
   Q_INVOKABLE void deleteItem(int index);
+  Q_INVOKABLE void addTag(int index, QString const& tag);
+  Q_INVOKABLE void removeTag(int index, QString const& tag);
+  Q_INVOKABLE void addEater(int index, QString const& eater);
+  Q_INVOKABLE void removeEater(int index, QString const& eater);
+  Q_INVOKABLE void addIngredient(int index, QString const& id);
 
   Q_INVOKABLE void loadLast();
   Q_INVOKABLE void load(QUrl const& url);

@@ -6,6 +6,8 @@
 #include <QSettings>
 #include <QUrl>
 
+#include <boost/uuid/uuid_io.hpp>
+
 #include <iostream>
 
 namespace {
@@ -68,6 +70,8 @@ QVariant ingredient_model::data(QModelIndex const& index, int role) const
     return "file://" +
            QString::fromStdString((_database_path / _data[index.row()].image_path()).native());
   }
+  case id_role:
+    return QString::fromStdString(boost::uuids::to_string(_data[index.row()].id()));
   }
   return {};
 }
@@ -81,6 +85,7 @@ QHash<int, QByteArray> ingredient_model::roleNames() const
   roles.insert(sectioned_role, "isSectioned");
   roles.insert(image_path_role, "image_path");
   roles.insert(image_role, "image");
+  roles.insert(id_role, "id");
   return roles;
 }
 
@@ -165,6 +170,8 @@ bool ingredient_model::setData(QModelIndex const& index, QVariant const& value, 
     dataChanged(index, index, {role, image_role});
     return true;
   }
+  case IngredientRoles::id_role:
+    return false;
   }
   return false;
 }

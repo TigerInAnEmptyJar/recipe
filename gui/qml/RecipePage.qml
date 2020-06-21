@@ -38,6 +38,7 @@ Rectangle {
         Layout.fillWidth: true
         Layout.fillHeight: true
         object: recipeList.currentObject
+        objectIndex: recipeList.currentIndex
         context: 1
       }
       Item {
