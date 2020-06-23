@@ -2,6 +2,8 @@
 
 #include "recipe.h"
 
+#include "amounted_list_model.hpp"
+
 #include <QAbstractListModel>
 
 namespace recipe {
@@ -40,6 +42,7 @@ public:
   QHash<int, QByteArray> roleNames() const override;
 
   Q_INVOKABLE QStringList meal_types() const;
+  Q_INVOKABLE QStringList amount_types() const;
 
   Qt::ItemFlags flags(QModelIndex const& index) const override;
   bool setData(QModelIndex const& index, QVariant const& value, int role = Qt::EditRole) override;
@@ -62,7 +65,7 @@ public:
   void setFinder(std::function<std::optional<ingredient>(boost::uuids::uuid const&)> finder);
 
 private:
-  std::vector<recipe> _data;
+  std::vector<std::pair<recipe, std::shared_ptr<amounted_list_model>>> _data;
   std::filesystem::path _database_path;
   std::function<std::optional<ingredient>(boost::uuids::uuid const&)> _finder;
 };

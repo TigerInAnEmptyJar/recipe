@@ -1,8 +1,10 @@
 my_add_executable(recipe-gui
   HEADER
+    models/amounted_list_model.hpp
     models/ingredient_model.hpp
     models/recipe_model.hpp
   SOURCE
+    models/amounted_list_model.cpp
     models/ingredient_model.cpp
     models/recipe_model.cpp
     src/main.cpp

@@ -137,8 +137,78 @@ Item {
               }
               ListView {
                 id: ingredientView
-                Layout.fillHeight: true
-                Layout.fillWidth: true
+                anchors.fill: parent
+                anchors.margins: Common.margin
+                orientation: ListView.Vertical
+                delegate: Rectangle {
+                  height: Common.textHeight
+                  width: ingredientView.width
+                  color: Common.backgroundColor[context]
+                  RowLayout {
+                    anchors.fill: parent
+                    Image {
+                      Layout.maximumHeight: Common.textHeight
+                      Layout.maximumWidth: Common.textHeight
+                      Layout.minimumHeight: Common.textHeight
+                      Layout.minimumWidth: Common.textHeight
+                      fillMode: Image.PreserveAspectFit
+                      source: image
+                    }
+                    Text {
+                      text: name
+                      Layout.fillHeight: true
+                      Layout.fillWidth: true
+                      verticalAlignment: Text.AlignVCenter
+                      horizontalAlignment: Text.AlignLeft
+                      color: Common.textColor[context]
+                      font.pointSize: Common.fontSize
+                    }
+                    StackLayout {
+                      Layout.maximumHeight: Common.textHeight
+                      Layout.fillWidth: true
+                      currentIndex: recipeView.readonly ? 0 : 1
+                      Text {
+                        text: value
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignLeft
+                        color: Common.textColor[context]
+                        font.pointSize: Common.fontSize
+                      }
+                      TextInput {
+                        text: value
+                        validator: DoubleValidator{bottom: 0; top: 1000; decimals: 3}
+                        font.pointSize: Common.fontSize
+                        Layout.fillWidth: true
+                        onAccepted: value = text
+                      }
+                    }
+                    StackLayout {
+                      Layout.maximumHeight: Common.textHeight
+                      Layout.fillWidth: true
+                      currentIndex: recipeView.readonly ? 0 : 1
+                      Text {
+                        text: amount
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignLeft
+                        color: Common.textColor[context]
+                        font.pointSize: Common.fontSize
+                      }
+                      ComboBox {
+                        id: ingredientInputBox
+                        font.pointSize: Common.fontSize
+                        Layout.maximumHeight: Common.textHeight
+                        Layout.fillWidth: true
+                        currentIndex: amountIndex
+                        model: ingredientView.model.amountList()
+                        onActivated: amount = currentIndex
+                      }
+                    }
+                  }
+                }
               }
             }
           }
@@ -627,6 +697,7 @@ Item {
       objectSourceInput.text = object.source
       tagview.model = object.tags
       eaterview.model = object.eaters
+      ingredientView.model = object.ingredient
       recipeView.readonly = true
     }
   }
