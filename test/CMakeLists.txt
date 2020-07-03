@@ -17,3 +17,4 @@ my_add_test(io_test
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/data/ingredients_version0.json ${CMAKE_CURRENT_BINARY_DIR}/data/ingredients_version0.json COPYONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/data/shoppinglist_version0.json ${CMAKE_CURRENT_BINARY_DIR}/data/shoppinglist_version0.json COPYONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/data/recipes_version0.json ${CMAKE_CURRENT_BINARY_DIR}/data/recipes_version0.json COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/data/plan_version0.json ${CMAKE_CURRENT_BINARY_DIR}/data/plan_version0.json COPYONLY)

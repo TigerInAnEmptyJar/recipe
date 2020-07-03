@@ -1,0 +1,51 @@
+{
+    "content": [
+        {
+            "days": 2,
+            "items": [
+                {
+                    "doShopBefore": true,
+                    "item-name": "item 1",
+                    "recipe": [
+                        "0001ac0a-a7ff-7f00-0038-ac0aa7ff7f00",
+                        "0001e671-da60-5500-0040-a90aa7ff7f00"
+                    ],
+                    "subscribers": [
+                    ]
+                },
+                {
+                    "doShopBefore": false,
+                    "item-name": "item 2",
+                    "recipe": [
+                        "0001ac0a-a7ff-7f00-0038-ac0aa7ff7f00"
+                    ],
+                    "subscribers": [
+                    ]
+                },
+                {
+                    "doShopBefore": true,
+                    "item-name": "item 3",
+                    "recipe": [
+                        "0001e671-da60-5500-0040-a90aa7ff7f00",
+                        "0001e671-da60-5500-0040-a90aa7ff7f00"
+                    ],
+                    "subscribers": [
+                    ]
+                },
+                {
+                    "doShopBefore": false,
+                    "item-name": "item 4",
+                    "recipe": [
+                        "0001e671-da60-5500-0040-a90aa7ff7f00"
+                    ],
+                    "subscribers": [
+                    ]
+                }
+            ],
+            "meals": 2,
+            "plan-name": "plan 1"
+        }
+    ],
+    "file-type": "plan",
+    "version": 0
+}

@@ -1,12 +1,14 @@
 #include "amounted_json_io.hpp"
 #include "ingredient_json_io.hpp"
 #include "io_provider.h"
+#include "plan_json_io.hpp"
 #include "recipe_json_io.hpp"
 
 #include <gtest/gtest.h>
 
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/string_generator.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 class amounted_test : public recipe::io::amounted_io
 {
@@ -42,6 +44,17 @@ class recipe_test : public recipe::io::recipe_io
   }
 };
 
+class plan_test : public recipe::io::plan_io
+{
+  void write(recipe::plan const&, std::filesystem::path const&) const override {}
+  std::optional<recipe::plan> read(
+      std::filesystem::path const&,
+      std::function<std::optional<recipe::recipe>(boost::uuids::uuid)>) const override
+  {
+    return {};
+  }
+};
+
 class io_test : public testing::Test
 {
 public:
@@ -65,11 +78,20 @@ public:
 
     setupAmounted();
     setupRecipe();
+    setupPlan();
 
     _finder_good = [this](boost::uuids::uuid const& id) -> std::optional<recipe::ingredient> {
       auto item = std::find_if(std::begin(_ingredients), std::end(_ingredients),
                                [id](auto element) { return element.id() == id; });
       if (item != std::end(_ingredients)) {
+        return *item;
+      }
+      return {};
+    };
+    _recipe_finder_good = [this](boost::uuids::uuid const& id) -> std::optional<recipe::recipe> {
+      auto item = std::find_if(std::begin(_recipes), std::end(_recipes),
+                               [id](auto element) { return element.id() == id; });
+      if (item != std::end(_recipes)) {
         return *item;
       }
       return {};
@@ -142,10 +164,32 @@ public:
     _recipes.push_back(recipe2);
   }
 
+  void setupPlan()
+  {
+    _plan = recipe::plan{"plan 1", 2, 2};
+    auto it = _plan.begin();
+    it->add(_recipes[0]);
+    it->add(_recipes[1]);
+    it->name("item 1");
+    it->shoppingBefore(true);
+    (++it)->add(_recipes[0]);
+    it->name("item 2");
+    it->shoppingBefore(false);
+    (++it)->add(_recipes[1]);
+    it->add(_recipes[1]);
+    it->name("item 3");
+    it->shoppingBefore(true);
+    (++it)->add(_recipes[1]);
+    it->name("item 4");
+    it->shoppingBefore(false);
+  }
+
   std::vector<recipe::ingredient> _ingredients;
   std::vector<recipe::amounted_ingredient> _amounted;
   std::vector<recipe::recipe> _recipes;
+  recipe::plan _plan{"new plan", 1, 2};
   std::function<std::optional<recipe::ingredient>(boost::uuids::uuid const& id)> _finder_good;
+  std::function<std::optional<recipe::recipe>(boost::uuids::uuid const& id)> _recipe_finder_good;
 };
 
 TEST_F(io_test, provider)
@@ -155,14 +199,17 @@ TEST_F(io_test, provider)
   EXPECT_TRUE(provider.installed_amounted().empty());
   EXPECT_TRUE(provider.installed_ingredient().empty());
   EXPECT_TRUE(provider.installed_recipe().empty());
+  EXPECT_TRUE(provider.installed_plan().empty());
 
   auto a_object = std::make_shared<amounted_test>();
   auto a_id = boost::uuids::random_generator_mt19937{}();
+  std::cout << boost::uuids::to_string(a_id) << std::endl;
   provider.install(a_id, "test", a_object);
 
   EXPECT_FALSE(provider.installed_amounted().empty());
   EXPECT_TRUE(provider.installed_ingredient().empty());
   EXPECT_TRUE(provider.installed_recipe().empty());
+  EXPECT_TRUE(provider.installed_plan().empty());
 
   EXPECT_EQ(a_object, provider.amounted(a_id));
 
@@ -173,6 +220,7 @@ TEST_F(io_test, provider)
   EXPECT_FALSE(provider.installed_amounted().empty());
   EXPECT_FALSE(provider.installed_ingredient().empty());
   EXPECT_TRUE(provider.installed_recipe().empty());
+  EXPECT_TRUE(provider.installed_plan().empty());
 
   EXPECT_EQ(i_object, provider.ingredient(i_id));
 
@@ -183,30 +231,57 @@ TEST_F(io_test, provider)
   EXPECT_FALSE(provider.installed_amounted().empty());
   EXPECT_FALSE(provider.installed_ingredient().empty());
   EXPECT_FALSE(provider.installed_recipe().empty());
+  EXPECT_TRUE(provider.installed_plan().empty());
 
   EXPECT_EQ(r_object, provider.recipe(r_id));
 
+  auto p_object = std::make_shared<plan_test>();
+  auto p_id = boost::uuids::random_generator_mt19937{}();
+  provider.install(p_id, "test", p_object);
+
+  EXPECT_FALSE(provider.installed_amounted().empty());
+  EXPECT_FALSE(provider.installed_ingredient().empty());
+  EXPECT_FALSE(provider.installed_recipe().empty());
+  EXPECT_FALSE(provider.installed_plan().empty());
+
+  EXPECT_EQ(p_object, provider.plan(p_id));
+
   EXPECT_EQ(nullptr, provider.amounted(i_id));
   EXPECT_EQ(nullptr, provider.amounted(r_id));
+  EXPECT_EQ(nullptr, provider.amounted(p_id));
   EXPECT_EQ(nullptr, provider.ingredient(a_id));
   EXPECT_EQ(nullptr, provider.ingredient(r_id));
+  EXPECT_EQ(nullptr, provider.ingredient(p_id));
   EXPECT_EQ(nullptr, provider.recipe(a_id));
   EXPECT_EQ(nullptr, provider.recipe(i_id));
+  EXPECT_EQ(nullptr, provider.recipe(p_id));
+  EXPECT_EQ(nullptr, provider.plan(a_id));
+  EXPECT_EQ(nullptr, provider.plan(i_id));
+  EXPECT_EQ(nullptr, provider.plan(r_id));
 
   provider.uninstall_amounted(a_id);
   EXPECT_TRUE(provider.installed_amounted().empty());
   EXPECT_FALSE(provider.installed_ingredient().empty());
   EXPECT_FALSE(provider.installed_recipe().empty());
+  EXPECT_FALSE(provider.installed_plan().empty());
 
   provider.uninstall_ingredient(i_id);
   EXPECT_TRUE(provider.installed_amounted().empty());
   EXPECT_TRUE(provider.installed_ingredient().empty());
   EXPECT_FALSE(provider.installed_recipe().empty());
+  EXPECT_FALSE(provider.installed_plan().empty());
 
   provider.uninstall_recipe(r_id);
   EXPECT_TRUE(provider.installed_amounted().empty());
   EXPECT_TRUE(provider.installed_ingredient().empty());
   EXPECT_TRUE(provider.installed_recipe().empty());
+  EXPECT_FALSE(provider.installed_plan().empty());
+
+  provider.uninstall_plan(p_id);
+  EXPECT_TRUE(provider.installed_amounted().empty());
+  EXPECT_TRUE(provider.installed_ingredient().empty());
+  EXPECT_TRUE(provider.installed_recipe().empty());
+  EXPECT_TRUE(provider.installed_plan().empty());
 }
 
 TEST_F(io_test, ingredient_rw)
@@ -280,6 +355,7 @@ TEST_F(io_test, amounted_version)
 
 TEST_F(io_test, recipe_rw)
 {
+  setupPlan();
   recipe::io::recipe_json_io io;
   std::filesystem::path file{"/tmp/recipes.json"};
 
@@ -316,6 +392,40 @@ TEST_F(io_test, recipe_version)
   EXPECT_EQ(*read, _recipes);
 }
 
+TEST_F(io_test, plan_rw)
+{
+  recipe::io::plan_json_io io;
+  std::filesystem::path file{"/tmp/plan.json"};
+
+  io.write(_plan, file);
+  EXPECT_TRUE(std::filesystem::exists(file));
+  auto read = io.read(file, _recipe_finder_good);
+
+  ASSERT_TRUE(read.has_value());
+  EXPECT_EQ(*read, _plan);
+}
+
+TEST_F(io_test, plan_version)
+{
+  recipe::io::plan_json_io io;
+  std::filesystem::path file{"data/plan_version0.json"};
+
+  // for the member recipes, the ids are generated randomly with every execution, but the ids
+  // in the file stay the same: set ids to allow comparison.
+  boost::uuids::string_generator gen;
+  setupAmounted();
+  setupRecipe();
+  _recipes[0].id(gen("0001ac0a-a7ff-7f00-0038-ac0aa7ff7f00"));
+  _recipes[1].id(gen("0001e671-da60-5500-0040-a90aa7ff7f00"));
+  setupPlan();
+
+  EXPECT_TRUE(std::filesystem::exists(file));
+  auto read = io.read(file, _recipe_finder_good);
+
+  ASSERT_TRUE(read.has_value());
+  EXPECT_EQ(*read, _plan);
+}
+
 TEST_F(io_test, provider_setup)
 {
   recipe::io::io_provider provider;
@@ -324,4 +434,5 @@ TEST_F(io_test, provider_setup)
   EXPECT_EQ(provider.installed_amounted().size(), 1);
   EXPECT_EQ(provider.installed_ingredient().size(), 1);
   EXPECT_EQ(provider.installed_recipe().size(), 1);
+  EXPECT_EQ(provider.installed_plan().size(), 1);
 }

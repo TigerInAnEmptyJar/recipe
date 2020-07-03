@@ -2,6 +2,7 @@
 
 #include "amounted_json_io.hpp"
 #include "ingredient_json_io.hpp"
+#include "plan_json_io.hpp"
 #include "recipe_json_io.hpp"
 
 #include <boost/uuid/string_generator.hpp>
@@ -20,6 +21,8 @@ void io_provider::setup()
           std::make_shared<ingredient_json_io>());
   install(gen("0e7b4a59-96cc-4fe4-8b61-cc80096ad698"), "Json Recipe Format",
           std::make_shared<recipe_json_io>());
+  install(gen("3c5dedde-929c-437e-a24f-191ff13356bd"), "Json Plan Format",
+          std::make_shared<plan_json_io>());
 }
 
 std::shared_ptr<amounted_io> io_provider::amounted(boost::uuids::uuid id) const
@@ -47,6 +50,16 @@ std::shared_ptr<recipe_io> io_provider::recipe(boost::uuids::uuid id) const
   auto element = std::find_if(std::begin(_recipe), std::end(_recipe),
                               [id](auto item) { return item.first == id; });
   if (element != std::end(_recipe)) {
+    return element->second.second;
+  }
+  return {};
+}
+
+std::shared_ptr<plan_io> io_provider::plan(boost::uuids::uuid id) const
+{
+  auto element = std::find_if(std::begin(_plan), std::end(_plan),
+                              [id](auto item) { return item.first == id; });
+  if (element != std::end(_plan)) {
     return element->second.second;
   }
   return {};
@@ -82,6 +95,16 @@ void io_provider::install(boost::uuids::uuid id, std::string const& name,
   }
 }
 
+void io_provider::install(boost::uuids::uuid id, std::string const& name,
+                          std::shared_ptr<plan_io> io)
+{
+  auto element = std::find_if(std::begin(_plan), std::end(_plan),
+                              [id](auto item) { return item.first == id; });
+  if (element == std::end(_plan)) {
+    _plan.insert(std::make_pair(id, std::make_pair(name, io)));
+  }
+}
+
 void io_provider::uninstall_amounted(boost::uuids::uuid id)
 {
   auto element = std::find_if(std::begin(_amounted), std::end(_amounted),
@@ -109,6 +132,15 @@ void io_provider::uninstall_recipe(boost::uuids::uuid id)
   }
 }
 
+void io_provider::uninstall_plan(boost::uuids::uuid id)
+{
+  auto element = std::find_if(std::begin(_plan), std::end(_plan),
+                              [id](auto item) { return item.first == id; });
+  if (element != std::end(_plan)) {
+    _plan.erase(element);
+  }
+}
+
 std::map<boost::uuids::uuid, std::pair<std::string, std::shared_ptr<amounted_io>>> io_provider::
     installed_amounted() const
 {
@@ -125,6 +157,12 @@ std::map<boost::uuids::uuid, std::pair<std::string, std::shared_ptr<recipe_io>>>
     installed_recipe() const
 {
   return _recipe;
+}
+
+std::map<boost::uuids::uuid, std::pair<std::string, std::shared_ptr<plan_io>>> io_provider::
+    installed_plan() const
+{
+  return _plan;
 }
 
 } // namespace io
