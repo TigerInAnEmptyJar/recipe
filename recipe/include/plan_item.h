@@ -36,6 +36,7 @@ public:
   std::vector<std::string> const& subscribers() const;
   void add(std::string const& subscriber);
   void remove(std::vector<std::string>::iterator item);
+  void remove(std::string const& item);
 
   bool shoppingBefore() const;
   void shoppingBefore(bool value);

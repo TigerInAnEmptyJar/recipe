@@ -36,6 +36,14 @@ void plan_item::remove(std::vector<std::string>::iterator item)
   }
 }
 
+void plan_item::remove(std::string const& item)
+{
+  auto element = std::find(_subscribers.begin(), _subscribers.end(), item);
+  if (element != _subscribers.end()) {
+    _subscribers.erase(element);
+  }
+}
+
 bool plan_item::shoppingBefore() const { return _shoppingBefore; }
 
 void plan_item::shoppingBefore(bool value) { _shoppingBefore = value; }
