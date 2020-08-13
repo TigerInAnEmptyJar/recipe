@@ -58,8 +58,7 @@ ApplicationWindow {
       }
       RecipePage {
       }
-      Text {
-        text: qsTr("Week-plan")
+      PlanPage {
       }
       Text {
         text: qsTr("Shopping list")

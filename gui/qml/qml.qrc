@@ -13,5 +13,9 @@
         <file>common/SortFilterModel.qml</file>
         <file>RecipeView.qml</file>
         <file>RecipeList.qml</file>
+        <file>PlanControls.qml</file>
+        <file>PlanItemView.qml</file>
+        <file>PlanPage.qml</file>
+        <file>PlanView.qml</file>
     </qresource>
 </RCC>

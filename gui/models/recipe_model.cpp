@@ -444,5 +444,15 @@ void recipe_model::setFinder(
   _finder = finder;
 }
 
+std::optional<recipe> recipe_model::findRecipe(boost::uuids::uuid const& id) const
+{
+  auto element = std::find_if(std::begin(_data), std::end(_data),
+                              [id](auto item) { return item.first.id() == id; });
+  if (element != std::end(_data)) {
+    return element->first;
+  }
+  return {};
+}
+
 } // namespace gui
 } // namespace recipe

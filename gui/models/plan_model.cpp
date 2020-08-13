@@ -18,6 +18,9 @@ namespace gui {
 plan_model::plan_model(std::function<std::optional<recipe>(boost::uuids::uuid const&)> finder)
     : _data("New plan", 7, 3), _finder(finder)
 {
+  std::transform(_data.begin(), _data.end(), std::back_inserter(_items), [this](auto& element) {
+    return std::make_shared<plan_item_model>(&element, _finder);
+  });
 }
 
 int plan_model::rowCount(QModelIndex const&) const
@@ -190,10 +193,6 @@ void plan_model::storeAs(QUrl const& url)
 {
   std::filesystem::path path = url.path().toStdString();
 
-  if (!std::filesystem::exists(path)) {
-    std::cout << "Loading not possible: url doesn't exist " << path.native() << std::endl;
-    return;
-  }
   io::io_provider provider;
   provider.setup();
 

@@ -63,6 +63,7 @@ public:
   Q_INVOKABLE QString databasePath() const;
 
   void setFinder(std::function<std::optional<ingredient>(boost::uuids::uuid const&)> finder);
+  std::optional<recipe> findRecipe(boost::uuids::uuid const& id) const;
 
 private:
   std::vector<std::pair<recipe, std::shared_ptr<amounted_list_model>>> _data;
