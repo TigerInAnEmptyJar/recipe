@@ -9,12 +9,14 @@ my_add_library(inpput_output
     src/ingredient_json_io.hpp
     src/plan_json_io.hpp
     src/recipe_json_io.hpp
+    include/recipe_tex_output.h
   SOURCE
     src/io_provider.cpp
     src/amounted_json_io.cpp
     src/ingredient_json_io.cpp
     src/plan_json_io.cpp
     src/recipe_json_io.cpp
+    src/recipe_tex_output.cpp
   DEPENDS
     PUBLIC recipe::Recipe
     PRIVATE Qt5::Core

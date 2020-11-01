@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
+#include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/string_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
@@ -13,7 +14,7 @@
 
 namespace {
 QString const type_key{"file-type"};
-QString const type_value{"ingredients"};
+QString const type_value{"recipes"};
 QString const version_key{"version"};
 constexpr int const version_value{0};
 QString const content_key{"content"};
@@ -182,7 +183,11 @@ std::optional<recipe> recipe_json_io::fromJsonObject(
   }
   if (i.contains(id_key)) {
     boost::uuids::string_generator gen;
-    out.id(gen(i[id_key].toString().toStdString()));
+    auto id = gen(i[id_key].toString().toStdString());
+    if (id.is_nil()) {
+      id = boost::uuids::random_generator{}();
+    }
+    out.id(id);
   }
 
   amounted_json_io io;

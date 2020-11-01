@@ -5,6 +5,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
+#include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/string_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
@@ -118,7 +119,11 @@ ingredient ingredient_json_io::fromJsonObject(QJsonObject const& i) const
   }
   if (i.contains(id_key)) {
     boost::uuids::string_generator gen;
-    out.id(gen(i[id_key].toString().toStdString()));
+    auto id = gen(i[id_key].toString().toStdString());
+    if (id.is_nil()) {
+      id = boost::uuids::random_generator{}();
+    }
+    out.id(id);
   }
 
   return out;

@@ -76,6 +76,10 @@ public:
                                               false,
                                               {"/tmp/apple.jpg"}});
 
+    _ingredients[0].id(boost::uuids::random_generator{}());
+    _ingredients[1].id(boost::uuids::random_generator{}());
+    _ingredients[2].id(boost::uuids::random_generator{}());
+
     setupAmounted();
     setupRecipe();
     setupPlan();
