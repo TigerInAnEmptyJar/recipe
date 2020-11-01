@@ -17,7 +17,7 @@ int main(int argc, char** argv)
 
   recipe::gui::ingredient_model ingredients;
   ingredients.loadLast();
-  ingredients.setSortRole(recipe::gui::ingredient_model::category_role);
+  ingredients.setSortRole(recipe::gui::ingredient_model::IngredientRoles::category_role);
   ingredients.setDynamicSortFilter(true);
   ingredients.sort(0);
 
@@ -25,7 +25,7 @@ int main(int argc, char** argv)
   recipes.setFinder(std::bind(&recipe::gui::ingredient_model::findIngredient, &ingredients,
                               std::placeholders::_1));
   recipes.loadLast();
-  recipes.setSortRole(recipe::gui::recipe_model::type_role);
+  recipes.setSortRole(recipe::gui::recipe_model::RecipeRoles::type_role);
   recipes.setDynamicSortFilter(true);
   recipes.sort(0);
 

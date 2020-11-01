@@ -10,9 +10,6 @@ Rectangle {
   property var currentObject
   property int context: 0
   property int currentIndex : -1
-  function sort() {
-    sortFilterModel.sort(sortFilterModel.lessThan)
-  }
 
   border{
     color: Common.borderColor[context]
@@ -36,7 +33,7 @@ Rectangle {
       RowLayout {
         anchors.fill: parent
         Image {
-          source: image
+          source: image !== undefined ? image : ""
           Layout.maximumHeight: Common.textHeight
           Layout.maximumWidth: Common.textHeight
           fillMode: Image.PreserveAspectFit
@@ -93,27 +90,16 @@ Rectangle {
     }
   }
 
-  SortFilterModel {
-    id: sortFilterModel
-    model: ingredients
-    filterAcceptsItem: function(item) {
-      return true
-    }
-    lessThan: function(left, right) {
-      if (left.category === right.category)
-        return left.name < right.name ? -1 : 1
-      return left.category < right.category ? -1 : 1;
-    }
-    delegate: ingredientDelegate
-  }
-
   ListView {
     id: iView
     anchors.fill: parent
     anchors.margins: Common.margin
-    model: sortFilterModel
+    model: ingredients
     highlight: highlightDelegate
     highlightFollowsCurrentItem: true
+    boundsBehavior: Flickable.StopAtBounds
+    delegate: ingredientDelegate
+    clip: true
     focus: true
     section{
       property: "category"

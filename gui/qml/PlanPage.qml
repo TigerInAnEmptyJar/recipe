@@ -28,7 +28,7 @@ Rectangle {
       currentObject: planList.currentObject
       text: "recipe"
       onEditRequested: planView.readonly = false
-      onNewRequested: plan.newPlan()
+      onNewRequested: plan.newPlan(7, 2)
     }
   }
 }

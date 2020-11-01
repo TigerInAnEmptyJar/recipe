@@ -120,77 +120,77 @@ QStringList recipe_model::amount_types() const
 void recipe_model::addItem()
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->addItem();
+    model->addItem();
   }
 }
 
 void recipe_model::deleteItem(int index)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->deleteItem(index);
+    model->deleteItem(index);
   }
 }
 
 void recipe_model::addTag(int index, QString const& tag)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->addTag(index, tag);
+    model->addTag(index, tag);
   }
 }
 
 void recipe_model::removeTag(int index, QString const& tag)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->removeTag(index, tag);
+    model->removeTag(index, tag);
   }
 }
 
 void recipe_model::addEater(int index, QString const& eater)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->addEater(index, eater);
+    model->addEater(index, eater);
   }
 }
 
 void recipe_model::removeEater(int index, QString const& eater)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->removeEater(index, eater);
+    model->removeEater(index, eater);
   }
 }
 
 void recipe_model::addIngredient(int index, QString const& id)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->addIngredient(index, id);
+    model->addIngredient(index, id);
   }
 }
 
 void recipe_model::loadLast()
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->loadLast();
+    model->loadLast();
   }
 }
 
 void recipe_model::load(QUrl const& url)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->load(url);
+    model->load(url);
   }
 }
 
 void recipe_model::storeLast()
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->storeLast();
+    model->storeLast();
   }
 }
 
 void recipe_model::store(QUrl const& url)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->store(url);
+    model->store(url);
   }
 }
 

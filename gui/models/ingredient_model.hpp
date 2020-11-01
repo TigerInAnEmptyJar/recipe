@@ -25,6 +25,8 @@ public:
   };
 
   ingredient_model();
+  Q_INVOKABLE QStringList categories() const;
+  Q_INVOKABLE QStringList amounts() const;
 
   Q_INVOKABLE void addItem();
   Q_INVOKABLE void deleteItem(int index);

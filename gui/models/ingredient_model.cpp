@@ -59,45 +59,61 @@ ingredient_model::ingredient_model()
   setSourceModel(_model.get());
 }
 
+QStringList ingredient_model::categories() const
+{
+  if (auto model = std::dynamic_pointer_cast<ingredients::data_model>(_model)) {
+    return model->categories();
+  }
+  return {};
+}
+
+QStringList ingredient_model::amounts() const
+{
+  if (auto model = std::dynamic_pointer_cast<ingredients::data_model>(_model)) {
+    return model->amounts();
+  }
+  return {};
+}
+
 void ingredient_model::addItem()
 {
   if (auto model = std::dynamic_pointer_cast<ingredients::data_model>(_model)) {
-    return model->addItem();
+    model->addItem();
   }
 }
 
 void ingredient_model::deleteItem(int index)
 {
   if (auto model = std::dynamic_pointer_cast<ingredients::data_model>(_model)) {
-    return model->deleteItem(index);
+    model->deleteItem(index);
   }
 }
 
 void ingredient_model::loadLast()
 {
   if (auto model = std::dynamic_pointer_cast<ingredients::data_model>(_model)) {
-    return model->loadLast();
+    model->loadLast();
   }
 }
 
 void ingredient_model::load(QUrl const& url)
 {
   if (auto model = std::dynamic_pointer_cast<ingredients::data_model>(_model)) {
-    return model->load(url);
+    model->load(url);
   }
 }
 
 void ingredient_model::storeLast()
 {
   if (auto model = std::dynamic_pointer_cast<ingredients::data_model>(_model)) {
-    return model->storeLast();
+    model->storeLast();
   }
 }
 
 void ingredient_model::store(QUrl const& url)
 {
   if (auto model = std::dynamic_pointer_cast<ingredients::data_model>(_model)) {
-    return model->store(url);
+    model->store(url);
   }
 }
 
