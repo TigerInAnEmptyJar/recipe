@@ -3,14 +3,16 @@
 #include "ingredient.h"
 
 #include <QAbstractListModel>
+#include <QSortFilterProxyModel>
 
 namespace recipe {
 namespace gui {
 
-class ingredient_model : public QAbstractListModel
+class ingredient_model : public QSortFilterProxyModel
 {
   Q_OBJECT
 
+public:
   enum IngredientRoles
   {
     name_role = Qt::UserRole + 1,
@@ -22,19 +24,7 @@ class ingredient_model : public QAbstractListModel
     id_role
   };
 
-public:
-  using QAbstractListModel::QAbstractListModel;
-
-  int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-
-  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-  QHash<int, QByteArray> roleNames() const override;
-
-  Q_INVOKABLE QStringList categories() const;
-  Q_INVOKABLE QStringList amounts() const;
-
-  Qt::ItemFlags flags(QModelIndex const& index) const override;
-  bool setData(QModelIndex const& index, QVariant const& value, int role = Qt::EditRole) override;
+  ingredient_model();
 
   Q_INVOKABLE void addItem();
   Q_INVOKABLE void deleteItem(int index);
@@ -49,9 +39,9 @@ public:
   std::optional<ingredient> findIngredient(boost::uuids::uuid const& id);
 
 private:
-  std::vector<ingredient> _data;
-  std::filesystem::path _database_path;
-};
+  bool lessThan(QModelIndex const& lhs, QModelIndex const& rhs) const override;
 
+  std::shared_ptr<QAbstractListModel> _model;
+};
 } // namespace gui
 } // namespace recipe

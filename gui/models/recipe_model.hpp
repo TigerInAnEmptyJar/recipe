@@ -1,18 +1,23 @@
 #pragma once
 
-#include "recipe.h"
-
-#include "amounted_list_model.hpp"
-
 #include <QAbstractListModel>
+#include <QSortFilterProxyModel>
+
+#include <boost/uuid/uuid.hpp>
+
+#include <memory>
+#include <optional>
 
 namespace recipe {
+class recipe;
+class ingredient;
 namespace gui {
 
-class recipe_model : public QAbstractListModel
+class recipe_model : public QSortFilterProxyModel
 {
   Q_OBJECT
 
+public:
   enum RecipeRoles
   {
     title_role = Qt::UserRole + 1,
@@ -34,18 +39,10 @@ class recipe_model : public QAbstractListModel
   };
 
 public:
-  using QAbstractListModel::QAbstractListModel;
-
-  int rowCount(QModelIndex const& parent = QModelIndex()) const override;
-
-  QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const override;
-  QHash<int, QByteArray> roleNames() const override;
+  recipe_model();
 
   Q_INVOKABLE QStringList meal_types() const;
   Q_INVOKABLE QStringList amount_types() const;
-
-  Qt::ItemFlags flags(QModelIndex const& index) const override;
-  bool setData(QModelIndex const& index, QVariant const& value, int role = Qt::EditRole) override;
 
   Q_INVOKABLE void addItem();
   Q_INVOKABLE void deleteItem(int index);
@@ -64,11 +61,10 @@ public:
 
   void setFinder(std::function<std::optional<ingredient>(boost::uuids::uuid const&)> finder);
   std::optional<recipe> findRecipe(boost::uuids::uuid const& id) const;
+  bool lessThan(QModelIndex const& lhs, QModelIndex const& rhs) const override;
 
 private:
-  std::vector<std::pair<recipe, std::shared_ptr<amounted_list_model>>> _data;
-  std::filesystem::path _database_path;
-  std::function<std::optional<ingredient>(boost::uuids::uuid const&)> _finder;
+  std::shared_ptr<QAbstractListModel> _model;
 };
 
 } // namespace gui

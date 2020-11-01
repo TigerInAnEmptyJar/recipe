@@ -4,6 +4,7 @@
 
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QSortFilterProxyModel>
 #include <QtGui/QGuiApplication>
 #include <QtQuick/QQuickView>
 
@@ -16,10 +17,18 @@ int main(int argc, char** argv)
 
   recipe::gui::ingredient_model ingredients;
   ingredients.loadLast();
+  ingredients.setSortRole(recipe::gui::ingredient_model::category_role);
+  ingredients.setDynamicSortFilter(true);
+  ingredients.sort(0);
+
   recipe::gui::recipe_model recipes;
   recipes.setFinder(std::bind(&recipe::gui::ingredient_model::findIngredient, &ingredients,
                               std::placeholders::_1));
   recipes.loadLast();
+  recipes.setSortRole(recipe::gui::recipe_model::type_role);
+  recipes.setDynamicSortFilter(true);
+  recipes.sort(0);
+
   recipe::gui::plan_model plan(
       std::bind(&recipe::gui::recipe_model::findRecipe, &recipes, std::placeholders::_1));
   plan.loadLast();

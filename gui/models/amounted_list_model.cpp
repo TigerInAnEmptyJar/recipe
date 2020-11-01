@@ -74,14 +74,14 @@ QVariant amounted_list_model::data(const QModelIndex& index, int role) const
 QHash<int, QByteArray> amounted_list_model::roleNames() const
 {
   QHash<int, QByteArray> roles;
-  roles.insert(name_role, "name");
-  roles.insert(image_role, "image");
-  roles.insert(id_role, "id");
-  roles.insert(amounts_role, "amounts");
-  roles.insert(amount_count_role, "count");
-  roles.insert(amount_value_role, "value");
-  roles.insert(amount_amount_role, "amount");
-  roles.insert(amount_amount_index_role, "amountIndex");
+  roles.insert(IngredientRoles::name_role, "name");
+  roles.insert(IngredientRoles::image_role, "image");
+  roles.insert(IngredientRoles::id_role, "id");
+  roles.insert(IngredientRoles::amounts_role, "amounts");
+  roles.insert(IngredientRoles::amount_count_role, "count");
+  roles.insert(IngredientRoles::amount_value_role, "value");
+  roles.insert(IngredientRoles::amount_amount_role, "amount");
+  roles.insert(IngredientRoles::amount_amount_index_role, "amountIndex");
   return roles;
 }
 
