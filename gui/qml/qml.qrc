@@ -5,17 +5,19 @@
         <file>IngredientControls.qml</file>
         <file>IngredientList.qml</file>
         <file>IngredientPage.qml</file>
-        <file>IngredientView.qml</file>
         <file>RButton.qml</file>
         <file>common/Common.qml</file>
         <file>common/qmldir</file>
         <file>RecipePage.qml</file>
         <file>common/SortFilterModel.qml</file>
-        <file>RecipeView.qml</file>
         <file>RecipeList.qml</file>
         <file>PlanControls.qml</file>
         <file>PlanItemView.qml</file>
         <file>PlanPage.qml</file>
         <file>PlanView.qml</file>
+        <file>IngredientReadonlyView.qml</file>
+        <file>IngredientEditView.qml</file>
+        <file>RecipeReadonlyView.qml</file>
+        <file>RecipeEditView.qml</file>
     </qresource>
 </RCC>

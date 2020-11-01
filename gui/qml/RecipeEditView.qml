@@ -9,7 +9,6 @@ Item {
   id: recipeView
   property var object
   property var objectIndex
-  property bool readonly: true
   property int context: 1
   signal applyClicked()
 
@@ -26,56 +25,31 @@ Item {
       ColumnLayout {
         Layout.fillHeight: true
         Layout.fillWidth: true
-        StackLayout { // Title
+        TextInput {
+          id: objectTitleInput
           height: Common.textHeight
           Layout.fillWidth: true
-          Layout.maximumHeight: Common.textHeight
-          currentIndex: recipeView.readonly ? 0 : 1
-          Text {
-            id: objectTitle
-            font.pointSize: Common.fontSize *2
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignLeft
-            Layout.fillWidth: true
-            Layout.maximumHeight: Common.textHeight *2
-          }
-          TextInput {
-            id: objectTitleInput
-            font.pointSize: Common.fontSize *2
-            verticalAlignment: TextInput.AlignVCenter
-            horizontalAlignment: TextInput.AlignLeft
-            Layout.fillWidth: true
-            Layout.maximumHeight: Common.textHeight *2
-          }
+          Layout.maximumHeight: Common.textHeight *2
+          font.pointSize: Common.fontSize *2
+          verticalAlignment: TextInput.AlignVCenter
+          horizontalAlignment: TextInput.AlignLeft
         }
         RowLayout { // Type
           Text {
             text: qsTr("Type")
             font.pointSize: Common.fontSize
+            font.bold: true
             Layout.maximumHeight: Common.textHeight
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
           }
-          StackLayout {
+          ComboBox {
+            id: objectTypeInput
             Layout.maximumHeight: Common.textHeight
             Layout.fillWidth: true
-            currentIndex: recipeView.readonly ? 0 : 1
-            Text {
-              id: objectType
-              font.pointSize: Common.fontSize
-              Layout.fillWidth: true
-              Layout.maximumHeight: Common.textHeight
-              horizontalAlignment: Text.AlignLeft
-              verticalAlignment: Text.AlignVCenter
-            }
-            ComboBox {
-              id: objectTypeInput
-              font.pointSize: Common.fontSize
-              Layout.maximumHeight: Common.textHeight
-              Layout.fillWidth: true
-              model: recipes.meal_types()
-            }
+            font.pointSize: Common.fontSize
+            model: recipes.meal_types()
           }
         }
         RowLayout { // Servings
@@ -88,24 +62,11 @@ Item {
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
           }
-          StackLayout {
+          SpinBox {
+            id: objectServingsInput
             height: Common.textHeight
             Layout.fillWidth: true
             Layout.maximumHeight: Common.textHeight
-            currentIndex: recipeView.readonly ? 0 : 1
-            Text {
-              id: objectServings
-              font.pointSize: Common.fontSize
-              verticalAlignment: Text.AlignVCenter
-              horizontalAlignment: Text.AlignLeft
-              Layout.fillWidth: true
-              Layout.maximumHeight: Common.textHeight
-            }
-            SpinBox {
-              id: objectServingsInput
-              Layout.fillWidth: true
-              Layout.maximumHeight: Common.textHeight
-            }
           }
         }
         RowLayout { // Ingredients - Image
@@ -126,6 +87,7 @@ Item {
             Rectangle {
               Layout.fillHeight: true
               Layout.fillWidth: true
+              Layout.preferredHeight: Common.textHeight * ingredientView.count
               color: Common.backgroundColor[context]
               border{
                 color: Common.borderColor[context]
@@ -137,10 +99,23 @@ Item {
               }
               ListView {
                 id: ingredientView
+                MessageDialog {
+                  id: removeDialog
+                  property int index
+                  title: qsTr("Remove ingredient")
+                  standardButtons: StandardButton.Yes | StandardButton.No
+                  onYes: {
+                    visible = false
+                    ingredientView.model.deleteItem(index)
+                  }
+                }
+
                 anchors.fill: parent
                 anchors.margins: Common.margin
                 orientation: ListView.Vertical
+                clip: true
                 delegate: Rectangle {
+                  id: ingredientDelegate
                   height: Common.textHeight
                   width: ingredientView.width
                   color: Common.backgroundColor[context]
@@ -152,7 +127,7 @@ Item {
                       Layout.minimumHeight: Common.textHeight
                       Layout.minimumWidth: Common.textHeight
                       fillMode: Image.PreserveAspectFit
-                      source: image
+                      source: image !== undefined ? image : ""
                     }
                     Text {
                       text: name
@@ -162,50 +137,47 @@ Item {
                       horizontalAlignment: Text.AlignLeft
                       color: Common.textColor[context]
                       font.pointSize: Common.fontSize
-                    }
-                    StackLayout {
-                      Layout.maximumHeight: Common.textHeight
-                      Layout.fillWidth: true
-                      currentIndex: recipeView.readonly ? 0 : 1
-                      Text {
-                        text: value
-                        Layout.fillHeight: true
-                        Layout.fillWidth: true
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignLeft
-                        color: Common.textColor[context]
-                        font.pointSize: Common.fontSize
+                      MouseArea {
+                        anchors.fill: parent
+                        onDoubleClicked: {
+                            removeDialog.visible = true
+                            removeDialog.index = index
+                            removeDialog.text = qsTr("Remove ingredient %1").arg(name)
+                        }
                       }
+                    }
+                    Item {
+                      Layout.fillWidth: true
+                    }
+                    Rectangle{
+                      Layout.maximumHeight: Common.textHeight
+                      Layout.minimumHeight: Common.textHeight
+                      Layout.maximumWidth: ingredientInputBox.width /4
+                      Layout.minimumWidth: ingredientInputBox.width /4
+                      border{
+                        color: Common.borderColor[context]
+                        width: Common.borderWidth -2
+                      }
+                      color: Common.backgroundColor[context]
+
                       TextInput {
+                        anchors.fill: parent
+                        anchors.leftMargin: Common.margin
                         text: value
                         validator: DoubleValidator{bottom: 0; top: 1000; decimals: 3}
                         font.pointSize: Common.fontSize
-                        Layout.fillWidth: true
                         onAccepted: value = text
                       }
                     }
-                    StackLayout {
+                    ComboBox {
+                      id: ingredientInputBox
                       Layout.maximumHeight: Common.textHeight
-                      Layout.fillWidth: true
-                      currentIndex: recipeView.readonly ? 0 : 1
-                      Text {
-                        text: amount
-                        Layout.fillHeight: true
-                        Layout.fillWidth: true
-                        verticalAlignment: Text.AlignVCenter
-                        horizontalAlignment: Text.AlignLeft
-                        color: Common.textColor[context]
-                        font.pointSize: Common.fontSize
-                      }
-                      ComboBox {
-                        id: ingredientInputBox
-                        font.pointSize: Common.fontSize
-                        Layout.maximumHeight: Common.textHeight
-                        Layout.fillWidth: true
-                        currentIndex: amountIndex
-                        model: ingredientView.model.amountList()
-                        onActivated: amount = currentIndex
-                      }
+                      Layout.maximumWidth: ingredientInputBox.implicitWidth
+                      Layout.minimumWidth: ingredientInputBox.implicitWidth
+                      font.pointSize: Common.fontSize
+                      currentIndex: amountIndex
+                      model: ingredientView.model.amountList()
+                      onActivated: amount = currentIndex
                     }
                   }
                 }
@@ -240,10 +212,8 @@ Item {
                 }
               }
               onClicked: {
-                if (!recipeView.readonly) {
-                  loadDialog.folder = "file://" + recipes.databasePath() + "/"
-                  loadDialog.open()
-                }
+                loadDialog.folder = "file://" + recipes.databasePath() + "/"
+                loadDialog.open()
               }
             }
           }
@@ -251,7 +221,7 @@ Item {
         ColumnLayout { // Instructions
           Layout.fillHeight: true
           Layout.fillWidth: true
-          Layout.minimumHeight: objectInstructions.implicitHeight + instructionsTitle.implicitHeight
+          Layout.minimumHeight: objectInstructionInput.implicitHeight + instructionsTitle.implicitHeight
           Text {
             id: instructionsTitle
             text: qsTr("Instructions")
@@ -265,184 +235,105 @@ Item {
           Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
+            Layout.minimumHeight: objectInstructionInput.implicitHeight
+            clip: true
             color: Common.backgroundColor[context]
             border {
               color: Common.borderColor[context]
               width: Common.borderWidth -2
             }
-            StackLayout {
+            TextEdit {
+              id: objectInstructionInput
               anchors.fill: parent
-              currentIndex: recipeView.readonly ? 0 : 1
-              Text {
-                id: objectInstructions
-                font.pointSize: Common.fontSize
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                horizontalAlignment: Text.AlignLeft
-                Layout.minimumHeight: implicitHeight
-              }
-              TextEdit {
-                id: objectInstructionInput
-                font.pointSize: Common.fontSize
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                Layout.minimumHeight: implicitHeight
-              }
+              font.pointSize: Common.fontSize
+              wrapMode: TextEdit.WordWrap
             }
           }
         }
         RowLayout { // Nutrition
           Layout.fillWidth: true
           Layout.maximumHeight: Common.textHeight
-          RowLayout { // calories
+          Text {
+            text: qsTr("Calories")
+            font.pointSize: Common.fontSize
+            Layout.maximumHeight: Common.textHeight
+            Layout.minimumWidth: implicitWidth
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Text {
-              text: qsTr("Calories")
-              font.pointSize: Common.fontSize
-              Layout.maximumHeight: Common.textHeight
-              Layout.minimumWidth: implicitWidth
-              Layout.fillWidth: true
-              horizontalAlignment: Text.AlignLeft
-              verticalAlignment: Text.AlignVCenter
-            }
-            StackLayout {
-              Layout.maximumHeight: Common.textHeight
-              Layout.fillWidth: true
-              currentIndex: recipeView.readonly ? 0 : 1
-              Text {
-                id: objectCalories
-                font.pointSize: Common.fontSize
-                Layout.fillWidth: true
-                horizontalAlignment: Text.AlignLeft
-                verticalAlignment: Text.AlignVCenter
-              }
-              SpinBox {
-                id: objectCaloriesInput
-                font.pointSize: Common.fontSize
-                Layout.fillWidth: true
-              }
-            }
+            horizontalAlignment: Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
           }
-          RowLayout { // KJoules
+          SpinBox {
+            id: objectCaloriesInput
+            Layout.maximumHeight: Common.textHeight
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Text {
-              text: qsTr("Joules")
-              font.pointSize: Common.fontSize
-              Layout.maximumHeight: Common.textHeight
-              Layout.minimumWidth: implicitWidth
-              Layout.fillWidth: true
-              horizontalAlignment: Text.AlignLeft
-              verticalAlignment: Text.AlignVCenter
-            }
-            StackLayout {
-              Layout.maximumHeight: Common.textHeight
-              Layout.fillWidth: true
-              currentIndex: recipeView.readonly ? 0 : 1
-              Text {
-                id: objectJoules
-                font.pointSize: Common.fontSize
-                Layout.fillWidth: true
-                horizontalAlignment: Text.AlignLeft
-                verticalAlignment: Text.AlignVCenter
-              }
-              SpinBox {
-                id: objectJoulesInput
-                font.pointSize: Common.fontSize
-                Layout.fillWidth: true
-              }
-            }
+            font.pointSize: Common.fontSize
+            editable: true
+            to: 3000
           }
-          RowLayout { // Fat
+          Text {
+            text: qsTr("Joules")
+            font.pointSize: Common.fontSize
+            Layout.maximumHeight: Common.textHeight
+            Layout.minimumWidth: implicitWidth
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Text {
-              text: qsTr("Fat[g]")
-              font.pointSize: Common.fontSize
-              Layout.maximumHeight: Common.textHeight
-              Layout.minimumWidth: implicitWidth
-              Layout.fillWidth: true
-              horizontalAlignment: Text.AlignLeft
-              verticalAlignment: Text.AlignVCenter
-            }
-            StackLayout {
-              Layout.maximumHeight: Common.textHeight
-              Layout.fillWidth: true
-              currentIndex: recipeView.readonly ? 0 : 1
-              Text {
-                id: objectFat
-                font.pointSize: Common.fontSize
-                Layout.fillWidth: true
-                horizontalAlignment: Text.AlignLeft
-                verticalAlignment: Text.AlignVCenter
-              }
-              SpinBox {
-                id: objectFatInput
-                font.pointSize: Common.fontSize
-                Layout.fillWidth: true
-              }
-            }
+            horizontalAlignment: Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
           }
-          RowLayout { // Proteins
+          SpinBox {
+            id: objectJoulesInput
+            Layout.maximumHeight: Common.textHeight
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Text {
-              text: qsTr("Protein[g]")
-              font.pointSize: Common.fontSize
-              Layout.minimumWidth: implicitWidth
-              Layout.maximumHeight: Common.textHeight
-              Layout.fillWidth: true
-              horizontalAlignment: Text.AlignLeft
-              verticalAlignment: Text.AlignVCenter
-            }
-            StackLayout {
-              Layout.maximumHeight: Common.textHeight
-              Layout.fillWidth: true
-              currentIndex: recipeView.readonly ? 0 : 1
-              Text {
-                id: objectProtein
-                font.pointSize: Common.fontSize
-                Layout.fillWidth: true
-                horizontalAlignment: Text.AlignLeft
-                verticalAlignment: Text.AlignVCenter
-              }
-              SpinBox {
-                id: objectProteinInput
-                font.pointSize: Common.fontSize
-                Layout.fillWidth: true
-              }
-            }
+            font.pointSize: Common.fontSize
+            to: 12000
+            editable: true
           }
-          RowLayout { // Carbohydrates
+          Text {
+            text: qsTr("Fat[g]")
+            font.pointSize: Common.fontSize
+            Layout.maximumHeight: Common.textHeight
+            Layout.minimumWidth: implicitWidth
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Text {
-              text: qsTr("Carbohydrate[g]")
-              font.pointSize: Common.fontSize
-              Layout.maximumHeight: Common.textHeight
-              Layout.minimumWidth: implicitWidth
-              Layout.fillWidth: true
-              horizontalAlignment: Text.AlignLeft
-              verticalAlignment: Text.AlignVCenter
-            }
-            StackLayout {
-              Layout.maximumHeight: Common.textHeight
-              Layout.fillWidth: true
-              currentIndex: recipeView.readonly ? 0 : 1
-              Text {
-                id: objectCarbs
-                font.pointSize: Common.fontSize
-                Layout.fillWidth: true
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignLeft
-              }
-              SpinBox {
-                id: objectCarbsInput
-                font.pointSize: Common.fontSize
-                Layout.fillWidth: true
-              }
-            }
+            horizontalAlignment: Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
+          }
+          SpinBox {
+            id: objectFatInput
+            Layout.maximumHeight: Common.textHeight
+            Layout.fillWidth: true
+            font.pointSize: Common.fontSize
+            editable: true
+          }
+          Text {
+            text: qsTr("Protein[g]")
+            font.pointSize: Common.fontSize
+            Layout.minimumWidth: implicitWidth
+            Layout.maximumHeight: Common.textHeight
+            Layout.fillWidth: true
+            horizontalAlignment: Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
+          }
+          SpinBox {
+            id: objectProteinInput
+            Layout.maximumHeight: Common.textHeight
+            Layout.fillWidth: true
+            font.pointSize: Common.fontSize
+            editable: true
+          }
+          Text {
+            text: qsTr("Carbohydrate[g]")
+            font.pointSize: Common.fontSize
+            Layout.maximumHeight: Common.textHeight
+            Layout.minimumWidth: implicitWidth
+            Layout.fillWidth: true
+            horizontalAlignment: Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
+          }
+          SpinBox {
+            id: objectCarbsInput
+            Layout.maximumHeight: Common.textHeight
+            Layout.fillWidth: true
+            font.pointSize: Common.fontSize
+            editable: true
           }
         }
         RowLayout { // Source
@@ -453,29 +344,23 @@ Item {
             font.pointSize: Common.fontSize
             font.bold: true
             Layout.maximumHeight: Common.textHeight
-            Layout.fillWidth: true
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
           }
-          StackLayout {
+          Rectangle {
             Layout.fillWidth: true
             Layout.maximumHeight: Common.textHeight
-            currentIndex: recipeView.readonly ? 0 : 1
-            Text {
-              id: objectSource
-              font.pointSize: Common.fontSize
-              verticalAlignment: Text.AlignVCenter
-              horizontalAlignment: Text.AlignLeft
-              Layout.fillWidth: true
-              Layout.maximumHeight: Common.textHeight
+            Layout.minimumHeight: Common.textHeight
+            border {
+              color: Common.borderColor[context]
+              width: Common.borderWidth -2
             }
             TextInput {
               id: objectSourceInput
+              anchors.fill: parent
               font.pointSize: Common.fontSize
               verticalAlignment: TextInput.AlignVCenter
               horizontalAlignment: TextInput.AlignLeft
-              Layout.fillWidth: true
-              Layout.maximumHeight: Common.textHeight
             }
           }
         }
@@ -517,7 +402,6 @@ Item {
                   color: Common.buttonTextColor[context]
                 }
                 RButton {
-                  visible: !recipeView.readonly
                   context: 1
                   text: "x"
                   Layout.maximumWidth: Common.textHeight
@@ -534,7 +418,6 @@ Item {
             id: tagInput
             Layout.maximumHeight: Common.textHeight
             Layout.minimumWidth: Common.textHeight
-            visible: !recipeView.readonly
             Rectangle {
               Layout.preferredWidth: tagInput.implicitWidth
               color: "white"
@@ -545,7 +428,6 @@ Item {
 
           RButton {
             id: plusTagButton
-            visible: !recipeView.readonly
             context: 1
             text: "+"
             Layout.maximumWidth: Common.textHeight
@@ -596,7 +478,6 @@ Item {
                   color: Common.buttonTextColor[context]
                 }
                 RButton {
-                  visible: !recipeView.readonly
                   context: 1
                   text: "x"
                   Layout.maximumWidth: Common.textHeight
@@ -614,7 +495,6 @@ Item {
             id: eaterInput
             Layout.maximumHeight: Common.textHeight
             Layout.minimumWidth: Common.textHeight
-            visible: !recipeView.readonly
             Rectangle {
               Layout.preferredWidth: tagInput.implicitWidth
               color: "white"
@@ -625,7 +505,6 @@ Item {
 
           RButton {
             id: plusEaterButton
-            visible: !recipeView.readonly
             context: 1
             text: "+"
             Layout.maximumWidth: Common.textHeight
@@ -641,7 +520,6 @@ Item {
 
         RButton {
           id: applyButton
-          visible: !recipeView.readonly
           context: 1
           text: qsTr("Apply")
           Layout.fillWidth: true
@@ -654,8 +532,8 @@ Item {
             object.instructions = objectInstructionInput.text
             object.calories = objectCaloriesInput.value
             object.joules = objectJoulesInput.value
-            object.fats = objectFatInput.value
-            object.proteins = objectProteinInput.value
+            object.fat = objectFatInput.value
+            object.protein = objectProteinInput.value
             object.carbohydrates = objectCarbsInput.value
             object.source = objectSourceInput.text
             applyClicked()
@@ -663,7 +541,6 @@ Item {
         }
       }
       IngredientList{
-        visible: !recipeView.readonly
         Layout.fillHeight: true
         Layout.preferredWidth: 200
       }
@@ -672,33 +549,24 @@ Item {
   }
   onObjectChanged: {
     if (object !== undefined) {
-      objectTitle.text = object.title
       objectTitleInput.text = object.title
 
-      objectType.text = object.meal_type
       objectTypeInput.currentIndex = objectTypeInput.find(object.meal_type)
-      objectServings.text = object.servings
       objectServingsInput.value = object.servings
-      objectImage.pathName = object.image_path
-      objectImage.source = object.image
-      objectInstructions.text = object.instructions
+      if (object.image_path !== undefined) {
+        objectImage.pathName = object.image_path
+        objectImage.source = object.image
+      }
       objectInstructionInput.text = object.instructions
-      objectCalories.text = object.calories
       objectCaloriesInput.value = object.calories
-      objectJoules.text = object.joules
       objectJoulesInput.value = object.joules
-      objectFat.text = object.fat
       objectFatInput.value = object.fat
-      objectProtein.text = object.protein
       objectProteinInput.value = object.protein
-      objectCarbs.text = object.carbohydrates
       objectCarbsInput.value = object.carbohydrates
-      objectSource.text = object.source
       objectSourceInput.text = object.source
       tagview.model = object.tags
       eaterview.model = object.eaters
       ingredientView.model = object.ingredient
-      recipeView.readonly = true
     }
   }
   visible: object !== undefined

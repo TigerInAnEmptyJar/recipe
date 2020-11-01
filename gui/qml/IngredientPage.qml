@@ -18,6 +18,7 @@ Rectangle {
       id: ingredientList
       width: 200
       Layout.fillHeight: true
+      onCurrentObjectChanged: viewStack.currentIndex = 1
     }
     ColumnLayout{
       IngredientControls{
@@ -26,18 +27,29 @@ Rectangle {
         context: page.context
         model: ingredients
         currentObject: ingredientList.currentObject
-        text: "ingredient"
-        onEditRequested: ingredientView.readonly = false
+        text: qsTr("ingredient")
+        onEditRequested: viewStack.currentIndex = 0
         onNewRequested: ingredients.addItem()
         onDeleteRequested: ingredients.deleteItem(ingredientList.currentIndex)
       }
 
-      IngredientView {
-        id: ingredientView
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        object: ingredientList.currentObject
-        onApplyClicked: ingredientList.sort()
+      StackLayout{
+        id: viewStack
+        currentIndex: 1
+        visible: ingredientList.currentObject !== undefined
+        IngredientEditView {
+          id: ingredientEditView
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          object: ingredientList.currentObject
+          onApplyClicked: ingredientList.sort()
+        }
+        IngredientReadonlyView {
+          id: ingredientView
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          object: ingredientList.currentObject
+        }
       }
       Item {
         visible: ingredientList.currentObject === undefined

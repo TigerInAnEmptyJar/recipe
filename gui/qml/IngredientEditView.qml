@@ -6,9 +6,8 @@ import QtQuick.Dialogs 1.2
 import "common/"
 
 Item {
-  id: ingredientView
+  id: ingredientEditView
   property var object
-  property bool readonly: true
   property int context: 0
   signal applyClicked()
 
@@ -24,100 +23,55 @@ Item {
       anchors.margins: Common.margin
       columns: 2
       Text {
-        text: "Name"
+        text: qsTr("Name")
         font.pointSize: Common.fontSize
         Layout.maximumHeight: Common.textHeight
-        Layout.fillWidth: true
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
       }
-      StackLayout {
+      TextInput {
+        id: objectNameInput
+        Layout.fillWidth: true
+        Layout.maximumHeight: Common.textHeight
         height: Common.textHeight
-        Layout.fillWidth: true
-        Layout.maximumHeight: Common.textHeight
-        currentIndex: ingredientView.readonly ? 0 : 1
-        Text {
-          id: objectName
-          font.pointSize: Common.fontSize
-          verticalAlignment: Text.AlignVCenter
-          horizontalAlignment: Text.AlignLeft
-          Layout.fillWidth: true
-          Layout.maximumHeight: Common.textHeight
-        }
-        TextInput {
-          id: objectNameInput
-          font.pointSize: Common.fontSize
-          verticalAlignment: TextInput.AlignVCenter
-          horizontalAlignment: TextInput.AlignLeft
-          Layout.fillWidth: true
-          Layout.maximumHeight: Common.textHeight
-        }
-      }
-      Text {
-        text: "Category"
         font.pointSize: Common.fontSize
-        Layout.maximumHeight: Common.textHeight
-        Layout.fillWidth: true
-        horizontalAlignment: Text.AlignLeft
-        verticalAlignment: Text.AlignVCenter
-      }
-      StackLayout {
-        id: categoryFlip
-        Layout.maximumHeight: Common.textHeight
-        Layout.fillWidth: true
-        currentIndex: ingredientView.readonly ? 0 : 1
-        Text {
-          id: objectCategory
-          font.pointSize: Common.fontSize
-          Layout.fillWidth: true
-          Layout.maximumHeight: Common.textHeight
-          horizontalAlignment: Text.AlignLeft
-          verticalAlignment: Text.AlignVCenter
-        }
-        ComboBox {
-          id: objectCategoryInput
-          font.pointSize: Common.fontSize
-          Layout.maximumHeight: Common.textHeight
-          Layout.fillWidth: true
-          model: ingredients.categories()
-        }
+        verticalAlignment: TextInput.AlignVCenter
+        horizontalAlignment: TextInput.AlignLeft
       }
       Text {
-        text: "Default amount type"
-        font.pointSize: Common.fontSize
-        Layout.maximumHeight: Common.textHeight
-        Layout.fillWidth: true
-        horizontalAlignment: Text.AlignLeft
-        verticalAlignment: Text.AlignVCenter
-      }
-      StackLayout {
-        id: amountFlip
-        Layout.maximumHeight: Common.textHeight
-        Layout.fillWidth: true
-        currentIndex: ingredientView.readonly ? 0 : 1
-        Text {
-          id: objectAmount
-          font.pointSize: Common.fontSize
-          Layout.fillWidth: true
-          Layout.maximumHeight: Common.textHeight
-          horizontalAlignment: Text.AlignLeft
-          verticalAlignment: Text.AlignVCenter
-        }
-        ComboBox {
-          id: objectAmountInput
-          font.pointSize: Common.fontSize
-          Layout.fillWidth: true
-          Layout.maximumHeight: Common.textHeight
-          model: ingredients.amounts()
-        }
-      }
-      Text {
-        text: "Image path"
+        text: qsTr("Category")
         font.pointSize: Common.fontSize
         Layout.maximumHeight: Common.textHeight
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
+      }
+      ComboBox {
+        id: objectCategoryInput
+        Layout.maximumHeight: Common.textHeight
         Layout.fillWidth: true
+        font.pointSize: Common.fontSize
+        model: ingredients.categories()
+      }
+      Text {
+        text: qsTr("Default amount type")
+        font.pointSize: Common.fontSize
+        Layout.maximumHeight: Common.textHeight
+        horizontalAlignment: Text.AlignLeft
+        verticalAlignment: Text.AlignVCenter
+      }
+      ComboBox {
+        id: objectAmountInput
+        Layout.maximumHeight: Common.textHeight
+        Layout.fillWidth: true
+        font.pointSize: Common.fontSize
+        model: ingredients.amounts()
+      }
+      Text {
+        text: qsTr("Image path")
+        font.pointSize: Common.fontSize
+        Layout.maximumHeight: Common.textHeight
+        horizontalAlignment: Text.AlignLeft
+        verticalAlignment: Text.AlignVCenter
       }
       RowLayout{
         Layout.fillWidth: true
@@ -139,14 +93,13 @@ Item {
         }
         RButton{
           id: objectImagePathButton
-          text: "Load Image"
+          text: qsTr("Load Image")
           context: 0
-          visible: !ingredientView.readonly
           Layout.maximumHeight: Common.textHeight
           Layout.fillWidth: true
           FileDialog {
             id: loadDialog
-            title: "Please choose an image file"
+            title: qsTr("Please choose an image file")
             nameFilters: [ "Image files (*.jpeg, *.jpg)" ]
             folder: "file://" + ingredients.databasePath()+"/"
             selectExisting: true
@@ -166,24 +119,22 @@ Item {
         }
       }
       Text {
-        text: "Is sectioned"
+        id: sectionedLabel
+        text: qsTr("Is sectioned")
         font.pointSize: Common.fontSize
         Layout.maximumHeight: Common.textHeight
-        Layout.fillWidth: true
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
       }
       CheckBox {
         id: objectSectioned
-        text: "Sectioned"
+        text: ""
         font.pointSize: Common.fontSize
-        enabled: !ingredientView.readonly
+        enabled: true
         Layout.maximumHeight: Common.textHeight
-        Layout.fillWidth: true
       }
       Item{
         Layout.fillHeight: true
-        Layout.fillWidth: true
       }
       Item {
         Layout.fillHeight: true
@@ -191,11 +142,10 @@ Item {
       }
       RButton {
         id: applyButton
-        visible: !ingredientView.readonly
         context: 0
-        text: "Apply"
-        Layout.fillWidth: true
+        text: qsTr("Apply")
         Layout.preferredHeight: Common.textHeight
+        Layout.preferredWidth: sectionedLabel.width
         onClicked: {
           object.name = objectNameInput.text
           object.image_path = objectImagePath.text
@@ -209,17 +159,17 @@ Item {
   }
   onObjectChanged: {
     if (object !== undefined) {
-      objectName.text = object.name
-      objectCategory.text = object.category
-      objectImagePath.text = object.image_path
-      objectImage.source = object.image
-      objectAmount.text = object.default_amount
+      if (object.image_path !== undefined) {
+        objectImagePath.text = object.image_path
+        objectImage.source = object.image
+      } else {
+        objectImagePath.text = ""
+        objectImage.source = ""
+      }
       objectSectioned.checked = object.isSectioned
       objectNameInput.text = object.name
       objectCategoryInput.currentIndex = objectCategoryInput.find(object.category)
       objectAmountInput.currentIndex = objectAmountInput.find(object.default_amount)
-      ingredientView.readonly = true
     }
   }
-  visible: object !== undefined
 }

@@ -19,6 +19,7 @@ Rectangle {
       context: page.context
       width: 200
       Layout.fillHeight: true
+      onCurrentObjectChanged: viewStack.currentIndex = 1
     }
     ColumnLayout{
       IngredientControls{
@@ -28,18 +29,32 @@ Rectangle {
         model: recipes
         currentObject: recipeList.currentObject
         text: "recipe"
-        onEditRequested: recipeView.readonly = false
+        onEditRequested: viewStack.currentIndex = 0
         onNewRequested: recipes.addItem()
         onDeleteRequested: recipes.deleteItem(recipeList.currentIndex)
       }
 
-      RecipeView {
-        id: recipeView
-        Layout.fillWidth: true
-        Layout.fillHeight: true
-        object: recipeList.currentObject
-        objectIndex: recipeList.currentIndex
-        context: 1
+      StackLayout {
+        id: viewStack
+        currentIndex: 1
+        visible:recipeList.currentObject !== undefined
+        RecipeEditView {
+          id: recipeEditView
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          object: recipeList.currentObject
+          objectIndex: recipeList.currentIndex
+          context: 1
+        }
+
+        RecipeReadonlyView {
+          id: recipeView
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          object: recipeList.currentObject
+          objectIndex: recipeList.currentIndex
+          context: 1
+        }
       }
       Item {
         visible: recipeList.currentObject === undefined

@@ -7,7 +7,7 @@ namespace gui {
 
 amounted_list_model::amounted_list_model(std::shared_ptr<amount_list_adapter> adapter,
                                          std::filesystem::path const& db_path)
-    : _adapter(adapter), _database_path(db_path)
+    : _database_path(db_path), _adapter(adapter)
 {
 }
 
@@ -36,35 +36,35 @@ QVariant amounted_list_model::data(const QModelIndex& index, int role) const
   };
 
   switch (role) {
-  case name_role:
+  case IngredientRoles::name_role:
     return QString::fromStdString(_adapter->at(index.row()).base_ingredient().name());
-  case amounts_role: {
+  case IngredientRoles::amounts_role: {
     return {};
   }
-  case image_role: {
+  case IngredientRoles::image_role: {
     return "file://" +
            QString::fromStdString(
                (_database_path / _adapter->at(index.row()).base_ingredient().image_path())
                    .native());
   }
-  case amount_count_role:
+  case IngredientRoles::amount_count_role:
     return static_cast<int>(
         std::distance(_adapter->at(index.row()).begin(), _adapter->at(index.row()).end()));
-  case amount_value_role:
+  case IngredientRoles::amount_value_role:
     if (_adapter->at(index.row()).begin() == _adapter->at(index.row()).end()) {
       return {};
     }
     return _adapter->at(index.row()).begin()->second;
-  case amount_amount_role: {
+  case IngredientRoles::amount_amount_role: {
     auto it = amounts.find(_adapter->at(index.row()).begin()->first);
     if (it != amounts.end()) {
       return it->second;
     }
     return {};
   }
-  case amount_amount_index_role:
+  case IngredientRoles::amount_amount_index_role:
     return static_cast<int>(_adapter->at(index.row()).begin()->first);
-  case id_role:
+  case IngredientRoles::id_role:
     return QString::fromStdString(
         boost::uuids::to_string(_adapter->at(index.row()).base_ingredient().id()));
   }
