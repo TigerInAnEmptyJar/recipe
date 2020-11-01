@@ -22,6 +22,9 @@ QVariant amounted_list_model::data(const QModelIndex& index, int role) const
   static std::map<amounted_ingredient::amount_t, QString> const amounts{
       std::make_pair(amounted_ingredient::amount_t::liter, tr("Liter")),
       std::make_pair(amounted_ingredient::amount_t::milliliter, tr("Milliliter")),
+      std::make_pair(amounted_ingredient::amount_t::tea_spoon, tr("Tea spoon")),
+      std::make_pair(amounted_ingredient::amount_t::table_spoon, tr("Table spoon")),
+      std::make_pair(amounted_ingredient::amount_t::pince, tr("Pince")),
       std::make_pair(amounted_ingredient::amount_t::cups, tr("Cups")),
       std::make_pair(amounted_ingredient::amount_t::grams, tr("Grams")),
       std::make_pair(amounted_ingredient::amount_t::kg, tr("Kg")),
@@ -133,7 +136,12 @@ bool amounted_list_model::setData(QModelIndex const& index, QVariant const& valu
 
 void amounted_list_model::addItem() {}
 
-void amounted_list_model::deleteItem(int) {}
+void amounted_list_model::deleteItem(int i)
+{
+  beginRemoveRows(QModelIndex{}, i, i);
+  _adapter->removeAt(i);
+  endRemoveRows();
+}
 
 QStringList amounted_list_model::amountList() const
 {

@@ -12,6 +12,7 @@ public:
   virtual amounted_ingredient& at(size_t i) = 0;
   virtual amounted_ingredient const& at(size_t i) const = 0;
   virtual bool singleAmount() const = 0;
+  virtual bool removeAt(size_t i) = 0;
 };
 
 template <typename T>
@@ -23,6 +24,7 @@ public:
   amounted_ingredient& at(size_t i) override { return _object[i]; }
   amounted_ingredient const& at(size_t i) const override { return _object[i]; }
   bool singleAmount() const override { return false; }
+  bool removeAt(size_t i) { return false; }
 
 private:
   std::shared_ptr<T> _object;
