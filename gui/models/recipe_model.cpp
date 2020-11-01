@@ -127,42 +127,42 @@ void recipe_model::addItem()
 void recipe_model::deleteItem(int index)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->deleteItem(index);
+    model->deleteItem(mapToSource(this->index(index, 0)).row());
   }
 }
 
 void recipe_model::addTag(int index, QString const& tag)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->addTag(index, tag);
+    model->addTag(mapToSource(this->index(index, 0)).row(), tag);
   }
 }
 
 void recipe_model::removeTag(int index, QString const& tag)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->removeTag(index, tag);
+    model->removeTag(mapToSource(this->index(index, 0)).row(), tag);
   }
 }
 
 void recipe_model::addEater(int index, QString const& eater)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->addEater(index, eater);
+    model->addEater(mapToSource(this->index(index, 0)).row(), eater);
   }
 }
 
 void recipe_model::removeEater(int index, QString const& eater)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->removeEater(index, eater);
+    model->removeEater(mapToSource(this->index(index, 0)).row(), eater);
   }
 }
 
 void recipe_model::addIngredient(int index, QString const& id)
 {
   if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->addIngredient(index, id);
+    model->addIngredient(mapToSource(this->index(index, 0)).row(), id);
   }
 }
 

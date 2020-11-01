@@ -85,7 +85,7 @@ void ingredient_model::addItem()
 void ingredient_model::deleteItem(int index)
 {
   if (auto model = std::dynamic_pointer_cast<ingredients::data_model>(_model)) {
-    model->deleteItem(index);
+    model->deleteItem(mapToSource(this->index(index, 0)).row());
   }
 }
 
