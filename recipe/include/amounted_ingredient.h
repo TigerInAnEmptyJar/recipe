@@ -33,6 +33,9 @@ public:
     piece,
     bundle,
     can,
+    table_spoon,
+    tea_spoon,
+    pince,
   };
 
   //! Iterators to iterate over individual amounts.
@@ -110,6 +113,8 @@ public:
    * \return true if operation was successful.
    */
   bool remove(const_iterator item);
+
+  amounted_ingredient& operator*=(float value);
 
 private:
   ingredient _base_ingredient;

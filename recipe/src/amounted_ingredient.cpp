@@ -8,8 +8,10 @@ bool canConvert(recipe::amounted_ingredient::amount_t from,
                 recipe::amounted_ingredient::amount_t to)
 {
   using amount_t = recipe::amounted_ingredient::amount_t;
-  if ((from == amount_t::liter || from == amount_t::milliliter || from == amount_t::cups) &&
-      (to == amount_t::liter || to == amount_t::milliliter || to == amount_t::cups)) {
+  if ((from == amount_t::liter || from == amount_t::milliliter || from == amount_t::cups ||
+       from == amount_t::table_spoon || from == amount_t::tea_spoon) &&
+      (to == amount_t::liter || to == amount_t::milliliter || to == amount_t::cups ||
+       to == amount_t::table_spoon || to == amount_t::tea_spoon)) {
     return true;
   }
   if ((from == amount_t::grams || from == amount_t::kg || from == amount_t::pounds ||
@@ -21,7 +23,7 @@ bool canConvert(recipe::amounted_ingredient::amount_t from,
   return false;
 }
 
-std::optional<std::pair<recipe::amounted_ingredient::amount_t, float>> convert(
+constexpr std::optional<std::pair<recipe::amounted_ingredient::amount_t, float>> convert(
     recipe::amounted_ingredient::amount_t from, recipe::amounted_ingredient::amount_t to,
     float value)
 {
@@ -31,22 +33,73 @@ std::optional<std::pair<recipe::amounted_ingredient::amount_t, float>> convert(
   using amount_t = recipe::amounted_ingredient::amount_t;
   switch (from) {
   case amount_t::liter:
-    if (to == amount_t::milliliter) {
-      return std::make_pair(to, value * 1000);
-    } else {
+    switch (to) {
+    case amount_t::milliliter:
+      return std::make_pair(to, value * 1000.);
+    case amount_t::cups:
       return std::make_pair(to, value * 4.23);
+    case amount_t::table_spoon:
+      return std::make_pair(to, value * 200. / 3.);
+    case amount_t::tea_spoon:
+      return std::make_pair(to, value * 200.);
+    default:
+      break;
     }
+    break;
   case amount_t::milliliter:
-    if (to == amount_t::liter) {
+    switch (to) {
+    case amount_t::liter:
       return std::make_pair(to, value / 1000.);
-    } else {
+    case amount_t::cups:
       return std::make_pair(to, value * 0.00423);
+    case amount_t::table_spoon:
+      return std::make_pair(to, value / 15.);
+    case amount_t::tea_spoon:
+      return std::make_pair(to, value / 5.);
+    default:
+      break;
     }
+    break;
   case amount_t::cups:
-    if (to == amount_t::milliliter) {
-      return std::make_pair(to, value * 236.59);
-    } else {
+    switch (to) {
+    case amount_t::liter:
       return std::make_pair(to, value * 0.23658);
+    case amount_t::milliliter:
+      return std::make_pair(to, value * 236.59);
+    case amount_t::table_spoon:
+      return std::make_pair(to, value * 236.59 / 15.);
+    case amount_t::tea_spoon:
+      return std::make_pair(to, value * 236.59 / 5.);
+    default:
+      break;
+    }
+    break;
+  case amount_t::table_spoon:
+    switch (to) {
+    case amount_t::liter:
+      return std::make_pair(to, value / 200. * 3.);
+    case amount_t::milliliter:
+      return std::make_pair(to, value * 15.);
+    case amount_t::tea_spoon:
+      return std::make_pair(to, value / 3.);
+    case amount_t::cups:
+      return std::make_pair(to, value * 0.06345);
+    default:
+      break;
+    }
+    break;
+  case amount_t::tea_spoon:
+    switch (to) {
+    case amount_t::liter:
+      return std::make_pair(to, value / 200.);
+    case amount_t::milliliter:
+      return std::make_pair(to, value * 5.);
+    case amount_t::table_spoon:
+      return std::make_pair(to, value * 3.);
+    case amount_t::cups:
+      return std::make_pair(to, value * 0.02115);
+    default:
+      break;
     }
     break;
   case amount_t::grams:
@@ -178,6 +231,13 @@ bool amounted_ingredient::remove(amounted_ingredient::const_iterator item)
   }
   element->second = element->second - item->second;
   return true;
+}
+
+amounted_ingredient& amounted_ingredient::operator*=(float value)
+{
+  std::for_each(_value.begin(), _value.end(),
+                [value](auto& element) { element.second = element.second * value; });
+  return *this;
 }
 
 } // namespace recipe
