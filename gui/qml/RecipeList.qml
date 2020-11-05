@@ -10,6 +10,11 @@ Rectangle {
   property var currentObject
   property int context: 0
   property int currentIndex : -1
+  function unsetCurrentObject() {
+    currentIndex = -1
+    currentObject = undefined
+    iView.currentIndex = -1
+  }
 
   border{
     color: Common.borderColor[context]
@@ -20,11 +25,17 @@ Rectangle {
   Component {
     id: recipeDelegate
     Rectangle {
-      height: Common.textHeight
+      height: Common.textHeight +2
       width: iView.width
+      border {
+        width: iView.currentIndex == index ? Common.borderWidth : 0
+        color: Common.textColor[context]
+      }
       color: Common.backgroundColor[context]
+      clip: true
       RowLayout {
         anchors.fill: parent
+        anchors.margins: Common.borderWidth
         Image {
           source: image !== undefined ? image : ""
           Layout.maximumHeight: Common.textHeight
@@ -42,6 +53,7 @@ Rectangle {
       MouseArea{
         anchors.fill: parent
         onClicked: {
+          iView.currentIndex = index
           recipeList.currentIndex = index
           recipeList.currentObject = model
         }
@@ -52,11 +64,11 @@ Rectangle {
   Component {
     id: highlightDelegate
     Rectangle {
-      height: Common.textHeight
+      height: Common.textHeight +2
       width: iView.width
       border {
         width: Common.borderWidth
-        color: Common.backgroundColor[context]
+        color: Common.textColor[context]
       }
     }
   }
@@ -81,7 +93,8 @@ Rectangle {
   ListView {
     id: iView
     anchors.fill: parent
-    anchors.margins: Common.margin
+    anchors.margins: Common.borderWidth
+    clip: true
     model: recipes
     delegate: recipeDelegate
     highlight: highlightDelegate

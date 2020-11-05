@@ -36,6 +36,7 @@ Item {
           horizontalAlignment: Text.AlignLeft
         }
         RowLayout { // Type
+          Layout.fillWidth: true
           Text {
             text: qsTr("Type")
             font.pointSize: Common.fontSize
@@ -50,11 +51,13 @@ Item {
             Layout.maximumHeight: Common.textHeight
             Layout.fillWidth: true
             font.pointSize: Common.fontSize
+            color: Common.textColor[context]
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
           }
         }
         RowLayout { // Servings
+          Layout.fillWidth: true
           Text {
             text: qsTr("Servings")
             font.pointSize: Common.fontSize
@@ -70,13 +73,17 @@ Item {
             Layout.fillWidth: true
             Layout.maximumHeight: Common.textHeight
             font.pointSize: Common.fontSize
+            color: Common.textColor[context]
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignLeft
           }
         }
         RowLayout { // Ingredients - Image
+          id: iiLayout
           Layout.fillHeight: true
           Layout.fillWidth: true
+          Layout.minimumHeight: Common.textHeight
+          Layout.maximumHeight: recipeView.height/4
           ColumnLayout { // Ingredients
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -165,12 +172,10 @@ Item {
           Image {
             id: objectImage
             property string pathName: ""
-            Layout.maximumHeight: ingredientView.height
-            Layout.maximumWidth: ingredientView.width
+            Layout.maximumHeight: iiLayout.height
+            Layout.maximumWidth: iiLayout.height
             Layout.minimumHeight: Common.textHeight
             Layout.minimumWidth: Common.textHeight
-            Layout.fillHeight: true
-            Layout.fillWidth: true
             fillMode: Image.PreserveAspectFit
           }
         }
@@ -201,6 +206,7 @@ Item {
               id: objectInstructions
               anchors.fill: parent
               font.pointSize: Common.fontSize
+              color: Common.textColor[context]
               horizontalAlignment: Text.AlignLeft
               Layout.minimumHeight: implicitHeight
               wrapMode: Text.WordWrap
@@ -223,6 +229,7 @@ Item {
             id: objectCalories
             Layout.maximumHeight: Common.textHeight
             Layout.fillWidth: true
+            color: Common.textColor[context]
             font.pointSize: Common.fontSize
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
@@ -241,6 +248,7 @@ Item {
             Layout.maximumHeight: Common.textHeight
             Layout.fillWidth: true
             font.pointSize: Common.fontSize
+            color: Common.textColor[context]
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
           }
@@ -257,6 +265,7 @@ Item {
             id: objectFat
             Layout.maximumHeight: Common.textHeight
             Layout.fillWidth: true
+            color: Common.textColor[context]
             font.pointSize: Common.fontSize
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
@@ -274,6 +283,7 @@ Item {
             id: objectProtein
             Layout.maximumHeight: Common.textHeight
             Layout.fillWidth: true
+            color: Common.textColor[context]
             font.pointSize: Common.fontSize
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
@@ -291,6 +301,7 @@ Item {
             id: objectCarbs
             Layout.maximumHeight: Common.textHeight
             Layout.fillWidth: true
+            color: Common.textColor[context]
             font.pointSize: Common.fontSize
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignLeft
@@ -313,6 +324,7 @@ Item {
             Layout.fillWidth: true
             Layout.maximumHeight: Common.textHeight
             font.pointSize: Common.fontSize
+            color: Common.textColor[context]
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignLeft
           }
@@ -405,6 +417,9 @@ Item {
       if (object.image_path !== undefined) {
         objectImage.pathName = object.image_path
         objectImage.source = object.image
+      } else {
+        objectImage.pathName = ""
+        objectImage.source = ""
       }
       objectInstructions.text = object.instructions
       objectCalories.text = object.calories

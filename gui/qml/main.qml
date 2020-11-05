@@ -6,9 +6,9 @@ import "common/"
 
 ApplicationWindow {
   visible: true
-  width: 640
-  height: 480
-  title: qsTr("Scroll")
+  width: 640*2
+  height: 480*2
+  title: qsTr("Recipe")
 
   RowLayout {
     anchors.fill: parent

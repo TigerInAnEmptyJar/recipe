@@ -10,6 +10,11 @@ Rectangle {
   property var currentObject
   property int context: 0
   property int currentIndex : -1
+  function unsetCurrentObject() {
+    currentIndex = -1
+    currentObject = undefined
+    iView.currentIndex = -1
+  }
 
   border{
     color: Common.borderColor[context]
@@ -20,9 +25,15 @@ Rectangle {
   Component {
     id: ingredientDelegate
     Rectangle {
-      height: Common.textHeight
+      height: Common.textHeight + 2
       width: iView.width
       color: Common.backgroundColor[context]
+      border {
+        width: index == iView.currentIndex ? Common.borderWidth : 0
+        color: Common.borderColor[context]
+      }
+      clip: true
+
       Drag.active: mouseArea.drag.active
       Drag.dragType: Drag.Automatic
       Drag.supportedActions: Qt.LinkAction
@@ -32,6 +43,7 @@ Rectangle {
       Drag.source: model
       RowLayout {
         anchors.fill: parent
+        anchors.margins: Common.borderWidth
         Image {
           source: image !== undefined ? image : ""
           Layout.maximumHeight: Common.textHeight
@@ -54,6 +66,7 @@ Rectangle {
             parent.Drag.imageSource = result.url
         })
         onClicked: {
+          iView.currentIndex = index
           ingredientList.currentIndex = index
           ingredientList.currentObject = model
         }
@@ -93,7 +106,7 @@ Rectangle {
   ListView {
     id: iView
     anchors.fill: parent
-    anchors.margins: Common.margin
+    anchors.margins: Common.borderWidth
     model: ingredients
     highlight: highlightDelegate
     highlightFollowsCurrentItem: true

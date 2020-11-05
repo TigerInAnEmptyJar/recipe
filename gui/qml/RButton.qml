@@ -14,6 +14,7 @@ Item {
   implicitWidth: text.implicitWidth
 
   Rectangle {
+    id: buttonRectangle
     anchors.fill: parent
     color: button.enabled ? Common.buttonColor[context] : Common.disabledButtonColor[context]
     Text {
@@ -27,7 +28,25 @@ Item {
     }
     MouseArea{
       anchors.fill: parent
-      onClicked: if (button.enabled) button.clicked()
+      onClicked: {
+        if (button.enabled) {
+          buttonAnimation.start()
+          button.clicked()
+        }
+      }
+    }
+    ColorAnimation on color{
+      id: buttonAnimation
+      from: Common.buttonColor[context]
+      to: Common.disabledButtonColor[context]
+      duration: 200
+      onFinished: buttonBackAnimation.start()
+    }
+    ColorAnimation on color{
+      id: buttonBackAnimation
+      from: Common.disabledButtonColor[context]
+      to: Common.buttonColor[context]
+      duration: 200
     }
   }
 }

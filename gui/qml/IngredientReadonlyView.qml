@@ -117,7 +117,7 @@ Item {
     }
   }
   onObjectChanged: {
-    if (object !== undefined) {
+    if (object !== undefined && object !== null) {
       objectName.text = object.name
       objectCategory.text = object.category
       objectAmount.text = object.default_amount

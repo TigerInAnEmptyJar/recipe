@@ -28,7 +28,7 @@ Rectangle {
         context: page.context
         model: recipes
         currentObject: recipeList.currentObject
-        text: "recipe"
+        text: qsTr("recipe")
         onEditRequested: viewStack.currentIndex = 0
         onNewRequested: recipes.addItem()
         onDeleteRequested: recipes.deleteItem(recipeList.currentIndex)
@@ -38,6 +38,7 @@ Rectangle {
         id: viewStack
         currentIndex: 1
         visible:recipeList.currentObject !== undefined
+        clip: true
         RecipeEditView {
           id: recipeEditView
           Layout.fillWidth: true
@@ -45,6 +46,10 @@ Rectangle {
           object: recipeList.currentObject
           objectIndex: recipeList.currentIndex
           context: 1
+          onApplyClicked: {
+            recipeList.unsetCurrentObject()
+            viewStack.currentIndex = 1
+          }
         }
 
         RecipeReadonlyView {

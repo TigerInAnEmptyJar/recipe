@@ -70,8 +70,11 @@ Item {
           }
         }
         RowLayout { // Ingredients - Image
+          id: iiLayout
           Layout.fillHeight: true
           Layout.fillWidth: true
+          Layout.minimumHeight: Common.textHeight
+          Layout.maximumHeight: recipeView.height/4
           ColumnLayout { // Ingredients
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -164,6 +167,7 @@ Item {
                         anchors.fill: parent
                         anchors.leftMargin: Common.margin
                         text: value
+                        color: Common.textColor[context]
                         validator: DoubleValidator{bottom: 0; top: 1000; decimals: 3}
                         font.pointSize: Common.fontSize
                         onAccepted: value = text
@@ -187,12 +191,10 @@ Item {
           Image {
             id: objectImage
             property string pathName: ""
-            Layout.maximumHeight: ingredientView.height
-            Layout.maximumWidth: ingredientView.width
+            Layout.maximumHeight: iiLayout.height
+            Layout.maximumWidth: iiLayout.height
             Layout.minimumHeight: Common.textHeight
             Layout.minimumWidth: Common.textHeight
-            Layout.fillHeight: true
-            Layout.fillWidth: true
             fillMode: Image.PreserveAspectFit
             MouseArea {
               anchors.fill: parent
@@ -245,6 +247,7 @@ Item {
             TextEdit {
               id: objectInstructionInput
               anchors.fill: parent
+              color: Common.textColor[context]
               font.pointSize: Common.fontSize
               wrapMode: TextEdit.WordWrap
             }
@@ -525,8 +528,6 @@ Item {
           Layout.fillWidth: true
           Layout.preferredHeight: Common.textHeight
           onClicked: {
-            object.title = objectTitleInput.text
-            object.meal_type =  objectTypeInput.currentIndex
             object.servings = objectServingsInput.value
             object.image_path = objectImage.pathName
             object.instructions = objectInstructionInput.text
@@ -536,7 +537,11 @@ Item {
             object.protein = objectProteinInput.value
             object.carbohydrates = objectCarbsInput.value
             object.source = objectSourceInput.text
-            applyClicked()
+            if (object.title !== objectTitleInput.text || object.meal_type !== objectTypeInput.currentText){
+              object.title = objectTitleInput.text
+              object.meal_type =  objectTypeInput.currentIndex
+              applyClicked()
+            }
           }
         }
       }
@@ -556,6 +561,9 @@ Item {
       if (object.image_path !== undefined) {
         objectImage.pathName = object.image_path
         objectImage.source = object.image
+      } else {
+        objectImage.pathName = ""
+        objectImage.source = ""
       }
       objectInstructionInput.text = object.instructions
       objectCaloriesInput.value = object.calories

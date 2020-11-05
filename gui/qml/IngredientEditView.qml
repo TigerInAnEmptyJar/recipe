@@ -147,18 +147,20 @@ Item {
         Layout.preferredHeight: Common.textHeight
         Layout.preferredWidth: sectionedLabel.width
         onClicked: {
-          object.name = objectNameInput.text
           object.image_path = objectImagePath.text
-          object.category = objectCategoryInput.currentIndex
-          object.default_amount = objectAmountInput.currentindex
+          object.default_amount = objectAmountInput.currentIndex
           object.isSectioned = objectSectioned.checked
-          applyClicked()
+          if (object.name !== objectNameInput.text || object.category !== objectCategoryInput.currentText){
+            object.name = objectNameInput.text
+            object.category = objectCategoryInput.currentIndex
+            applyClicked()
+          }
         }
       }
     }
   }
   onObjectChanged: {
-    if (object !== undefined) {
+    if (object !== undefined && object !== null) {
       if (object.image_path !== undefined) {
         objectImagePath.text = object.image_path
         objectImage.source = object.image
