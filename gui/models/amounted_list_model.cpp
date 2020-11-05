@@ -19,22 +19,6 @@ QVariant amounted_list_model::data(const QModelIndex& index, int role) const
     return {};
   }
 
-  static std::map<amounted_ingredient::amount_t, QString> const amounts{
-      std::make_pair(amounted_ingredient::amount_t::liter, tr("Liter")),
-      std::make_pair(amounted_ingredient::amount_t::milliliter, tr("Milliliter")),
-      std::make_pair(amounted_ingredient::amount_t::tea_spoon, tr("Tea spoon")),
-      std::make_pair(amounted_ingredient::amount_t::table_spoon, tr("Table spoon")),
-      std::make_pair(amounted_ingredient::amount_t::pince, tr("Pince")),
-      std::make_pair(amounted_ingredient::amount_t::cups, tr("Cups")),
-      std::make_pair(amounted_ingredient::amount_t::grams, tr("Grams")),
-      std::make_pair(amounted_ingredient::amount_t::kg, tr("Kg")),
-      std::make_pair(amounted_ingredient::amount_t::ounces, tr("Ounces")),
-      std::make_pair(amounted_ingredient::amount_t::pounds, tr("Pounds")),
-      std::make_pair(amounted_ingredient::amount_t::piece, tr("Piece")),
-      std::make_pair(amounted_ingredient::amount_t::bundle, tr("Bundle")),
-      std::make_pair(amounted_ingredient::amount_t::can, tr("Can")),
-  };
-
   switch (role) {
   case IngredientRoles::name_role:
     return QString::fromStdString(_adapter->at(index.row()).base_ingredient().name());
@@ -42,10 +26,15 @@ QVariant amounted_list_model::data(const QModelIndex& index, int role) const
     return {};
   }
   case IngredientRoles::image_role: {
-    return "file://" +
-           QString::fromStdString(
-               (_database_path / _adapter->at(index.row()).base_ingredient().image_path())
-                   .native());
+    auto path = _adapter->at(index.row()).base_ingredient().image_path();
+    if (path.empty()) {
+      return QVariant();
+    }
+    if (path.is_absolute()) {
+      return "file://" + QString::fromStdString(path.native());
+      ;
+    }
+    return "file://" + QString::fromStdString((_database_path / path).native());
   }
   case IngredientRoles::amount_count_role:
     return static_cast<int>(
@@ -56,11 +45,7 @@ QVariant amounted_list_model::data(const QModelIndex& index, int role) const
     }
     return _adapter->at(index.row()).begin()->second;
   case IngredientRoles::amount_amount_role: {
-    auto it = amounts.find(_adapter->at(index.row()).begin()->first);
-    if (it != amounts.end()) {
-      return it->second;
-    }
-    return {};
+    return _amount_adapter.to_string(_adapter->at(index.row()).begin()->first);
   }
   case IngredientRoles::amount_amount_index_role:
     return static_cast<int>(_adapter->at(index.row()).begin()->first);
@@ -122,7 +107,7 @@ bool amounted_list_model::setData(QModelIndex const& index, QVariant const& valu
     if (value.type() != QVariant::Int || !_adapter->singleAmount() || ing.begin() == ing.end()) {
       return false;
     }
-    if (value.toInt() <= 10) {
+    if (value.toInt() <= 12) {
       auto v = ing.begin()->second;
       ing.remove(ing.begin());
       ing.add(static_cast<amounted_ingredient::amount_t>(value.toInt()), v);
@@ -143,14 +128,7 @@ void amounted_list_model::deleteItem(int i)
   endRemoveRows();
 }
 
-QStringList amounted_list_model::amountList() const
-{
-  static QStringList const result{
-      tr("Liter"),  tr("Milliliter"), tr("Cups"),  tr("Grams"),  tr("Kg"),
-      tr("Ounces"), tr("Pounds"),     tr("Piece"), tr("Bundle"), tr("Can"),
-  };
-  return result;
-}
+QStringList amounted_list_model::amountList() const { return _amount_adapter.all(); }
 
 void amounted_list_model::startModelChange() { beginResetModel(); }
 

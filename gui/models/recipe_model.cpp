@@ -2,6 +2,7 @@
 
 #include "amount_list_adapter.hpp"
 #include "amounted_list_model.hpp"
+#include "enum_adapter.hpp"
 
 #include "io_provider.h"
 #include "recipe.h"
@@ -69,6 +70,8 @@ private:
   std::vector<std::shared_ptr<recipe_data>> _data;
   std::filesystem::path _database_path;
   std::function<std::optional<ingredient>(boost::uuids::uuid const&)> _finder;
+  enum_adapter<meal_t> _adapter;
+  enum_adapter<amounted_ingredient::amount_t> _amounts_adapter;
 };
 
 } // namespace recipes
@@ -246,16 +249,7 @@ QVariant data_model::data(QModelIndex const& index, int role) const
   case recipe_model::RecipeRoles::title_role:
     return QString::fromStdString(_data[index.row()]->object.title());
   case recipe_model::RecipeRoles::type_role: {
-    static std::map<meal_t, QString> const meal_types{
-        std::make_pair(meal_t::fish, tr("Fish")),
-        std::make_pair(meal_t::vegetarian, tr("Vegetarian")),
-        std::make_pair(meal_t::vegan, tr("Vegan")), std::make_pair(meal_t::sweet, tr("Sweet")),
-        std::make_pair(meal_t::other, tr("Other"))};
-    auto item = meal_types.find(_data[index.row()]->object.meal_type());
-    if (item != std::end(meal_types)) {
-      return item->second;
-    }
-    return {};
+    return _adapter.to_string(_data[index.row()]->object.meal_type());
   }
   case recipe_model::RecipeRoles::servings_role:
     return _data[index.row()]->object.servings();
@@ -348,23 +342,9 @@ QHash<int, QByteArray> data_model::roleNames() const
   return roles;
 }
 
-QStringList data_model::meal_types() const
-{
-  static QStringList const mealList{
-      tr("Fish"), tr("Vegetarian"), tr("Vegan"), tr("Sweet"), tr("Other"),
-  };
-  return mealList;
-}
+QStringList data_model::meal_types() const { return _adapter.all(); }
 
-QStringList data_model::amount_types() const
-{
-  static QStringList const amountTypes{
-      tr("Liter"),  tr("Milliliter"), tr("Cups"), tr("Table spoons"), tr("Tea spoons"),
-      tr("Pinces"), tr("Grams"),      tr("Kg"),   tr("Ounces"),       tr("Pounds"),
-      tr("Piece"),  tr("Bundle"),     tr("Can"),
-  };
-  return amountTypes;
-}
+QStringList data_model::amount_types() const { return _amounts_adapter.all(); }
 
 Qt::ItemFlags data_model::flags(QModelIndex const& index) const
 {
@@ -391,12 +371,12 @@ bool data_model::setData(QModelIndex const& index, QVariant const& value, int ro
     dataChanged(index, index, {role});
     return true;
   case recipe_model::RecipeRoles::type_role:
-    if (value.type() != QVariant::Int) {
-      return false;
+    if (auto item = _adapter.to_enum(value)) {
+      _data[position]->object.meal_type(*item);
+      dataChanged(index, index, {role});
+      return true;
     }
-    _data[position]->object.meal_type(static_cast<meal_t>(value.toInt()));
-    dataChanged(index, index, {role});
-    return true;
+    return false;
   case recipe_model::RecipeRoles::servings_role:
     if (value.type() != QVariant::Int) {
       return false;
@@ -427,9 +407,16 @@ bool data_model::setData(QModelIndex const& index, QVariant const& value, int ro
       val = val.substr(7);
     }
     auto image_path = std::filesystem::path{val};
-    _data[position]->object.image_path(std::filesystem::relative(image_path, _database_path));
-    dataChanged(index, index, {role, recipe_model::RecipeRoles::image_role});
-    return true;
+    try {
+      if (std::filesystem::exists(image_path)) {
+        _data[position]->object.image_path(std::filesystem::relative(image_path, _database_path));
+        dataChanged(index, index, {role, recipe_model::RecipeRoles::image_role});
+        return true;
+      }
+    } catch (std::filesystem::filesystem_error const& e) {
+      std::cout << "Caught exception while accessing filesystem: " << e.what() << std::endl;
+    }
+    return false;
   }
   case recipe_model::RecipeRoles::image_role:
     break;

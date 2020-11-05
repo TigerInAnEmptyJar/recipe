@@ -3,6 +3,7 @@
 #include "amounted_ingredient.h"
 
 #include "amount_list_adapter.hpp"
+#include "enum_adapter.hpp"
 
 #include <QAbstractListModel>
 
@@ -57,6 +58,7 @@ private:
   std::filesystem::path _database_path;
   std::function<std::optional<ingredient>(boost::uuids::uuid const&)> _finder;
   std::shared_ptr<amount_list_adapter> _adapter;
+  enum_adapter<amounted_ingredient::amount_t> _amount_adapter;
 };
 
 } // namespace gui

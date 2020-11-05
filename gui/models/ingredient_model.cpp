@@ -1,5 +1,7 @@
 #include "ingredient_model.hpp"
 
+#include "enum_adapter.hpp"
+
 #include "io_provider.h"
 
 #include <QImage>
@@ -50,6 +52,8 @@ public:
 private:
   std::vector<ingredient> _data;
   std::filesystem::path _database_path;
+  enum_adapter<ingredient::amount_type> _amount_adapter;
+  enum_adapter<ingredient::category_t> _category_adapter;
 };
 } // namespace ingredients
 
@@ -150,42 +154,14 @@ QVariant data_model::data(QModelIndex const& index, int role) const
     return {};
   }
 
-  static std::map<ingredient::category_t, QString> const categories{
-      std::make_pair(ingredient::category_t::fruit, tr("Fruit")),
-      std::make_pair(ingredient::category_t::vegetable, tr("Vegetable")),
-      std::make_pair(ingredient::category_t::meat, tr("Meat")),
-      std::make_pair(ingredient::category_t::fish, tr("Fish")),
-      std::make_pair(ingredient::category_t::spices, tr("Spices")),
-      std::make_pair(ingredient::category_t::diary, tr("Diary")),
-      std::make_pair(ingredient::category_t::noodles, tr("Noodles")),
-      std::make_pair(ingredient::category_t::baking, tr("Baking")),
-      std::make_pair(ingredient::category_t::drink, tr("Drink")),
-      std::make_pair(ingredient::category_t::frozen, tr("Frozen")),
-      std::make_pair(ingredient::category_t::canned, tr("Canned")),
-  };
-
-  static std::map<ingredient::amount_type, QString> const amounts{
-      std::make_pair(ingredient::amount_type::volume, tr("Volume")),
-      std::make_pair(ingredient::amount_type::mass, tr("Mass")),
-      std::make_pair(ingredient::amount_type::piece, tr("Piece")),
-  };
-
   switch (role) {
   case ingredient_model::IngredientRoles::name_role:
     return QString::fromStdString(_data[index.row()].name());
   case ingredient_model::IngredientRoles::category_role: {
-    auto item = categories.find(_data[index.row()].category());
-    if (item != std::end(categories)) {
-      return item->second;
-    }
-    return {};
+    return _category_adapter.to_string(_data[index.row()].category());
   }
   case ingredient_model::IngredientRoles::amount_role: {
-    auto item = amounts.find(_data[index.row()].default_amount());
-    if (item != std::end(amounts)) {
-      return item->second;
-    }
-    return {};
+    return _amount_adapter.to_string(_data[index.row()].default_amount());
   }
   case ingredient_model::IngredientRoles::sectioned_role:
     return _data[index.row()].sectioned();
@@ -239,24 +215,9 @@ QHash<int, QByteArray> data_model::roleNames() const
   return roles;
 }
 
-QStringList data_model::categories() const
-{
-  static QStringList const categoryList{
-      tr("Fruit"),   tr("Vegetable"), tr("Meat"),  tr("Fish"),   tr("Spices"), tr("Diary"),
-      tr("Noodles"), tr("Baking"),    tr("Drink"), tr("Frozen"), tr("Canned"),
-  };
-  return categoryList;
-}
+QStringList data_model::categories() const { return _category_adapter.all(); }
 
-QStringList data_model::amounts() const
-{
-  static QStringList const amount_list{
-      tr("Volume"),
-      tr("Mass"),
-      tr("Piece"),
-  };
-  return amount_list;
-}
+QStringList data_model::amounts() const { return _amount_adapter.all(); }
 
 Qt::ItemFlags data_model::flags(QModelIndex const& index) const
 {
@@ -284,20 +245,22 @@ bool data_model::setData(QModelIndex const& index, QVariant const& value, int ro
     return true;
   }
   case ingredient_model::IngredientRoles::category_role: {
-    if (value.type() != QVariant::Int) {
-      return false;
+    auto item = _category_adapter.to_enum(value);
+    if (item) {
+      _data[position].category(*item);
+      dataChanged(index, index, {role});
+      return true;
     }
-    _data[position].category(static_cast<ingredient::category_t>(value.toInt()));
-    dataChanged(index, index, {role});
-    return true;
+      return false;
   }
   case ingredient_model::IngredientRoles::amount_role: {
-    if (value.type() != QVariant::Int) {
-      return false;
+    auto item = _amount_adapter.to_enum(value);
+    if (item) {
+      _data[position].default_amount(*item);
+      dataChanged(index, index, {role});
+      return true;
     }
-    _data[position].default_amount(static_cast<ingredient::amount_type>(value.toInt()));
-    dataChanged(index, index, {role});
-    return true;
+      return false;
   }
   case ingredient_model::IngredientRoles::sectioned_role: {
     if (value.type() != QVariant::Bool) {

@@ -19,6 +19,7 @@ enum class meal_t
   vegan,
   sweet,
   other,
+  baking,
 };
 
 /*!
