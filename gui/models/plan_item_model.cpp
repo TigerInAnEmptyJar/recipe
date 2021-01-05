@@ -27,9 +27,22 @@ QVariant plan_item_model::data(QModelIndex const& index, int role) const
   case ItemRoles::title_role:
     return QString::fromStdString(item->title());
   case ItemRoles::image_path_role:
+    if (item->image_path().empty()) {
+      return {};
+    }
+    if (item->image_path().is_relative()) {
+      return QString::fromStdString((_database_path / item->image_path()).native());
+    }
     return QString::fromStdString(item->image_path().native());
   case ItemRoles::image_role:
-    return "file://" + QString::fromStdString((_database_path / item->image_path()).native());
+    if (item->image_path().empty()) {
+      return {};
+    }
+    if (item->image_path().is_relative()) {
+      return "file://" +
+             QString::fromStdString((_database_path / "recipes" / item->image_path()).native());
+    }
+    return "file://" + QString::fromStdString(item->image_path().native());
   }
   return {};
 }
@@ -68,13 +81,14 @@ void plan_item_model::deleteRecipe(int index)
   endResetModel();
 }
 
-void plan_item_model::addSubscriber(QString const& eater) { _data->add(eater.toStdString()); }
-
-void plan_item_model::removeSubscriber(QString const& eater) { _data->remove(eater.toStdString()); }
-
 QString plan_item_model::databasePath() const
 {
   return QString::fromStdString(_database_path.native());
+}
+
+void plan_item_model::setDatabasePath(std::filesystem::path const& database_path)
+{
+  _database_path = database_path;
 }
 
 } // namespace gui

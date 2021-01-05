@@ -45,6 +45,16 @@ public:
 
   Q_INVOKABLE QString databasePath() const;
 
+  Q_INVOKABLE void addRecipe(int index, QString const& id);
+
+  Q_INVOKABLE void addEater(QString const& eater);
+  Q_INVOKABLE void removeEater(QString const& eater);
+  Q_INVOKABLE QStringList eaters() const;
+
+  Q_INVOKABLE void addSubscriber(int index, QString const& eater);
+  Q_INVOKABLE void removeSubscriber(int index, QString const& eater);
+  Q_INVOKABLE bool subscribed(int index, QString const& eater);
+
   int getDays() const;
   int getMeals() const;
   QString getTitle() const;

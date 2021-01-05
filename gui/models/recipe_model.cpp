@@ -13,6 +13,7 @@
 
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/string_generator.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include <iostream>
 
@@ -302,6 +303,8 @@ QVariant data_model::data(QModelIndex const& index, int role) const
     }
     return eaters;
   }
+  case recipe_model::RecipeRoles::id_role:
+    return QString::fromStdString(boost::uuids::to_string(_data[index.row()]->object.id()));
   }
   return {};
 }
@@ -339,6 +342,7 @@ QHash<int, QByteArray> data_model::roleNames() const
   roles.insert(recipe_model::RecipeRoles::source_role, "source");
   roles.insert(recipe_model::RecipeRoles::tag_role, "tags");
   roles.insert(recipe_model::RecipeRoles::eater_role, "eaters");
+  roles.insert(recipe_model::RecipeRoles::id_role, "id");
   return roles;
 }
 
@@ -463,9 +467,9 @@ bool data_model::setData(QModelIndex const& index, QVariant const& value, int ro
     dataChanged(index, index, {role});
     return true;
   case recipe_model::RecipeRoles::ingredient_role:
-    break;
   case recipe_model::RecipeRoles::tag_role:
   case recipe_model::RecipeRoles::eater_role:
+  case recipe_model::RecipeRoles::id_role:
     break;
   }
   return false;

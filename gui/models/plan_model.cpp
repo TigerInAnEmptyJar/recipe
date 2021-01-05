@@ -16,7 +16,7 @@ namespace recipe {
 namespace gui {
 
 plan_model::plan_model(std::function<std::optional<recipe>(boost::uuids::uuid const&)> finder)
-    : _data("New plan", 7, 3), _finder(finder)
+    : _data(tr("New plan").toStdString(), 7, 3), _finder(finder)
 {
   std::transform(_data.begin(), _data.end(), std::back_inserter(_items), [this](auto& element) {
     return std::make_shared<plan_item_model>(&element, _finder);
@@ -102,13 +102,63 @@ bool plan_model::setData(QModelIndex const& index, QVariant const& value, int ro
   return false;
 }
 
+void plan_model::addEater(QString const& eater) { _data.addEater(eater.toStdString()); }
+
+void plan_model::removeEater(QString const& eater) { _data.removeEater(eater.toStdString()); }
+
+QStringList plan_model::eaters() const
+{
+  auto eaters = _data.eaterList();
+  QStringList result;
+  std::transform(std::begin(eaters), std::end(eaters), std::back_inserter(result),
+                 [](auto const& element) { return QString::fromStdString(element); });
+  return result;
+}
+
+void plan_model::addSubscriber(int index, QString const& eater)
+{
+  auto item = _data.begin();
+  std::advance(item, index);
+  if (item == _data.end()) {
+    return;
+  }
+  item->add(eater.toStdString());
+}
+
+void plan_model::removeSubscriber(int index, QString const& eater)
+{
+  auto item = _data.begin();
+  std::advance(item, index);
+  if (item == _data.end()) {
+    return;
+  }
+  item->remove(eater.toStdString());
+}
+
+bool plan_model::subscribed(int index, QString const& eater)
+{
+  if (index < 0) {
+    return false;
+  }
+  auto item = _data.begin();
+  std::advance(item, index);
+  if (item == _data.end()) {
+    return false;
+  }
+  auto eaters = item->subscribers();
+  return std::find(std::begin(eaters), std::end(eaters), eater.toStdString()) != std::end(eaters);
+}
+
 void plan_model::newPlan(int ndays, int nmeals)
 {
   beginResetModel();
   _items.clear();
-  _data = plan{"New plan", static_cast<size_t>(ndays), static_cast<size_t>(nmeals)};
+  _data =
+      plan{tr("New plan").toStdString(), static_cast<size_t>(ndays), static_cast<size_t>(nmeals)};
   std::transform(_data.begin(), _data.end(), std::back_inserter(_items), [this](auto& element) {
-    return std::make_shared<plan_item_model>(&element, _finder);
+    auto item = std::make_shared<plan_item_model>(&element, _finder);
+    item->setDatabasePath(_database_path);
+    return item;
   });
   endResetModel();
   Q_EMIT daysChanged(_data.days());
@@ -136,7 +186,9 @@ void plan_model::loadLast()
   _data = *data;
   _items.clear();
   std::transform(_data.begin(), _data.end(), std::back_inserter(_items), [this](auto& element) {
-    return std::make_shared<plan_item_model>(&element, _finder);
+    auto item = std::make_shared<plan_item_model>(&element, _finder);
+    item->setDatabasePath(_database_path);
+    return item;
   });
   endResetModel();
   Q_EMIT daysChanged(_data.days());
@@ -166,7 +218,9 @@ void plan_model::load(QUrl const& url)
   _data = *data;
   _items.clear();
   std::transform(_data.begin(), _data.end(), std::back_inserter(_items), [this](auto& element) {
-    return std::make_shared<plan_item_model>(&element, _finder);
+    auto item = std::make_shared<plan_item_model>(&element, _finder);
+    item->setDatabasePath(_database_path);
+    return item;
   });
   endResetModel();
   Q_EMIT daysChanged(_data.days());
@@ -204,6 +258,14 @@ void plan_model::storeAs(QUrl const& url)
 }
 
 QString plan_model::databasePath() const { return QString::fromStdString(_database_path.native()); }
+
+void plan_model::addRecipe(int index, QString const& id)
+{
+  if (index < 0 || static_cast<size_t>(index) >= _items.size()) {
+    return;
+  }
+  _items[index]->addRecipe(id);
+}
 
 int plan_model::getDays() const { return _data.days(); }
 

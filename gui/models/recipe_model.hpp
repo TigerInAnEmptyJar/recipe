@@ -36,6 +36,7 @@ public:
     source_role,
     tag_role,
     eater_role,
+    id_role,
   };
 
 public:

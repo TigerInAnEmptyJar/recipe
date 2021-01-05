@@ -29,10 +29,9 @@ public:
 
   Q_INVOKABLE void addRecipe(QString const& recipe);
   Q_INVOKABLE void deleteRecipe(int index);
-  Q_INVOKABLE void addSubscriber(QString const& eater);
-  Q_INVOKABLE void removeSubscriber(QString const& eater);
 
   Q_INVOKABLE QString databasePath() const;
+  void setDatabasePath(std::filesystem::path const& database_path);
 
 private:
   plan_item* _data;
