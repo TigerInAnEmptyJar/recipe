@@ -5,7 +5,6 @@
         <file>IngredientControls.qml</file>
         <file>IngredientList.qml</file>
         <file>IngredientPage.qml</file>
-        <file>RButton.qml</file>
         <file>common/Common.qml</file>
         <file>common/qmldir</file>
         <file>RecipePage.qml</file>
@@ -19,5 +18,8 @@
         <file>IngredientEditView.qml</file>
         <file>RecipeReadonlyView.qml</file>
         <file>RecipeEditView.qml</file>
+        <file>common/RButton.qml</file>
+        <file>common/RStringListView.qml</file>
+        <file>common/RLabeledControl.qml</file>
     </qresource>
 </RCC>

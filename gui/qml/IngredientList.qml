@@ -8,15 +8,15 @@ import "common/"
 Rectangle {
   id: ingredientList
   property var currentObject
-  property int context: 0
-  property int currentIndex : -1
+  property int context: Common.context_ingredient
+  property int currentIndex: -1
   function unsetCurrentObject() {
     currentIndex = -1
     currentObject = undefined
     iView.currentIndex = -1
   }
 
-  border{
+  border {
     color: Common.borderColor[context]
     width: Common.borderWidth
   }
@@ -37,9 +37,7 @@ Rectangle {
       Drag.active: mouseArea.drag.active
       Drag.dragType: Drag.Automatic
       Drag.supportedActions: Qt.LinkAction
-      Drag.mimeData: {
-          "text/plain": "Copied ingredient: " + name
-      }
+      Drag.mimeData: {"text/plain": "Copied ingredient: " + name}
       Drag.source: model
       RowLayout {
         anchors.fill: parent
@@ -49,6 +47,7 @@ Rectangle {
           Layout.maximumHeight: Common.textHeight
           Layout.maximumWidth: Common.textHeight
           fillMode: Image.PreserveAspectFit
+          sourceSize.width: 256
         }
         Text {
           text: name
@@ -58,13 +57,11 @@ Rectangle {
           Layout.fillWidth: true
         }
       }
-      MouseArea{
+      MouseArea {
         id: mouseArea
         anchors.fill: parent
         drag.target: parent
-        onPressed: parent.grabToImage(function(result) {
-            parent.Drag.imageSource = result.url
-        })
+        onPressed: parent.grabToImage(function(result){parent.Drag.imageSource = result.url})
         onClicked: {
           iView.currentIndex = index
           ingredientList.currentIndex = index
@@ -114,7 +111,7 @@ Rectangle {
     delegate: ingredientDelegate
     clip: true
     focus: true
-    section{
+    section {
       property: "category"
       delegate: sectionDelegate
     }

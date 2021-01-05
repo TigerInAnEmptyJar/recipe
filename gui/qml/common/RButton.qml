@@ -1,8 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 
-import "common/"
-
 Item {
   id: button
   signal clicked()
@@ -19,14 +17,14 @@ Item {
     color: button.enabled ? Common.buttonColor[context] : Common.disabledButtonColor[context]
     Text {
       id: text
-      anchors.fill:parent
+      anchors.fill: parent
       horizontalAlignment: Text.AlignHCenter
       verticalAlignment: Text.AlignVCenter
       text: button.text
       color: Common.buttonTextColor[context]
       font.pointSize: Common.fontSize
     }
-    MouseArea{
+    MouseArea {
       anchors.fill: parent
       onClicked: {
         if (button.enabled) {
@@ -35,14 +33,14 @@ Item {
         }
       }
     }
-    ColorAnimation on color{
+    ColorAnimation on color {
       id: buttonAnimation
       from: Common.buttonColor[context]
       to: Common.disabledButtonColor[context]
       duration: 200
       onFinished: buttonBackAnimation.start()
     }
-    ColorAnimation on color{
+    ColorAnimation on color {
       id: buttonBackAnimation
       from: Common.disabledButtonColor[context]
       to: Common.buttonColor[context]

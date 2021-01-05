@@ -8,15 +8,15 @@ import "common/"
 Rectangle {
   id: recipeList
   property var currentObject
-  property int context: 0
-  property int currentIndex : -1
-  function unsetCurrentObject() {
+  property int context: Common.context_recipe
+  property int currentIndex: -1
+  function unsetCurrentObject(){
     currentIndex = -1
     currentObject = undefined
     iView.currentIndex = -1
   }
 
-  border{
+  border {
     color: Common.borderColor[context]
     width: Common.borderWidth
   }
@@ -25,7 +25,7 @@ Rectangle {
   Component {
     id: recipeDelegate
     Rectangle {
-      height: Common.textHeight +2
+      height: Common.textHeight + 2
       width: iView.width
       border {
         width: iView.currentIndex == index ? Common.borderWidth : 0
@@ -33,6 +33,11 @@ Rectangle {
       }
       color: Common.backgroundColor[context]
       clip: true
+      Drag.active: mouseArea.drag.active
+      Drag.dragType: Drag.Automatic
+      Drag.supportedActions: Qt.LinkAction
+      Drag.source: model
+      Drag.mimeData: {"text/plain": "Copied recipe: " + title}
       RowLayout {
         anchors.fill: parent
         anchors.margins: Common.borderWidth
@@ -41,6 +46,7 @@ Rectangle {
           Layout.maximumHeight: Common.textHeight
           Layout.maximumWidth: Common.textHeight
           fillMode: Image.PreserveAspectFit
+          sourceSize.width: 256
         }
         Text {
           text: model.title
@@ -50,8 +56,11 @@ Rectangle {
           Layout.fillWidth: true
         }
       }
-      MouseArea{
+      MouseArea {
+        id: mouseArea
         anchors.fill: parent
+        drag.target: parent
+        onPressed: parent.grabToImage(function(result){parent.Drag.imageSource = result.url})
         onClicked: {
           iView.currentIndex = index
           recipeList.currentIndex = index
@@ -64,7 +73,7 @@ Rectangle {
   Component {
     id: highlightDelegate
     Rectangle {
-      height: Common.textHeight +2
+      height: Common.textHeight + 2
       width: iView.width
       border {
         width: Common.borderWidth
@@ -100,7 +109,7 @@ Rectangle {
     highlight: highlightDelegate
     highlightFollowsCurrentItem: true
     focus: true
-    section{
+    section {
       property: "meal_type"
       delegate: sectionDelegate
     }

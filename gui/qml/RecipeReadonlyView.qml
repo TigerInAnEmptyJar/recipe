@@ -12,9 +12,9 @@ Item {
   property int context: 1
   signal applyClicked()
 
-  Rectangle{
+  Rectangle {
     anchors.fill: parent
-    border{
+    border {
       color: Common.borderColor[context]
       width: Common.borderWidth
     }
@@ -25,19 +25,19 @@ Item {
       ColumnLayout {
         Layout.fillHeight: true
         Layout.fillWidth: true
-        Text { // Title
+        Text {
+          // Title
           id: objectTitle
           height: Common.textHeight
           Layout.fillWidth: true
-          Layout.maximumHeight: Common.textHeight *2
-
-          font.pointSize: Common.fontSize *2
+          Layout.maximumHeight: Common.textHeight * 2
+          font.pointSize: Common.fontSize * 2
           verticalAlignment: Text.AlignVCenter
           horizontalAlignment: Text.AlignLeft
         }
         RowLayout { // Type
           Layout.fillWidth: true
-          Text {
+          Text{
             text: qsTr("Type")
             font.pointSize: Common.fontSize
             font.bold: true
@@ -61,8 +61,10 @@ Item {
           Text {
             text: qsTr("Servings")
             font.pointSize: Common.fontSize
-            font.bold: true
-            Layout.maximumHeight: Common.textHeight
+            font.
+            bold: true
+            Layout.
+            maximumHeight: Common.textHeight
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
@@ -83,7 +85,7 @@ Item {
           Layout.fillHeight: true
           Layout.fillWidth: true
           Layout.minimumHeight: Common.textHeight
-          Layout.maximumHeight: recipeView.height/4
+          Layout.maximumHeight: recipeView.height / 4
           ColumnLayout { // Ingredients
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -99,11 +101,11 @@ Item {
             Rectangle {
               Layout.fillHeight: true
               Layout.fillWidth: true
-              Layout.preferredHeight: Common.textHeight * ingredientView.count
+              Layout.preferredHeight: Common.textHeight* ingredientView.count
               color: Common.backgroundColor[context]
-              border{
+              border {
                 color: Common.borderColor[context]
-                width: Common.borderWidth -2
+                width: Common.borderWidth - 2
               }
               ListView {
                 id: ingredientView
@@ -134,6 +136,8 @@ Item {
                       Layout.minimumWidth: Common.textHeight
                       fillMode: Image.PreserveAspectFit
                       source: image !== undefined ? image : ""
+                      sourceSize.width: 256
+                      cache: false
                     }
                     Text {
                       text: name
@@ -144,12 +148,9 @@ Item {
                       color: Common.textColor[context]
                       font.pointSize: Common.fontSize
                     }
-                    Item {
-                      Layout.fillWidth: true
-                    }
+                    Item{Layout.fillWidth: true}
                     Text {
                       Layout.maximumHeight: Common.textHeight
-
                       text: value
                       verticalAlignment: Text.AlignVCenter
                       horizontalAlignment: Text.AlignLeft
@@ -177,6 +178,7 @@ Item {
             Layout.minimumHeight: Common.textHeight
             Layout.minimumWidth: Common.textHeight
             fillMode: Image.PreserveAspectFit
+            cache: false
           }
         }
         ColumnLayout { // Instructions
@@ -200,7 +202,7 @@ Item {
             color: Common.backgroundColor[context]
             border {
               color: Common.borderColor[context]
-              width: Common.borderWidth -2
+              width: Common.borderWidth - 2
             }
             Text {
               id: objectInstructions
@@ -310,7 +312,7 @@ Item {
         RowLayout { // Source
           Layout.fillWidth: true
           Layout.maximumHeight: Common.textHeight
-          Text {
+          Text{
             text: qsTr("Source")
             font.pointSize: Common.fontSize
             font.bold: true
@@ -329,80 +331,15 @@ Item {
             horizontalAlignment: Text.AlignLeft
           }
         }
-        RowLayout { // Tags
-          Layout.fillWidth: true
-          Layout.maximumHeight: Common.textHeight
-          Text {
-            text: qsTr("Tags")
-            font.pointSize: Common.fontSize
-            font.bold: true
-            Layout.maximumHeight: Common.textHeight
-            Layout.maximumWidth: implicitWidth
-            horizontalAlignment: Text.AlignLeft
-            verticalAlignment: Text.AlignVCenter
-          }
-          ListView {
-            id: tagview
-            Layout.fillWidth: true
-            Layout.preferredHeight: Common.textHeight
-            orientation: ListView.Horizontal
-            delegate: Rectangle {
-              height: tagview.height
-              width: tagText.implicitWidth * 1.5
-              radius: Common.spacing
-              border {
-                color: Common.borderColor[context]
-                width: Common.borderWidth -2
-              }
-              color: Common.buttonColor[context]
-              Text {
-                id: tagText
-                anchors.fill: parent
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                text: modelData
-                color: Common.buttonTextColor[context]
-              }
-            }
-          }
-
+        RStringListView {
+          id: tagView
+          context: recipeView.context
+          title: qsTr("Tags")
         }
-        RowLayout { // Eaters
-          Layout.fillWidth: true
-          Layout.maximumHeight: Common.textHeight
-          Text {
-            text: qsTr("Eaters")
-            font.pointSize: Common.fontSize
-            font.bold: true
-            Layout.maximumHeight: Common.textHeight
-            Layout.maximumWidth: implicitWidth
-            horizontalAlignment: Text.AlignLeft
-            verticalAlignment: Text.AlignVCenter
-          }
-          ListView {
-            id: eaterview
-            Layout.fillWidth: true
-            Layout.preferredHeight: Common.textHeight
-            orientation: ListView.Horizontal
-            delegate: Rectangle {
-              height: eaterview.height
-              width: eaterText.implicitWidth * 1.5
-              radius: Common.spacing
-              border{
-                color: Common.borderColor[context]
-                width: Common.borderWidth -2
-              }
-              color: Common.buttonColor[context]
-              Text {
-                id: eaterText
-                anchors.fill: parent
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                text: modelData
-                color: Common.buttonTextColor[context]
-              }
-            }
-          }
+        RStringListView {
+          id: eaterView
+          context: recipeView.context
+          title: qsTr("Eaters")
         }
       }
     }
@@ -411,7 +348,6 @@ Item {
   onObjectChanged: {
     if (object !== undefined) {
       objectTitle.text = object.title
-
       objectType.text = object.meal_type
       objectServings.text = object.servings
       if (object.image_path !== undefined) {
@@ -428,10 +364,11 @@ Item {
       objectProtein.text = object.protein
       objectCarbs.text = object.carbohydrates
       objectSource.text = object.source
-      tagview.model = object.tags
-      eaterview.model = object.eaters
+      tagView.model = object.tags
+      eaterView.model = object.eaters
       ingredientView.model = object.ingredient
     }
   }
-  visible: object !== undefined
+  visible:
+    object !== undefined
 }

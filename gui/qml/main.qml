@@ -6,8 +6,8 @@ import "common/"
 
 ApplicationWindow {
   visible: true
-  width: 640*2
-  height: 480*2
+  width: 640 * 2
+  height: 480 * 2
   title: qsTr("Recipe")
 
   RowLayout {
@@ -24,7 +24,8 @@ ApplicationWindow {
         ListElement {name: "Week-plan"; value: 2}
         ListElement {name: "Shopping list"; value: 3}
       }
-      delegate: Rectangle {
+    delegate:
+      Rectangle {
         height: Common.controlHeight
         width: control.width
         color: Common.backgroundColor[value]
@@ -37,7 +38,7 @@ ApplicationWindow {
           color: Common.textColor[value]
           horizontalAlignment: Text.AlignHCenter
           verticalAlignment: Text.AlignVCenter
-          MouseArea{
+          MouseArea {
             anchors.fill: parent
             onClicked: view.currentIndex = index
           }
@@ -54,11 +55,17 @@ ApplicationWindow {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
       }
-      IngredientPage{
+      IngredientPage {
+        Layout.fillHeight: true
+        Layout.fillWidth: true
       }
       RecipePage {
+        Layout.fillHeight: true
+        Layout.fillWidth: true
       }
       PlanPage {
+        Layout.fillHeight: true
+        Layout.fillWidth: true
       }
       Text {
         text: qsTr("Shopping list")

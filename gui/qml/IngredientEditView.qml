@@ -11,9 +11,9 @@ Item {
   property int context: 0
   signal applyClicked()
 
-  Rectangle{
+  Rectangle {
     anchors.fill: parent
-    border{
+    border {
       color: Common.borderColor[context]
       width: Common.borderWidth
     }
@@ -73,7 +73,7 @@ Item {
         horizontalAlignment: Text.AlignLeft
         verticalAlignment: Text.AlignVCenter
       }
-      RowLayout{
+      RowLayout {
         Layout.fillWidth: true
         Layout.maximumHeight: Common.textHeight
         Image {
@@ -82,6 +82,7 @@ Item {
           Layout.maximumWidth: Common.textHeight
           fillMode: Image.PreserveAspectFit
           width: height
+          cache: false
         }
         Text {
           id: objectImagePath
@@ -91,7 +92,7 @@ Item {
           horizontalAlignment: Text.AlignLeft
           verticalAlignment: Text.AlignVCenter
         }
-        RButton{
+        RButton {
           id: objectImagePathButton
           text: qsTr("Load Image")
           context: 0
@@ -100,17 +101,15 @@ Item {
           FileDialog {
             id: loadDialog
             title: qsTr("Please choose an image file")
-            nameFilters: [ "Image files (*.jpeg, *.jpg)" ]
-            folder: "file://" + ingredients.databasePath()+"/"
+            nameFilters: ["Image files (*.jpeg, *.jpg)"]
+            folder: "file://" + ingredients.databasePath() + "/"
             selectExisting: true
             selectMultiple: false
             onAccepted: {
               objectImagePath.text = loadDialog.fileUrl
               close()
             }
-            onRejected: {
-              close()
-            }
+            onRejected: close()
           }
           onClicked: {
             loadDialog.folder = "file://" + ingredients.databasePath() + "/"
@@ -133,9 +132,7 @@ Item {
         enabled: true
         Layout.maximumHeight: Common.textHeight
       }
-      Item{
-        Layout.fillHeight: true
-      }
+      Item {Layout.fillHeight: true}
       Item {
         Layout.fillHeight: true
         Layout.fillWidth: true
@@ -150,7 +147,7 @@ Item {
           object.image_path = objectImagePath.text
           object.default_amount = objectAmountInput.currentIndex
           object.isSectioned = objectSectioned.checked
-          if (object.name !== objectNameInput.text || object.category !== objectCategoryInput.currentText){
+          if (object.name !== objectNameInput.text || object.category !== objectCategoryInput.currentText) {
             object.name = objectNameInput.text
             object.category = objectCategoryInput.currentIndex
             applyClicked()
@@ -160,7 +157,7 @@ Item {
     }
   }
   onObjectChanged: {
-    if (object !== undefined && object !== null) {
+    if (object !== undefined&& object !== null) {
       if (object.image_path !== undefined) {
         objectImagePath.text = object.image_path
         objectImage.source = object.image

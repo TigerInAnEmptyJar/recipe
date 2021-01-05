@@ -12,9 +12,9 @@ Item {
   property int context: 1
   signal applyClicked()
 
-  Rectangle{
+  Rectangle {
     anchors.fill: parent
-    border{
+    border {
       color: Common.borderColor[context]
       width: Common.borderWidth
     }
@@ -29,8 +29,8 @@ Item {
           id: objectTitleInput
           height: Common.textHeight
           Layout.fillWidth: true
-          Layout.maximumHeight: Common.textHeight *2
-          font.pointSize: Common.fontSize *2
+          Layout.maximumHeight: Common.textHeight * 2
+          font.pointSize: Common.fontSize * 2
           verticalAlignment: TextInput.AlignVCenter
           horizontalAlignment: TextInput.AlignLeft
         }
@@ -74,7 +74,7 @@ Item {
           Layout.fillHeight: true
           Layout.fillWidth: true
           Layout.minimumHeight: Common.textHeight
-          Layout.maximumHeight: recipeView.height/4
+          Layout.maximumHeight: recipeView.height / 4
           ColumnLayout { // Ingredients
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -92,9 +92,9 @@ Item {
               Layout.fillWidth: true
               Layout.preferredHeight: Common.textHeight * ingredientView.count
               color: Common.backgroundColor[context]
-              border{
+              border {
                 color: Common.borderColor[context]
-                width: Common.borderWidth -2
+                width: Common.borderWidth - 2
               }
               DropArea {
                 anchors.fill: parent
@@ -131,6 +131,8 @@ Item {
                       Layout.minimumWidth: Common.textHeight
                       fillMode: Image.PreserveAspectFit
                       source: image !== undefined ? image : ""
+                      sourceSize.width: 256
+                      cache: false
                     }
                     Text {
                       text: name
@@ -143,23 +145,21 @@ Item {
                       MouseArea {
                         anchors.fill: parent
                         onDoubleClicked: {
-                            removeDialog.visible = true
-                            removeDialog.index = index
-                            removeDialog.text = qsTr("Remove ingredient %1").arg(name)
+                          removeDialog.visible = true
+                          removeDialog.index = index
+                          removeDialog.text = qsTr("Remove ingredient %1").arg(name)
                         }
                       }
                     }
-                    Item {
-                      Layout.fillWidth: true
-                    }
-                    Rectangle{
+                    Item{Layout.fillWidth: true}
+                    Rectangle {
                       Layout.maximumHeight: Common.textHeight
                       Layout.minimumHeight: Common.textHeight
-                      Layout.maximumWidth: ingredientInputBox.width /4
-                      Layout.minimumWidth: ingredientInputBox.width /4
-                      border{
+                      Layout.maximumWidth: ingredientInputBox.width / 4
+                      Layout.minimumWidth: ingredientInputBox.width / 4
+                      border {
                         color: Common.borderColor[context]
-                        width: Common.borderWidth -2
+                        width: Common.borderWidth - 2
                       }
                       color: Common.backgroundColor[context]
 
@@ -168,7 +168,7 @@ Item {
                         anchors.leftMargin: Common.margin
                         text: value
                         color: Common.textColor[context]
-                        validator: DoubleValidator{bottom: 0; top: 1000; decimals: 3}
+                        validator: DoubleValidator {bottom: 0; top: 1000; decimals: 3}
                         font.pointSize: Common.fontSize
                         onAccepted: value = text
                       }
@@ -196,22 +196,21 @@ Item {
             Layout.minimumHeight: Common.textHeight
             Layout.minimumWidth: Common.textHeight
             fillMode: Image.PreserveAspectFit
+            cache: false
             MouseArea {
               anchors.fill: parent
               FileDialog {
                 id: loadDialog
                 title: qsTr("Please choose an image file")
-                nameFilters: [ "Image files (*.jpeg, *.jpg)" ]
-                folder: "file://" + recipes.databasePath()+"/"
+                nameFilters: ["Image files (*.jpeg, *.jpg)"]
+                folder: "file://" + recipes.databasePath() + "/"
                 selectExisting: true
                 selectMultiple: false
                 onAccepted: {
                   objectImage.pathName = loadDialog.fileUrl
                   close()
                 }
-                onRejected: {
-                  close()
-                }
+                onRejected: close()
               }
               onClicked: {
                 loadDialog.folder = "file://" + recipes.databasePath() + "/"
@@ -242,7 +241,7 @@ Item {
             color: Common.backgroundColor[context]
             border {
               color: Common.borderColor[context]
-              width: Common.borderWidth -2
+              width: Common.borderWidth - 2
             }
             TextEdit {
               id: objectInstructionInput
@@ -356,7 +355,7 @@ Item {
             Layout.minimumHeight: Common.textHeight
             border {
               color: Common.borderColor[context]
-              width: Common.borderWidth -2
+              width: Common.borderWidth - 2
             }
             TextInput {
               id: objectSourceInput
@@ -367,167 +366,42 @@ Item {
             }
           }
         }
-        RowLayout { // Tags
-          Layout.fillWidth: true
-          Layout.maximumHeight: Common.textHeight
-          Text {
-            text: qsTr("Tags")
-            font.pointSize: Common.fontSize
-            font.bold: true
-            Layout.maximumHeight: Common.textHeight
-            Layout.maximumWidth: implicitWidth
-            horizontalAlignment: Text.AlignLeft
-            verticalAlignment: Text.AlignVCenter
+        RStringListView {
+          id: tagView
+          title: qsTr("Tags")
+          readonly: false
+          context: recipeEditView.context
+          onRemove: {
+            recipes.removeTag(recipeView.objectIndex, element)
+            tagView.model = object.tags
           }
-          ListView {
-            id: tagview
-            Layout.fillWidth: true
-            Layout.preferredHeight: Common.textHeight
-            orientation: ListView.Horizontal
-            delegate: Rectangle {
-              height: tagview.height
-              width: tagText.implicitWidth * 1.5
-              radius: Common.spacing
-              border {
-                color: Common.borderColor[context]
-                width: Common.borderWidth -2
-              }
-              color: Common.buttonColor[context]
-              RowLayout {
-                anchors.fill: parent
-                Text {
-                  id: tagText
-                  Layout.fillHeight: true
-                  Layout.fillWidth: true
-                  horizontalAlignment: Text.AlignHCenter
-                  verticalAlignment: Text.AlignVCenter
-                  text: modelData
-                  color: Common.buttonTextColor[context]
-                }
-                RButton {
-                  context: 1
-                  text: "x"
-                  Layout.maximumWidth: Common.textHeight
-                  Layout.maximumHeight: Common.textHeight * 0.5
-                  onClicked: {
-                    recipes.removeTag(recipeView.objectIndex, modelData)
-                    tagview.model = object.tags
-                  }
-                }
-              }
-            }
-          }
-          TextInput {
-            id: tagInput
-            Layout.maximumHeight: Common.textHeight
-            Layout.minimumWidth: Common.textHeight
-            Rectangle {
-              Layout.preferredWidth: tagInput.implicitWidth
-              color: "white"
-              anchors.fill: parent
-              z: -1
-            }
-          }
-
-          RButton {
-            id: plusTagButton
-            context: 1
-            text: "+"
-            Layout.maximumWidth: Common.textHeight
-            Layout.maximumHeight: Common.textHeight * 0.5
-            onClicked: {
-              if (tagInput.text != "") {
-                recipes.addTag(recipeView.objectIndex, tagInput.text)
-                tagview.model = object.tags
-              }
-            }
+          onAdd: {
+            recipes.addTag(recipeView.objectIndex, element)
+            tagView.model = object.tags
           }
         }
-        RowLayout { // Eaters
-          Layout.fillWidth: true
-          Layout.maximumHeight: Common.textHeight
-          Text {
-            text: qsTr("Eaters")
-            font.pointSize: Common.fontSize
-            font.bold: true
-            Layout.maximumHeight: Common.textHeight
-            Layout.maximumWidth: implicitWidth
-            horizontalAlignment: Text.AlignLeft
-            verticalAlignment: Text.AlignVCenter
+        RStringListView {
+          id: eaterView
+          title: qsTr("Eaters")
+          readonly: false
+          context: recipeEditView.context
+          onRemove: {
+            recipes.removeEater(recipeView.objectIndex, element)
+            eaterView.model = object.eaters
           }
-          ListView {
-            id: eaterview
-            Layout.fillWidth: true
-            Layout.preferredHeight: Common.textHeight
-            orientation: ListView.Horizontal
-            delegate: Rectangle {
-              height: eaterview.height
-              width: eaterText.implicitWidth * 1.5
-              radius: Common.spacing
-              border{
-                color: Common.borderColor[context]
-                width: Common.borderWidth -2
-              }
-              color: Common.buttonColor[context]
-              RowLayout {
-                anchors.fill: parent
-                Text {
-                  id: eaterText
-                  Layout.fillHeight: true
-                  Layout.fillWidth: true
-                  horizontalAlignment: Text.AlignHCenter
-                  verticalAlignment: Text.AlignVCenter
-                  text: modelData
-                  color: Common.buttonTextColor[context]
-                }
-                RButton {
-                  context: 1
-                  text: "x"
-                  Layout.maximumWidth: Common.textHeight
-                  Layout.maximumHeight: Common.textHeight * 0.5
-                  onClicked: {
-                    recipes.removeEater(recipeView.objectIndex, modelData)
-                    eaterview.model = object.eaters
-                    console.log("remove " + modelData)
-                  }
-                }
-              }
-            }
-          }
-          TextInput {
-            id: eaterInput
-            Layout.maximumHeight: Common.textHeight
-            Layout.minimumWidth: Common.textHeight
-            Rectangle {
-              Layout.preferredWidth: tagInput.implicitWidth
-              color: "white"
-              anchors.fill: parent
-              z: -1
-            }
-          }
-
-          RButton {
-            id: plusEaterButton
-            context: 1
-            text: "+"
-            Layout.maximumWidth: Common.textHeight
-            Layout.maximumHeight: Common.textHeight * 0.5
-            onClicked: {
-              if (eaterInput.text !== ""){
-                recipes.addEater(recipeView.objectIndex, eaterInput.text)
-                eaterview.model = object.eaters
-              }
-            }
+          onAdd: {
+            recipes.addEater(recipeView.objectIndex, element)
+            eaterView.model = object.eaters
           }
         }
 
         RButton {
-          id: applyButton
-          context: 1
-          text: qsTr("Apply")
-          Layout.fillWidth: true
-          Layout.preferredHeight: Common.textHeight
-          onClicked: {
+        id: applyButton
+        context: 1
+        text: qsTr("Apply")
+        Layout.fillWidth: true
+        Layout.preferredHeight: Common.textHeight
+        onClicked: {
             object.servings = objectServingsInput.value
             object.image_path = objectImage.pathName
             object.instructions = objectInstructionInput.text
@@ -536,20 +410,19 @@ Item {
             object.fat = objectFatInput.value
             object.protein = objectProteinInput.value
             object.carbohydrates = objectCarbsInput.value
-            object.source = objectSourceInput.text
-            if (object.title !== objectTitleInput.text || object.meal_type !== objectTypeInput.currentText){
+            object.source = objectSourceInput .text
+            if (object.title !== objectTitleInput.text || object.meal_type !== objectTypeInput.currentText) {
               object.title = objectTitleInput.text
-              object.meal_type =  objectTypeInput.currentIndex
+              object.meal_type = objectTypeInput.currentIndex
               applyClicked()
             }
           }
         }
       }
-      IngredientList{
+      IngredientList {
         Layout.fillHeight: true
         Layout.preferredWidth: 200
       }
-
     }
   }
   onObjectChanged: {
@@ -572,8 +445,8 @@ Item {
       objectProteinInput.value = object.protein
       objectCarbsInput.value = object.carbohydrates
       objectSourceInput.text = object.source
-      tagview.model = object.tags
-      eaterview.model = object.eaters
+      tagView.model = object.tags
+      eaterView.model = object.eaters
       ingredientView.model = object.ingredient
     }
   }
