@@ -32,11 +32,38 @@ public:
   size_t days() const;
   size_t meals() const;
 
+  /*!
+   * \brief getter for a concattenated string of potential eaters/subscribers
+   * \return the potential eaters for this plan
+   */
+  std::string eaters() const;
+
+  /*!
+   * \brief getter for the list of potential eaters/subscribers
+   * \return the list of potential eaters
+   */
+  std::vector<std::string> eaterList() const;
+
+  /*!
+   * \brief add an Eater/Subscriber
+   * \param eater the new eater
+   * \return a reference to the changed recipe
+   */
+  plan& addEater(std::string const& eater);
+
+  /*!
+   * \brief remove an Eater/Subscriber
+   * if the eater is not stored in the list of potential eaters, it is not removed
+   * \param eater the eater to remove
+   */
+  void removeEater(std::string const& eater);
+
 private:
   std::string _name{"New plan"};
   std::vector<plan_item> _items;
   size_t _days;
   size_t _meals;
+  std::vector<std::string> _eaters;
 };
 
 } // namespace recipe

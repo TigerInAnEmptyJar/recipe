@@ -24,6 +24,7 @@ QString const key_plan_name{"plan-name"};
 QString const key_plan_days{"days"};
 QString const key_plan_meals{"meals"};
 QString const key_plan_items{"items"};
+QString const key_plan_eaters{"eaters"};
 } // namespace
 
 namespace recipe {
@@ -153,6 +154,11 @@ QJsonObject plan_json_io::toJsonObject(plan const& i) const
   object.insert(key_plan_name, QString::fromStdString(i.name()));
   object.insert(key_plan_days, static_cast<int>(i.days()));
   object.insert(key_plan_meals, static_cast<int>(i.meals()));
+  QJsonArray eaters;
+  for (auto const& item : i.eaterList()) {
+    eaters.append(QString::fromStdString(item));
+  }
+  object.insert(key_plan_eaters, eaters);
 
   QJsonArray items;
   for (auto const& item : i) {
@@ -177,6 +183,13 @@ std::optional<plan> plan_json_io::planFromJsonObject(QJsonObject const& i,
   QJsonArray items = i[key_plan_items].toArray();
   if (items.size() != object.days() * object.meals()) {
     return {};
+  }
+
+  if (i.contains(key_plan_eaters)) {
+    QJsonArray eaters = i[key_plan_eaters].toArray();
+    for (auto const& item : eaters) {
+      object.addEater(item.toString().toStdString());
+    }
   }
 
   int count = 0;

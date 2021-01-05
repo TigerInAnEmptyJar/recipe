@@ -186,6 +186,8 @@ public:
     (++it)->add(_recipes[1]);
     it->name("item 4");
     it->shoppingBefore(false);
+    _plan.addEater("Alice");
+    _plan.addEater("Bob");
   }
 
   std::vector<recipe::ingredient> _ingredients;
@@ -422,6 +424,8 @@ TEST_F(io_test, plan_version)
   _recipes[0].id(gen("0001ac0a-a7ff-7f00-0038-ac0aa7ff7f00"));
   _recipes[1].id(gen("0001e671-da60-5500-0040-a90aa7ff7f00"));
   setupPlan();
+  _plan.removeEater("Alice");
+  _plan.removeEater("Bob");
 
   EXPECT_TRUE(std::filesystem::exists(file));
   auto read = io.read(file, _recipe_finder_good);

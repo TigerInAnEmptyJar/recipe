@@ -9,31 +9,59 @@ recipe::recipe(std::string const& t) : _title(t) {}
 
 std::string recipe::title() const { return _title; }
 
-recipe& recipe::title(std::string const& t) { _title = t; return *this;}
+recipe& recipe::title(std::string const& t)
+{
+  _title = t;
+  return *this;
+}
 
 meal_t recipe::meal_type() const { return _meal_type; }
 
-recipe& recipe::meal_type(meal_t t) { _meal_type = t; return *this;}
+recipe& recipe::meal_type(meal_t t)
+{
+  _meal_type = t;
+  return *this;
+}
 
 uint8_t recipe::servings() const { return _servings; }
 
-recipe& recipe::servings(uint8_t s) { _servings = s; return *this;}
+recipe& recipe::servings(uint8_t s)
+{
+  _servings = s;
+  return *this;
+}
 
 std::string recipe::instructions() const { return _instructions; }
 
-recipe& recipe::instructions(std::string const& i) { _instructions = i; return *this;}
+recipe& recipe::instructions(std::string const& i)
+{
+  _instructions = i;
+  return *this;
+}
 
 std::chrono::minutes recipe::preparation_time() const { return _time; }
 
-recipe& recipe::preparation_time(std::chrono::minutes time) { _time = time; return *this;}
+recipe& recipe::preparation_time(std::chrono::minutes time)
+{
+  _time = time;
+  return *this;
+}
 
 std::string recipe::source() const { return _source; }
 
-recipe& recipe::source(std::string const& s) { _source = s; return *this;}
+recipe& recipe::source(std::string const& s)
+{
+  _source = s;
+  return *this;
+}
 
 std::filesystem::__cxx11::path recipe::image_path() const { return _image_path; }
 
-recipe& recipe::image_path(std::filesystem::__cxx11::path const& path) { _image_path = path; return *this;}
+recipe& recipe::image_path(std::filesystem::__cxx11::path const& path)
+{
+  _image_path = path;
+  return *this;
+}
 
 uint16_t recipe::calories() const { return _calories; }
 
@@ -53,15 +81,27 @@ recipe& recipe::joules(uint16_t c)
 
 uint8_t recipe::g_fat() const { return _g_fat; }
 
-recipe& recipe::g_fat(uint8_t c) { _g_fat = c; return *this;}
+recipe& recipe::g_fat(uint8_t c)
+{
+  _g_fat = c;
+  return *this;
+}
 
 uint8_t recipe::g_proteins() const { return _g_protein; }
 
-recipe& recipe::g_proteins(uint8_t c) { _g_protein = c; return *this;}
+recipe& recipe::g_proteins(uint8_t c)
+{
+  _g_protein = c;
+  return *this;
+}
 
 uint8_t recipe::g_carbohydrates() const { return _g_carbohydrates; }
 
-recipe& recipe::g_carbohydrates(uint8_t c) { _g_carbohydrates = c; return *this;}
+recipe& recipe::g_carbohydrates(uint8_t c)
+{
+  _g_carbohydrates = c;
+  return *this;
+}
 
 recipe::const_iterator recipe::begin() const { return _ingredients.begin(); }
 
@@ -150,7 +190,7 @@ recipe& recipe::addEater(std::string const& eater)
   if (std::find(std::begin(_eaters), std::end(_eaters), eater) == std::end(_eaters)) {
     _eaters.push_back(eater);
   }
-return *this;
+  return *this;
 }
 
 void recipe::removeEater(std::string const& eater)
@@ -163,6 +203,10 @@ void recipe::removeEater(std::string const& eater)
 
 boost::uuids::uuid recipe::id() const { return _id; }
 
-recipe& recipe::id(boost::uuids::uuid i) { _id = i; return *this;}
+recipe& recipe::id(boost::uuids::uuid i)
+{
+  _id = i;
+  return *this;
+}
 
 } // namespace recipe
