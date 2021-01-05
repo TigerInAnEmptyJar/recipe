@@ -6,7 +6,7 @@ import "common/"
 
 Rectangle {
   id: page
-  property int context: 2
+  property int context: Common.context_plan
   border{
     color: Common.borderColor[context]
     width: Common.borderWidth
@@ -17,8 +17,14 @@ Rectangle {
     PlanView{
       id: planList
       context: page.context
+      clip: true
       Layout.fillWidth: true
       Layout.fillHeight: true
+    }
+    RecipeList {
+      width: 200
+      Layout.fillHeight: true
+      context: Common.context_recipe
     }
     PlanControls{
       Layout.fillHeight: true
@@ -27,8 +33,10 @@ Rectangle {
       model: plan
       currentObject: planList.currentObject
       text: "recipe"
-      onEditRequested: planView.readonly = false
-      onNewRequested: plan.newPlan(7, 2)
+      onNewRequested: {
+        console.log("new plan requested")
+        plan.newPlan(7, 2)
+      }
     }
   }
 }

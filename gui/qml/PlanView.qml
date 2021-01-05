@@ -7,7 +7,7 @@ import "common/"
 
 Rectangle {
   id: planList
-  property int context: 0
+  property int context: Common.context_plan
   property int currentIndex : -1
 
   border{
@@ -18,10 +18,31 @@ Rectangle {
 
   ColumnLayout{
     anchors.fill: parent
-    anchors.margins: Common.margin
+    anchors.margins: Common.borderWidth
     TextInput {
+      Layout.fillWidth: true
+      Layout.maximumHeight: Common.textHeight
+      Layout.minimumHeight: Common.textHeight
       text: plan.title
       onAccepted: plan.title = text
+    }
+
+    RStringListView {
+      id: eatersView
+      signal eatersChanged()
+      context: planList.context
+      model: plan.eaters()
+      readonly: false
+      title: qsTr("Eaters")
+      onRemove: {
+        plan.removeEater(element)
+        eatersChanged()
+      }
+      onAdd: {
+        plan.addEater(element)
+        eatersChanged()
+      }
+      onEatersChanged: model = plan.eaters()
     }
 
     GridView {
@@ -30,11 +51,19 @@ Rectangle {
       Layout.fillWidth: true
       cellWidth: width / plan.meals
       cellHeight: cellWidth
-
+      clip: true
       model: plan
       delegate: PlanItemView {
+        id: viewItem
         object: model
+        objectIndex: index
         context: planList.context
+        width: planView.cellWidth
+        height: planView.cellHeight
+        Connections {
+          target: eatersView
+          function onEatersChanged() {viewItem.eatersChanged()}
+        }
       }
     }
   }

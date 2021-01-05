@@ -27,13 +27,13 @@ Rectangle {
     anchors.margins: Common.margin
     spacing: Common.spacing
     RButton {
-      text: "Load"
+      text: qsTr("Load")
       Layout.fillHeight: true
       Layout.fillWidth: true
       context: page.context
       FileDialog {
         id: loadDialog
-        title: "Please choose a " + page.text + " file"
+        title: qsTr("Please choose a %1 file", page.text)
         nameFilters: [ page.text + " json files (*.json)", "All files (*)" ]
         selectExisting: true
         selectMultiple: false
@@ -52,20 +52,20 @@ Rectangle {
       }
     }
     RButton {
-      text: "Save"
+      text: qsTr("Save")
       Layout.fillHeight: true
       Layout.fillWidth: true
       context: page.context
       onClicked: page.model.store()
     }
     RButton {
-      text: "Save as"
+      text: qsTr("Save as")
       Layout.fillHeight: true
       Layout.fillWidth: true
       context: page.context
       FileDialog {
         id: storeDialog
-        title: "Please choose a file to store " + page.text + "s"
+        title: qsTr("Please choose a file to store %1", page.text)
         nameFilters: [ page.text + " json files (*.json)", "All files (*)" ]
         selectExisting: false
         selectMultiple: false
@@ -84,20 +84,36 @@ Rectangle {
       }
     }
     RButton {
-      text: "Edit"
+      text: qsTr("Export")
       Layout.fillHeight: true
       Layout.fillWidth: true
       context: page.context
-      enabled: page.currentObject !== undefined
-      onClicked: editRequested()
+      FileDialog {
+        id: exportDialog
+        title: qsTr("Please choose a file to export %1", page.text)
+        nameFilters: [ page.text + " latex files (*.tex)", "All files (*)" ]
+        selectExisting: false
+        selectMultiple: false
+        folder: "file://" + model.databasePath() + "/"
+        onAccepted: {
+          page.model.export(exportDialog.fileUrl)
+          close()
+        }
+        onRejected: {
+          close()
+        }
+      }
+      onClicked: {
+        exportDialog.folder = "file://" + model.databasePath() + "/"
+        exportDialog.open()
+      }
     }
     RButton {
-      text: "New"
+      text: qsTr("New")
       Layout.fillHeight: true
       Layout.fillWidth: true
       context: page.context
       onClicked: newRequested()
-      enabled: false
     }
   }
 }
