@@ -10,6 +10,20 @@
 
 namespace {
 QString const planFile{"lastPlanFile"};
+
+std::shared_ptr<recipe::io::plan_io> getDefaultProvider()
+{
+  recipe::io::io_provider provider;
+  provider.setup();
+
+  auto providers = provider.installed_plan();
+  for (auto single : providers) {
+    if (single.second.first.find("(*.json") != std::string::npos) {
+      return single.second.second;
+    }
+  }
+  return {};
+}
 }
 
 namespace recipe {
@@ -174,10 +188,11 @@ void plan_model::loadLast()
     std::cout << "Loading not possible: url doesn't exist " << path.native() << std::endl;
     return;
   }
-  io::io_provider provider;
-  provider.setup();
-
-  auto data = provider.plan(provider.installed_plan().begin()->first)->read(path, _finder);
+  auto provider = ::getDefaultProvider();
+  if (!provider) {
+    return;
+  }
+  auto data = provider->read(path, _finder);
   if (!data.has_value()) {
     return;
   }
@@ -203,9 +218,11 @@ void plan_model::load(QUrl const& url)
     std::cout << "Loading not possible: url doesn't exist " << path.native() << std::endl;
     return;
   }
-  io::io_provider provider;
-  provider.setup();
-  auto data = provider.plan(provider.installed_plan().begin()->first)->read(path, _finder);
+  auto provider = ::getDefaultProvider();
+  if (!provider) {
+    return;
+  }
+  auto data = provider->read(path, _finder);
   if (!data.has_value()) {
     return;
   }
@@ -237,27 +254,64 @@ void plan_model::store()
     return;
   }
   _database_path = path.parent_path();
-  io::io_provider provider;
-  provider.setup();
+  auto provider = ::getDefaultProvider();
+  if (!provider) {
+    return;
+  }
 
-  provider.plan(provider.installed_plan().begin()->first)->write(_data, path);
+  provider->write(_data, path);
 }
 
 void plan_model::storeAs(QUrl const& url)
 {
   std::filesystem::path path = url.path().toStdString();
 
-  io::io_provider provider;
-  provider.setup();
+  auto provider = ::getDefaultProvider();
+  if (!provider) {
+    return;
+  }
 
   QSettings settings;
   settings.setValue(::planFile, url.path());
   _database_path = path.parent_path();
 
-  provider.plan(provider.installed_plan().begin()->first)->write(_data, path);
+  provider->write(_data, path);
 }
 
 QString plan_model::databasePath() const { return QString::fromStdString(_database_path.native()); }
+
+QStringList plan_model::exportFormats() const
+{
+  io::io_provider provider;
+  provider.setup();
+
+  auto installedPlan = provider.installed_plan();
+  QStringList result;
+
+  std::for_each(std::begin(installedPlan), std::end(installedPlan), [&result](auto const& element) {
+    result.append(QString::fromStdString(element.second.first));
+  });
+
+  return result;
+}
+
+void plan_model::exportPlan(QUrl const& url, int format)
+{
+  std::filesystem::path path = url.path().toStdString();
+  io::io_provider provider;
+  provider.setup();
+
+  auto installedPlan = provider.installed_plan();
+  if (format < 0 || static_cast<size_t>(format) >= installedPlan.size()) {
+    std::cout << "Export plan not possible, bad format specifier:" << format << std::endl;
+    return;
+  }
+  auto usedExporter = installedPlan.begin();
+  std::advance(usedExporter, format);
+  std::cout << "Exporting plan to file " << path.native() << " in format "
+            << usedExporter->second.first << std::endl;
+  usedExporter->second.second->write(_data, path);
+}
 
 void plan_model::addRecipe(int index, QString const& id)
 {

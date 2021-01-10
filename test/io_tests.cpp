@@ -441,6 +441,8 @@ TEST_F(io_test, provider_setup)
   provider.setup();
   EXPECT_EQ(provider.installed_amounted().size(), 1);
   EXPECT_EQ(provider.installed_ingredient().size(), 1);
-  EXPECT_EQ(provider.installed_recipe().size(), 1);
-  EXPECT_EQ(provider.installed_plan().size(), 1);
+  // One for Json export, one for LaTeX export
+  EXPECT_EQ(provider.installed_recipe().size(), 2);
+  // One for Json export, three for LaTeX export
+  EXPECT_EQ(provider.installed_plan().size(), 4);
 }

@@ -9,6 +9,9 @@ my_add_library(inpput_output
     src/ingredient_json_io.hpp
     src/plan_json_io.hpp
     src/recipe_json_io.hpp
+    src/recipe_tex_writer.hpp
+    src/plan_tex_writer.hpp
+    src/tex_writer.hpp
     include/recipe_tex_output.h
   SOURCE
     src/io_provider.cpp
@@ -16,7 +19,9 @@ my_add_library(inpput_output
     src/ingredient_json_io.cpp
     src/plan_json_io.cpp
     src/recipe_json_io.cpp
-    src/recipe_tex_output.cpp
+    src/recipe_tex_writer.cpp
+    src/plan_tex_writer.cpp
+    src/tex_writer.cpp
   DEPENDS
     PUBLIC recipe::Recipe
     PRIVATE Qt5::Core

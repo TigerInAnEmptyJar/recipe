@@ -42,6 +42,8 @@ public:
   Q_INVOKABLE void load(QUrl const& url);
   Q_INVOKABLE void store();
   Q_INVOKABLE void storeAs(QUrl const& url);
+  Q_INVOKABLE QStringList exportFormats() const;
+  Q_INVOKABLE void exportPlan(QUrl const& url, int format);
 
   Q_INVOKABLE QString databasePath() const;
 

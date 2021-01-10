@@ -91,12 +91,12 @@ Rectangle {
       FileDialog {
         id: exportDialog
         title: qsTr("Please choose a file to export %1", page.text)
-        nameFilters: [ page.text + " latex files (*.tex)", "All files (*)" ]
+        nameFilters: model.exportFormats()
         selectExisting: false
         selectMultiple: false
         folder: "file://" + model.databasePath() + "/"
         onAccepted: {
-          page.model.export(exportDialog.fileUrl)
+          page.model.exportPlan(exportDialog.fileUrl, exportDialog.selectedNameFilterIndex)
           close()
         }
         onRejected: {
