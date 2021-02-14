@@ -84,7 +84,7 @@ function(my_add_test _NAME)
     target_compile_definitions(${_NAME} ${A_DEFINES})
   endif()
 
-  target_link_libraries(${_NAME} gtest gtest_main)
+  target_link_libraries(${_NAME} gtest gmock gtest_main)
 
   if (A_AUTORCC)
     set_target_properties(${_NAME} PROPERTIES AUTORCC ON)

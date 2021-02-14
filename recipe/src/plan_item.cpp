@@ -6,7 +6,11 @@ plan_item::plan_item(std::string const& item_name) : _name(item_name) {}
 
 std::string plan_item::name() const { return _name; }
 
-void plan_item::name(std::string const& n) { _name = n; }
+plan_item& plan_item::name(std::string const& n)
+{
+  _name = n;
+  return *this;
+}
 
 plan_item::iterator plan_item::begin() { return _recipes.begin(); }
 
@@ -16,7 +20,11 @@ plan_item::iterator plan_item::end() { return _recipes.end(); }
 
 plan_item::const_iterator plan_item::end() const { return _recipes.end(); }
 
-void plan_item::add(recipe const& recipe) { _recipes.push_back(recipe); }
+plan_item& plan_item::add(recipe const& recipe)
+{
+  _recipes.push_back(recipe);
+  return *this;
+}
 
 void plan_item::remove(iterator item)
 {
@@ -46,6 +54,10 @@ void plan_item::remove(std::string const& item)
 
 bool plan_item::shoppingBefore() const { return _shoppingBefore; }
 
-void plan_item::shoppingBefore(bool value) { _shoppingBefore = value; }
+plan_item& plan_item::shoppingBefore(bool value)
+{
+  _shoppingBefore = value;
+  return *this;
+}
 
 } // namespace recipe

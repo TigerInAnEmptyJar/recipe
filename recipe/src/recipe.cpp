@@ -111,7 +111,7 @@ recipe::const_iterator recipe::end() const { return _ingredients.end(); }
 
 recipe::iterator recipe::end() { return _ingredients.end(); }
 
-void recipe::add(amounted_ingredient const& ingredient)
+recipe& recipe::add(amounted_ingredient const& ingredient)
 {
   auto item =
       std::find_if(std::begin(_ingredients), std::end(_ingredients), [ingredient](auto element) {
@@ -119,9 +119,10 @@ void recipe::add(amounted_ingredient const& ingredient)
       });
   if (item != std::end(_ingredients)) {
     item->add(ingredient);
-    return;
+    return *this;
   }
   _ingredients.push_back(ingredient);
+  return *this;
 }
 
 void recipe::remove(recipe::const_iterator item)

@@ -5,14 +5,19 @@
 
 namespace recipe {
 
+/*!
+ * \brief The plan class
+ * Defines the meals in a dedicated amount of days.
+ */
 class plan
 {
 public:
+  //! Declare iterators to access the list of meals.
   using iterator = std::vector<plan_item>::iterator;
   using const_iterator = std::vector<plan_item>::const_iterator;
 
 public:
-  plan(std::string const& item_name, size_t days, size_t meals);
+  plan(std::string const& item_name, std::size_t days, std::size_t meals);
   plan(plan const&) = default;
   plan(plan&&) = default;
   plan& operator=(plan const&) = default;
@@ -20,17 +25,53 @@ public:
   ~plan() = default;
   bool operator==(plan const& other) const;
 
+  /*!
+   * \brief name-getter
+   * \return the name of the plan.
+   */
   std::string name() const;
+
+  /*!
+   * \brief name-setter
+   * \param n the new name of the plan.
+   */
   void name(std::string const& n);
 
+  /*!
+   * \brief begin
+   * \return an iterator to the first meal of the plan.
+   */
   iterator begin();
+
+  /*!
+   * \brief begin
+   * \return an iterator to the first meal of the plan.
+   */
   const_iterator begin() const;
 
+  /*!
+   * \brief end
+   * \return an iterator behind the last meal of the plan.
+   */
   iterator end();
+
+  /*!
+   * \brief end
+   * \return an iterator behind the last meal of the plan.
+   */
   const_iterator end() const;
 
-  size_t days() const;
-  size_t meals() const;
+  /*!
+   * \brief days
+   * \return the number of days the plan is designed for.
+   */
+  std::size_t days() const;
+
+  /*!
+   * \brief meals
+   * \return the number of meals per day for this plan.
+   */
+  std::size_t meals() const;
 
   /*!
    * \brief getter for a concattenated string of potential eaters/subscribers
@@ -61,8 +102,8 @@ public:
 private:
   std::string _name{"New plan"};
   std::vector<plan_item> _items;
-  size_t _days;
-  size_t _meals;
+  std::size_t _days;
+  std::size_t _meals;
   std::vector<std::string> _eaters;
 };
 

@@ -255,7 +255,7 @@ public:
    * stored ingredient
    * \param ingredient the ingredient to add
    */
-  void add(amounted_ingredient const& ingredient);
+  recipe& add(amounted_ingredient const& ingredient);
 
   /*!
    * \brief remove an ingredient from the list

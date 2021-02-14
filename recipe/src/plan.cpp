@@ -5,7 +5,7 @@
 
 namespace recipe {
 
-plan::plan(std::string const& plan_name, size_t days, size_t meals)
+plan::plan(std::string const& plan_name, std::size_t days, std::size_t meals)
     : _name(plan_name), _items(days * meals), _days(days), _meals(meals)
 {
 }
@@ -15,7 +15,7 @@ bool plan::operator==(plan const& other) const
   if (!(_name == other.name() && _days == other.days() && _meals == other.meals())) {
     return false;
   }
-  size_t count = 0;
+  std::size_t count = 0;
   for (auto const& item : other) {
     if (item != _items[count++]) {
       return false;
@@ -39,9 +39,9 @@ plan::iterator plan::end() { return _items.end(); }
 
 plan::const_iterator plan::end() const { return _items.end(); }
 
-size_t plan::days() const { return _days; }
+std::size_t plan::days() const { return _days; }
 
-size_t plan::meals() const { return _meals; }
+std::size_t plan::meals() const { return _meals; }
 
 std::string plan::eaters() const
 {

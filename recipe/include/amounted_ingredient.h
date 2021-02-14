@@ -114,6 +114,12 @@ public:
    */
   bool remove(const_iterator item);
 
+  /*!
+   * \brief operator *=, multiplication operator
+   * Multiplies the value to each amount in the ingredient.
+   * \param value the factor to apply,
+   * \return the ingredient.
+   */
   amounted_ingredient& operator*=(float value);
 
 private:
