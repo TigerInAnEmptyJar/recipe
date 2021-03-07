@@ -6,6 +6,7 @@
 #include "plan_tex_writer.hpp"
 #include "recipe_json_io.hpp"
 #include "recipe_tex_writer.hpp"
+#include "shopping_json_io.h"
 
 #include <boost/uuid/string_generator.hpp>
 
@@ -17,7 +18,7 @@ namespace io {
 void io_provider::setup()
 {
   boost::uuids::string_generator gen;
-  install(gen("b7ae614d-4f41-439a-b23f-b3c366416991"), "Json Shopping-list Format (*.json)",
+  install(gen("b7ae614d-4f41-439a-b23f-b3c366416991"), "Json Ingredient-list Format (*.json)",
           std::make_shared<amounted_json_io>());
   install(gen("67af15f6-ea32-42e9-aa9e-27d4df5d804d"), "Json Ingredient Format (*.json)",
           std::make_shared<ingredient_json_io>());
@@ -33,6 +34,8 @@ void io_provider::setup()
           std::make_shared<plan_tex_writer_final>());
   install(gen("3048e907-42d0-4398-9887-fb9f0ab450ed"), "LaTeX-export Plan with Recipes (*.tex)",
           std::make_shared<plan_tex_writer_with_recipes>());
+  install(gen("15971d37-e72c-4c16-a16c-9596c6ff0518"), "Json Shopping-list Format (*.json)",
+          std::make_shared<shopping_json_io>());
 }
 
 std::shared_ptr<amounted_io> io_provider::amounted(boost::uuids::uuid id) const
@@ -70,6 +73,16 @@ std::shared_ptr<plan_io> io_provider::plan(boost::uuids::uuid id) const
   auto element = std::find_if(std::begin(_plan), std::end(_plan),
                               [id](auto item) { return item.first == id; });
   if (element != std::end(_plan)) {
+    return element->second.second;
+  }
+  return {};
+}
+
+std::shared_ptr<shopping_io> io_provider::shopping(boost::uuids::uuid id) const
+{
+  auto element = std::find_if(std::begin(_shopping), std::end(_shopping),
+                              [id](auto item) { return item.first == id; });
+  if (element != std::end(_shopping)) {
     return element->second.second;
   }
   return {};
@@ -115,6 +128,16 @@ void io_provider::install(boost::uuids::uuid id, std::string const& name,
   }
 }
 
+void io_provider::install(boost::uuids::uuid id, std::string const& name,
+                          std::shared_ptr<shopping_io> io)
+{
+  auto element = std::find_if(std::begin(_shopping), std::end(_shopping),
+                              [id](auto item) { return item.first == id; });
+  if (element == std::end(_shopping)) {
+    _shopping.insert(std::make_pair(id, std::make_pair(name, io)));
+  }
+}
+
 void io_provider::uninstall_amounted(boost::uuids::uuid id)
 {
   auto element = std::find_if(std::begin(_amounted), std::end(_amounted),
@@ -151,6 +174,15 @@ void io_provider::uninstall_plan(boost::uuids::uuid id)
   }
 }
 
+void io_provider::uninstall_shopping(boost::uuids::uuid id)
+{
+  auto element = std::find_if(std::begin(_shopping), std::end(_shopping),
+                              [id](auto item) { return item.first == id; });
+  if (element != std::end(_shopping)) {
+    _shopping.erase(element);
+  }
+}
+
 std::map<boost::uuids::uuid, std::pair<std::string, std::shared_ptr<amounted_io>>> io_provider::
     installed_amounted() const
 {
@@ -173,6 +205,12 @@ std::map<boost::uuids::uuid, std::pair<std::string, std::shared_ptr<plan_io>>> i
     installed_plan() const
 {
   return _plan;
+}
+
+std::map<boost::uuids::uuid, std::pair<std::string, std::shared_ptr<shopping_io>>> io_provider::
+    installed_shopping() const
+{
+  return _shopping;
 }
 
 } // namespace io

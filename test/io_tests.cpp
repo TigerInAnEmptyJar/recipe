@@ -3,6 +3,7 @@
 #include "io_provider.h"
 #include "plan_json_io.hpp"
 #include "recipe_json_io.hpp"
+#include "shopping_json_io.h"
 
 #include <gtest/gtest.h>
 
@@ -50,6 +51,24 @@ class plan_test : public recipe::io::plan_io
   std::optional<recipe::plan> read(
       std::filesystem::path const&,
       std::function<std::optional<recipe::recipe>(boost::uuids::uuid)>) const override
+  {
+    return {};
+  }
+};
+
+class shopping_test : public recipe::io::shopping_io
+{
+  void write(recipe::shopping_list const&, std::filesystem::path const&) const override {}
+  std::optional<recipe::shopping_list> read(std::filesystem::path const&,
+                                            recipe::io::shopping_io::finder_t) const override
+  {
+    return {};
+  }
+
+  std::string serialize(recipe::shopping_list const&) const override { return {}; };
+
+  virtual std::optional<recipe::shopping_list> deserialize(
+      std::string const&, recipe::io::shopping_io::finder_t) const override
   {
     return {};
   }
@@ -198,6 +217,102 @@ public:
   std::function<std::optional<recipe::recipe>(boost::uuids::uuid const& id)> _recipe_finder_good;
 };
 
+using category = recipe::ingredient::category_t;
+using amount_type = recipe::ingredient::amount_type;
+using amount = recipe::amounted_ingredient::amount_t;
+
+class shopping_io_test : public testing::Test
+{
+public:
+  void SetUpStuff(std::vector<boost::uuids::uuid> ingredient_ids = {})
+  {
+    auto ing = [](recipe::ingredient i, float v, amount a) {
+      recipe::amounted_ingredient ret{i};
+      ret.add(a, v);
+      return ret;
+    };
+
+    _ingredients.push_back({"Butter", category::diary, amount_type::mass, true, {}});        // 0
+    _ingredients.push_back({"Sugar", category::baking, amount_type::mass, false, {}});       // 1
+    _ingredients.push_back({"Flour", category::baking, amount_type::mass, false, {}});       // 2
+    _ingredients.push_back({"Apple", category::fruit, amount_type::mass, true, {}});         // 3
+    _ingredients.push_back({"Pear", category::fruit, amount_type::mass, true, {}});          // 4
+    _ingredients.push_back({"Orange", category::fruit, amount_type::mass, true, {}});        // 5
+    _ingredients.push_back({"Salad", category::vegetable, amount_type::mass, true, {}});     // 6
+    _ingredients.push_back({"Carrot", category::vegetable, amount_type::mass, false, {}});   // 7
+    _ingredients.push_back({"Steak", category::meat, amount_type::mass, true, {}});          // 8
+    _ingredients.push_back({"Bacon", category::meat, amount_type::mass, false, {}});         // 9
+    _ingredients.push_back({"Frozen peas", category::frozen, amount_type::mass, false, {}}); // 10
+    _ingredients.push_back({"Salmon", category::fish, amount_type::mass, true, {}});         // 11
+    auto ingredient_it = std::begin(_ingredients);
+    std::for_each(std::begin(ingredient_ids), std::end(ingredient_ids),
+                  [this, &ingredient_it](auto id) {
+                    if (ingredient_it != std::end(_ingredients)) {
+                      ingredient_it->id(id);
+                      ingredient_it++;
+                    }
+                  });
+
+    recipe::recipe apple_tarte("apple tarte"); // 0
+    apple_tarte.servings(12)
+        .add(ing(_ingredients[0], 100, amount::grams))
+        .add(ing(_ingredients[1], 100, amount::grams))
+        .add(ing(_ingredients[2], 200, amount::grams))
+        .add(ing(_ingredients[3], 2, amount::piece));
+    _recipes.push_back(apple_tarte);
+    recipe::recipe steak("steak"); // 1
+    steak.servings(2)
+        .add(ing(_ingredients[8], 200, amount::grams))
+        .add(ing(_ingredients[7], 400, amount::grams))
+        .add(ing(_ingredients[0], 20, amount::grams));
+    _recipes.push_back(steak);
+    recipe::recipe salmon{"salmon"}; // 2
+    salmon.servings(4)
+        .add(ing(_ingredients[11], 500, amount::grams))
+        .add(ing(_ingredients[10], 300, amount::grams))
+        .add(ing(_ingredients[6], 200, amount::grams));
+    _recipes.push_back(salmon);
+    recipe::recipe salad{"salad"}; // 3
+    salad.servings(2)
+        .add(ing(_ingredients[6], 1, amount::piece))
+        .add(ing(_ingredients[4], 1, amount::piece))
+        .add(ing(_ingredients[7], 2, amount::piece));
+    _recipes.push_back(salad);
+    recipe::recipe fruit_salad{"fruit salad"}; // 4
+    salad.servings(2)
+        .add(ing(_ingredients[3], 1, amount::piece))
+        .add(ing(_ingredients[4], 1, amount::piece))
+        .add(ing(_ingredients[5], 2, amount::piece))
+        .add(ing(_ingredients[1], 50, amount::grams));
+    _recipes.push_back(fruit_salad);
+  }
+
+  recipe::plan prepare_plan()
+  {
+    recipe::plan four_item_plan{"single", 2, 2};
+    auto first_day1 = four_item_plan.begin();
+    first_day1->name("Monday Lunch").shoppingBefore(true).add(_recipes[0]); // apple_pie
+    auto first_day2 = four_item_plan.begin() + 1;
+    first_day2->name("Monday Evening").shoppingBefore(false).add(_recipes[1]); // steak
+    auto second_day1 = four_item_plan.begin() + 2;
+    second_day1->name("Tuesday Lunch").shoppingBefore(false).add(_recipes[3]); // salad
+    auto second_day2 = four_item_plan.begin() + 3;
+    second_day2->name("Tuesday Dinner").shoppingBefore(true).add(_recipes[2]); // salmon
+
+    // Cook for Mom and Dad.
+    four_item_plan.addEater("Mom");
+    four_item_plan.addEater("Dad");
+    for (auto& meal : four_item_plan) {
+      meal.add("Mom");
+      meal.add("Dad");
+    }
+
+    return four_item_plan;
+  }
+  std::vector<recipe::ingredient> _ingredients;
+  std::vector<recipe::recipe> _recipes;
+};
+
 TEST_F(io_test, provider)
 {
   recipe::io::io_provider provider;
@@ -206,6 +321,7 @@ TEST_F(io_test, provider)
   EXPECT_TRUE(provider.installed_ingredient().empty());
   EXPECT_TRUE(provider.installed_recipe().empty());
   EXPECT_TRUE(provider.installed_plan().empty());
+  EXPECT_TRUE(provider.installed_shopping().empty());
 
   auto a_object = std::make_shared<amounted_test>();
   auto a_id = boost::uuids::random_generator_mt19937{}();
@@ -216,6 +332,7 @@ TEST_F(io_test, provider)
   EXPECT_TRUE(provider.installed_ingredient().empty());
   EXPECT_TRUE(provider.installed_recipe().empty());
   EXPECT_TRUE(provider.installed_plan().empty());
+  EXPECT_TRUE(provider.installed_shopping().empty());
 
   EXPECT_EQ(a_object, provider.amounted(a_id));
 
@@ -227,6 +344,7 @@ TEST_F(io_test, provider)
   EXPECT_FALSE(provider.installed_ingredient().empty());
   EXPECT_TRUE(provider.installed_recipe().empty());
   EXPECT_TRUE(provider.installed_plan().empty());
+  EXPECT_TRUE(provider.installed_shopping().empty());
 
   EXPECT_EQ(i_object, provider.ingredient(i_id));
 
@@ -238,6 +356,7 @@ TEST_F(io_test, provider)
   EXPECT_FALSE(provider.installed_ingredient().empty());
   EXPECT_FALSE(provider.installed_recipe().empty());
   EXPECT_TRUE(provider.installed_plan().empty());
+  EXPECT_TRUE(provider.installed_shopping().empty());
 
   EXPECT_EQ(r_object, provider.recipe(r_id));
 
@@ -249,45 +368,77 @@ TEST_F(io_test, provider)
   EXPECT_FALSE(provider.installed_ingredient().empty());
   EXPECT_FALSE(provider.installed_recipe().empty());
   EXPECT_FALSE(provider.installed_plan().empty());
+  EXPECT_TRUE(provider.installed_shopping().empty());
 
   EXPECT_EQ(p_object, provider.plan(p_id));
+
+  auto s_object = std::make_shared<shopping_test>();
+  auto s_id = boost::uuids::random_generator_mt19937{}();
+  provider.install(s_id, "test", s_object);
+
+  EXPECT_FALSE(provider.installed_amounted().empty());
+  EXPECT_FALSE(provider.installed_ingredient().empty());
+  EXPECT_FALSE(provider.installed_recipe().empty());
+  EXPECT_FALSE(provider.installed_plan().empty());
+  EXPECT_FALSE(provider.installed_shopping().empty());
+
+  EXPECT_EQ(s_object, provider.shopping(s_id));
 
   EXPECT_EQ(nullptr, provider.amounted(i_id));
   EXPECT_EQ(nullptr, provider.amounted(r_id));
   EXPECT_EQ(nullptr, provider.amounted(p_id));
+  EXPECT_EQ(nullptr, provider.amounted(s_id));
   EXPECT_EQ(nullptr, provider.ingredient(a_id));
   EXPECT_EQ(nullptr, provider.ingredient(r_id));
   EXPECT_EQ(nullptr, provider.ingredient(p_id));
+  EXPECT_EQ(nullptr, provider.ingredient(s_id));
   EXPECT_EQ(nullptr, provider.recipe(a_id));
   EXPECT_EQ(nullptr, provider.recipe(i_id));
   EXPECT_EQ(nullptr, provider.recipe(p_id));
+  EXPECT_EQ(nullptr, provider.recipe(s_id));
   EXPECT_EQ(nullptr, provider.plan(a_id));
   EXPECT_EQ(nullptr, provider.plan(i_id));
   EXPECT_EQ(nullptr, provider.plan(r_id));
+  EXPECT_EQ(nullptr, provider.plan(s_id));
+  EXPECT_EQ(nullptr, provider.shopping(a_id));
+  EXPECT_EQ(nullptr, provider.shopping(i_id));
+  EXPECT_EQ(nullptr, provider.shopping(r_id));
+  EXPECT_EQ(nullptr, provider.shopping(r_id));
 
   provider.uninstall_amounted(a_id);
   EXPECT_TRUE(provider.installed_amounted().empty());
   EXPECT_FALSE(provider.installed_ingredient().empty());
   EXPECT_FALSE(provider.installed_recipe().empty());
   EXPECT_FALSE(provider.installed_plan().empty());
+  EXPECT_FALSE(provider.installed_shopping().empty());
 
   provider.uninstall_ingredient(i_id);
   EXPECT_TRUE(provider.installed_amounted().empty());
   EXPECT_TRUE(provider.installed_ingredient().empty());
   EXPECT_FALSE(provider.installed_recipe().empty());
   EXPECT_FALSE(provider.installed_plan().empty());
+  EXPECT_FALSE(provider.installed_shopping().empty());
 
   provider.uninstall_recipe(r_id);
   EXPECT_TRUE(provider.installed_amounted().empty());
   EXPECT_TRUE(provider.installed_ingredient().empty());
   EXPECT_TRUE(provider.installed_recipe().empty());
   EXPECT_FALSE(provider.installed_plan().empty());
+  EXPECT_FALSE(provider.installed_shopping().empty());
 
   provider.uninstall_plan(p_id);
   EXPECT_TRUE(provider.installed_amounted().empty());
   EXPECT_TRUE(provider.installed_ingredient().empty());
   EXPECT_TRUE(provider.installed_recipe().empty());
   EXPECT_TRUE(provider.installed_plan().empty());
+  EXPECT_FALSE(provider.installed_shopping().empty());
+
+  provider.uninstall_shopping(s_id);
+  EXPECT_TRUE(provider.installed_amounted().empty());
+  EXPECT_TRUE(provider.installed_ingredient().empty());
+  EXPECT_TRUE(provider.installed_recipe().empty());
+  EXPECT_TRUE(provider.installed_plan().empty());
+  EXPECT_TRUE(provider.installed_shopping().empty());
 }
 
 TEST_F(io_test, ingredient_rw)
@@ -434,6 +585,74 @@ TEST_F(io_test, plan_version)
   EXPECT_EQ(*read, _plan);
 }
 
+TEST_F(shopping_io_test, shopping_rw)
+{
+  recipe::io::shopping_json_io io;
+  std::filesystem::path file{"/tmp/shopping.json"};
+
+  SetUpStuff();
+  auto plan = prepare_plan();
+  auto shopping = recipe::shopping_list::generate(plan);
+  auto finder = [this](auto id) -> std::optional<recipe::ingredient> {
+    auto item = std::find_if(std::begin(_ingredients), std::end(_ingredients),
+                             [id](auto element) { return element.id() == id; });
+    if (item != std::end(_ingredients)) {
+      return *item;
+    }
+    return {};
+  };
+
+  io.write(shopping, file);
+  EXPECT_TRUE(std::filesystem::exists(file));
+  auto read = io.read(file, finder);
+
+  ASSERT_TRUE(read.has_value());
+  EXPECT_EQ(*read, shopping);
+}
+
+TEST_F(shopping_io_test, shopping_version)
+{
+  recipe::io::shopping_json_io io;
+  std::filesystem::path file{"data/shopping_version0.json"};
+
+  // for the member recipes, the ids are generated randomly with every execution, but the ids
+  // in the file stay the same: set ids to allow comparison.
+  boost::uuids::string_generator gen;
+
+  std::vector<boost::uuids::uuid> ids{
+      gen("b3d48c39-af6a-4838-bc6c-d104479e9655"), // 0
+      gen("83a57c8b-a706-424b-940b-7fcb244fa987"), // 1
+      gen("973b9397-045e-4a34-bb21-1141cc8a198f"), // 2
+      gen("f1709ed4-5906-469c-a51a-d00dc53fe788"), // 3
+      gen("5a9f6a4f-1e73-400d-ab2f-93feb3ea7cb1"), // 4
+      gen("6dcc08d0-102b-451d-84c9-a607a0803fbc"), // not existing
+      gen("ed8757e4-246c-420b-9c49-0a378772366d"), // 6
+      gen("7a34d83e-fa15-49cc-bf27-7a3a8b334a4a"), // 7
+      gen("41142173-bffc-4f7a-a146-8e4d7eaca24f"), // 8
+      gen("6dcc08d0-102b-451d-84c9-a607a0803fbc"), // not existing
+      gen("dcd1a5f9-9fca-4cd3-9759-f52dfb328b5b"), // 10
+      gen("218066b0-295c-4021-b20d-0938c852e8e2"), // 11
+      gen("6dcc08d0-102b-451d-84c9-a607a0803fbc")  // not existing
+  };
+  SetUpStuff(ids);
+  auto plan = prepare_plan();
+  auto shopping = recipe::shopping_list::generate(plan);
+  auto finder = [this](auto id) -> std::optional<recipe::ingredient> {
+    auto item = std::find_if(std::begin(_ingredients), std::end(_ingredients),
+                             [id](auto element) { return element.id() == id; });
+    if (item != std::end(_ingredients)) {
+      return *item;
+    }
+    return {};
+  };
+
+  EXPECT_TRUE(std::filesystem::exists(file));
+  auto read = io.read(file, finder);
+
+  ASSERT_TRUE(read.has_value());
+  EXPECT_EQ(*read, shopping);
+}
+
 TEST_F(io_test, provider_setup)
 {
   recipe::io::io_provider provider;
@@ -445,4 +664,5 @@ TEST_F(io_test, provider_setup)
   EXPECT_EQ(provider.installed_recipe().size(), 2);
   // One for Json export, three for LaTeX export
   EXPECT_EQ(provider.installed_plan().size(), 4);
+  EXPECT_EQ(provider.installed_shopping().size(), 1);
 }

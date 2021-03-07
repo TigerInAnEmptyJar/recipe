@@ -22,6 +22,8 @@ my_add_library(inpput_output
     src/recipe_tex_writer.cpp
     src/plan_tex_writer.cpp
     src/tex_writer.cpp
+    src/shopping_json_io.cpp
+    src/shopping_day_generator.cpp
   DEPENDS
     PUBLIC recipe::Recipe
     PRIVATE Qt5::Core

@@ -26,6 +26,7 @@ public:
   ~shopping_list() = default;
   shopping_list& operator=(shopping_list const&) = default;
   shopping_list& operator=(shopping_list&&) = default;
+  bool operator==(shopping_list const&) const = default;
 
   /*!
    * \brief name-getter
@@ -89,6 +90,8 @@ private:
 
   std::vector<value_type> _list;
   std::string _name;
+
+  friend class io::shopping_day_generator;
 };
 
 } // namespace recipe

@@ -5,6 +5,9 @@
 #include <vector>
 
 namespace recipe {
+namespace io {
+class shopping_day_generator;
+}
 
 /*!
  * \brief The shopping_day class
@@ -27,6 +30,7 @@ public:
   ~shopping_day() = default;
   shopping_day& operator=(shopping_day const&) = default;
   shopping_day& operator=(shopping_day&&) = default;
+  bool operator==(shopping_day const& other) const = default;
 
   /*!
    * \brief begin
@@ -85,6 +89,7 @@ private:
   std::string _name;
 
   friend class shopping_list;
+  friend class ::recipe::io::shopping_day_generator;
 };
 
 } // namespace recipe

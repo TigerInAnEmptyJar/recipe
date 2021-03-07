@@ -1,0 +1,166 @@
+{
+    "content": {
+        "days": [
+            {
+                "day-name": "Monday Lunch",
+                "ingredients": [
+                    {
+                        "ingredient": {
+                            "id": "b3d48c39-af6a-4838-bc6c-d104479e9655",
+                            "values": [
+                                {
+                                    "unit": 3,
+                                    "value": 36.66666793823242
+                                }
+                            ]
+                        },
+                        "unit": 3,
+                        "value": 0
+                    },
+                    {
+                        "ingredient": {
+                            "id": "83a57c8b-a706-424b-940b-7fcb244fa987",
+                            "values": [
+                                {
+                                    "unit": 3,
+                                    "value": 16.666667938232422
+                                }
+                            ]
+                        },
+                        "unit": 3,
+                        "value": 0
+                    },
+                    {
+                        "ingredient": {
+                            "id": "973b9397-045e-4a34-bb21-1141cc8a198f",
+                            "values": [
+                                {
+                                    "unit": 3,
+                                    "value": 33.333335876464844
+                                }
+                            ]
+                        },
+                        "unit": 3,
+                        "value": 0
+                    },
+                    {
+                        "ingredient": {
+                            "id": "f1709ed4-5906-469c-a51a-d00dc53fe788",
+                            "values": [
+                                {
+                                    "unit": 7,
+                                    "value": 0.3333333432674408
+                                }
+                            ]
+                        },
+                        "unit": 3,
+                        "value": 0
+                    },
+                    {
+                        "ingredient": {
+                            "id": "41142173-bffc-4f7a-a146-8e4d7eaca24f",
+                            "values": [
+                                {
+                                    "unit": 3,
+                                    "value": 200
+                                }
+                            ]
+                        },
+                        "unit": 3,
+                        "value": 0
+                    },
+                    {
+                        "ingredient": {
+                            "id": "7a34d83e-fa15-49cc-bf27-7a3a8b334a4a",
+                            "values": [
+                                {
+                                    "unit": 3,
+                                    "value": 400
+                                },
+                                {
+                                    "unit": 7,
+                                    "value": 2
+                                }
+                            ]
+                        },
+                        "unit": 3,
+                        "value": 0
+                    },
+                    {
+                        "ingredient": {
+                            "id": "ed8757e4-246c-420b-9c49-0a378772366d",
+                            "values": [
+                                {
+                                    "unit": 7,
+                                    "value": 1
+                                }
+                            ]
+                        },
+                        "unit": 3,
+                        "value": 0
+                    },
+                    {
+                        "ingredient": {
+                            "id": "5a9f6a4f-1e73-400d-ab2f-93feb3ea7cb1",
+                            "values": [
+                                {
+                                    "unit": 7,
+                                    "value": 1
+                                }
+                            ]
+                        },
+                        "unit": 3,
+                        "value": 0
+                    },
+                    {
+                        "ingredient": {
+                            "id": "dcd1a5f9-9fca-4cd3-9759-f52dfb328b5b",
+                            "values": [
+                                {
+                                    "unit": 3,
+                                    "value": 150
+                                }
+                            ]
+                        },
+                        "unit": 3,
+                        "value": 0
+                    }
+                ]
+            },
+            {
+                "day-name": "Tuesday Dinner",
+                "ingredients": [
+                    {
+                        "ingredient": {
+                            "id": "218066b0-295c-4021-b20d-0938c852e8e2",
+                            "values": [
+                                {
+                                    "unit": 3,
+                                    "value": 250
+                                }
+                            ]
+                        },
+                        "unit": 3,
+                        "value": 0
+                    },
+                    {
+                        "ingredient": {
+                            "id": "ed8757e4-246c-420b-9c49-0a378772366d",
+                            "values": [
+                                {
+                                    "unit": 3,
+                                    "value": 100
+                                }
+                            ]
+                        },
+                        "unit": 3,
+                        "value": 0
+                    }
+                ]
+            }
+        ],
+        "list-name": ""
+    },
+    "file-type": "shopping-list",
+    "version": 0
+}
