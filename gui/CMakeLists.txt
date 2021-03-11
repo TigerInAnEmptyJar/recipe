@@ -5,12 +5,16 @@ my_add_executable(recipe-gui
     models/plan_item_model.hpp
     models/plan_model.hpp
     models/recipe_model.hpp
+    models/shopping_day_model.hpp
+    models/shopping_list_model.hpp
     models/enum_adapter.hpp
   SOURCE
     models/amounted_list_model.cpp
     models/ingredient_model.cpp
     models/plan_item_model.cpp
     models/plan_model.cpp
+    models/shopping_day_model.cpp
+    models/shopping_list_model.cpp
     models/recipe_model.cpp
     models/enum_adapter.cpp
     src/main.cpp
