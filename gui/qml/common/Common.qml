@@ -5,6 +5,7 @@ QtObject {
   property int context_ingredient: 0
   property int context_recipe: 1
   property int context_plan: 2
+  property int context_shopping: 3
   readonly property var hues: [0.17, 0, 0.33, 0.66]
   property var textColor: [Qt.hsva(hues[0], 1, 0.5), Qt.hsva(hues[1], 1, 0.5),
                            Qt.hsva(hues[2], 1, 0.5), Qt.hsva(hues[3], 1, 0.5)]

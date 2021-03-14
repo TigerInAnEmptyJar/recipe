@@ -21,5 +21,8 @@
         <file>common/RButton.qml</file>
         <file>common/RStringListView.qml</file>
         <file>common/RLabeledControl.qml</file>
+        <file>ShoppingControls.qml</file>
+        <file>ShoppingListView.qml</file>
+        <file>ShoppingPage.qml</file>
     </qresource>
 </RCC>

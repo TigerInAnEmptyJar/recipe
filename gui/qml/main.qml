@@ -67,8 +67,9 @@ ApplicationWindow {
         Layout.fillHeight: true
         Layout.fillWidth: true
       }
-      Text {
-        text: qsTr("Shopping list")
+      ShoppingPage {
+        Layout.fillHeight: true
+        Layout.fillWidth: true
       }
     }
   }

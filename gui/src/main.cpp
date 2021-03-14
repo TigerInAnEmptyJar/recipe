@@ -1,6 +1,7 @@
 #include "ingredient_model.hpp"
 #include "plan_model.hpp"
 #include "recipe_model.hpp"
+#include "shopping_list_model.hpp"
 
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -33,6 +34,10 @@ int main(int argc, char** argv)
       std::bind(&recipe::gui::recipe_model::findRecipe, &recipes, std::placeholders::_1));
   plan.loadLast();
 
+  recipe::gui::shopping_list_model shopping;
+  shopping.loadLast();
+  shopping.setPlan(&plan);
+
   QUrl const url(QStringLiteral("qrc:/main.qml"));
 
   QQmlApplicationEngine engine;
@@ -46,6 +51,7 @@ int main(int argc, char** argv)
   engine.rootContext()->setContextProperty("ingredients", &ingredients);
   engine.rootContext()->setContextProperty("recipes", &recipes);
   engine.rootContext()->setContextProperty("plan", &plan);
+  engine.rootContext()->setContextProperty("shopping", &shopping);
   engine.load(url);
 
   return app.exec();
