@@ -163,6 +163,8 @@ bool plan_model::subscribed(int index, QString const& eater)
   return std::find(std::begin(eaters), std::end(eaters), eater.toStdString()) != std::end(eaters);
 }
 
+shopping_list plan_model::generateList() const { return shopping_list::generate(_data); }
+
 void plan_model::newPlan(int ndays, int nmeals)
 {
   beginResetModel();

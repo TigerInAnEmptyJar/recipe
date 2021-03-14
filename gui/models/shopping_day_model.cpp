@@ -28,6 +28,7 @@ public:
 private:
   shopping_day _data;
   enum_adapter<amounted_ingredient::amount_t> _amounts_adapter;
+  enum_adapter<ingredient::category_t> _category_adapter;
 };
 
 } // namespace shopping_days
@@ -75,13 +76,25 @@ QVariant data_model::data(QModelIndex const& index, int role) const
 
   switch (role) {
   case shopping_day_model::Roles::name_role:
-    return QString::fromStdString(element->first.base_ingredient().name());
-  case shopping_day_model::Roles::needed_amount_role:
-    break;
+    return QString::fromStdString(std::get<0>(*element).base_ingredient().name());
+  case shopping_day_model::Roles::needed_amount_role: {
+    QString needed;
+    for (auto item : std::get<0>(*element)) {
+      needed += QString("%1 %2 + ").arg(item.second).arg(_amounts_adapter.to_string(item.first));
+    }
+    if (needed.length() > 0) {
+      needed = needed.left(needed.length() - 3);
+    }
+    return needed;
+  }
   case shopping_day_model::Roles::available_value_role:
-    return element->second.second;
+    return std::get<2>(*element);
   case shopping_day_model::Roles::available_unit_role:
-    return _amounts_adapter.to_string(element->second.first);
+    return static_cast<int>(std::get<1>(*element));
+  case shopping_day_model::Roles::category_role:
+    return _category_adapter.to_string(std::get<0>(*element).base_ingredient().category());
+  case shopping_day_model::Roles::check_all_role:
+    return std::get<3>(*element);
   }
   return {};
 }
@@ -93,6 +106,8 @@ QHash<int, QByteArray> data_model::roleNames() const
   roles.insert(shopping_day_model::Roles::needed_amount_role, "needed");
   roles.insert(shopping_day_model::Roles::available_value_role, "available_value");
   roles.insert(shopping_day_model::Roles::available_unit_role, "available_unit");
+  roles.insert(shopping_day_model::Roles::check_all_role, "check_all");
+  roles.insert(shopping_day_model::Roles::category_role, "category");
   return roles;
 }
 
@@ -124,13 +139,30 @@ bool data_model::setData(QModelIndex const& index, QVariant const& value, int ro
 
   switch (role) {
   case shopping_day_model::Roles::available_value_role:
-    if (value.type() == QVariant::Double) {
-      element->second.second = value.toFloat();
-      dataChanged(index, index, {role});
+    if (value.type() == QVariant::String) {
+      bool ok = true;
+      auto v = value.toFloat(&ok);
+      if (ok) {
+        std::get<2>(*element) = v;
+        dataChanged(index, index, {role});
+        return true;
+      }
+      break;
     }
     break;
   case shopping_day_model::Roles::available_unit_role:
+    if (value.type() == QVariant::Int) {
+      std::get<1>(*element) = static_cast<amounted_ingredient::amount_t>(value.toInt());
+      dataChanged(index, index, {role});
+      return true;
+    }
     break;
+  case shopping_day_model::Roles::check_all_role:
+    if (value.type() == QVariant::Bool) {
+      std::get<3>(*element) = value.toBool();
+      dataChanged(index, index, {role});
+      return true;
+    }
   }
   return false;
 }
@@ -149,10 +181,13 @@ bool data_model::lessThan(QModelIndex const& lhs, QModelIndex const& rhs) const
     return false;
   }
 
-  if (left->first.base_ingredient().category() != right->first.base_ingredient().category()) {
-    return left->first.base_ingredient().category() < right->first.base_ingredient().category();
+  if (std::get<0>(*left).base_ingredient().category() !=
+      std::get<0>(*right).base_ingredient().category()) {
+    return std::get<0>(*left).base_ingredient().category() <
+           std::get<0>(*right).base_ingredient().category();
   }
-  return left->first.base_ingredient().category() < right->first.base_ingredient().category();
+  return std::get<0>(*left).base_ingredient().category() <
+         std::get<0>(*right).base_ingredient().category();
 }
 
 QStringList data_model::amount_types() const { return _amounts_adapter.all(); }

@@ -20,8 +20,7 @@ class shopping_day
 {
 public:
   //! Aliases and iterators for convenience.
-  using value_type =
-      std::pair<amounted_ingredient, std::pair<amounted_ingredient::amount_t, float>>;
+  using value_type = std::tuple<amounted_ingredient, amounted_ingredient::amount_t, float, bool>;
   using iterator = std::vector<value_type>::iterator;
   using const_iterator = std::vector<value_type>::const_iterator;
 

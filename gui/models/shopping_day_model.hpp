@@ -22,6 +22,8 @@ public:
     needed_amount_role,
     available_value_role,
     available_unit_role,
+    check_all_role,
+    category_role,
   };
 
 public:

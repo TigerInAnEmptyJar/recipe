@@ -1,4 +1,5 @@
 #include "shopping_list_model.hpp"
+#include "plan_model.hpp"
 #include "shopping_day_model.hpp"
 
 #include "io_provider.h"
@@ -19,99 +20,29 @@ QString const shoppingListFile = "last_shopping_list_file";
 
 namespace recipe {
 namespace gui {
-// namespace shopping_lists {
-// class data_model : public QAbstractListModel
-//{
-//  Q_OBJECT
 
-// public:
-//  using QAbstractListModel::QAbstractListModel;
-
-//  int rowCount(QModelIndex const& parent = QModelIndex()) const override;
-
-//  QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const override;
-//  QHash<int, QByteArray> roleNames() const override;
-
-//  Qt::ItemFlags flags(QModelIndex const& index) const override;
-//  bool setData(QModelIndex const& index, QVariant const& value, int role = Qt::EditRole) override;
-
-//  Q_INVOKABLE void loadLast();
-//  Q_INVOKABLE void load(QUrl const& url);
-//  Q_INVOKABLE void storeLast();
-//  Q_INVOKABLE void store(QUrl const& url);
-
-//  Q_INVOKABLE QString databasePath() const;
-
-//  void setFinder(std::function<std::optional<ingredient>(boost::uuids::uuid const&)> finder);
-//  bool lessThan(QModelIndex const& lhs, QModelIndex const& rhs) const;
-
-// private:
-//  shopping_list _data;
-//  std::vector<std::shared_ptr<shopping_day_model>> _days;
-//  std::filesystem::path _database_path;
-//  std::function<std::optional<ingredient>(boost::uuids::uuid const&)> _finder;
-//};
-
-//}
-
-// void shopping_list_model::loadLast()
-//{
-//  if (auto model = std::dynamic_pointer_cast<shopping_lists::data_model>(_model)) {
-//    model->loadLast();
-//  }
-//}
-
-// void shopping_list_model::load(QUrl const& url)
-//{
-//  if (auto model = std::dynamic_pointer_cast<shopping_lists::data_model>(_model)) {
-//    model->load(url);
-//  }
-//}
-
-// void shopping_list_model::storeLast()
-//{
-//  if (auto model = std::dynamic_pointer_cast<shopping_lists::data_model>(_model)) {
-//    model->storeLast();
-//  }
-//}
-
-// void shopping_list_model::store(QUrl const& url)
-//{
-//  if (auto model = std::dynamic_pointer_cast<shopping_lists::data_model>(_model)) {
-//    model->store(url);
-//  }
-//}
-
-// void shopping_list_model::setFinder(std::function<std::optional<ingredient>(boost::uuids::uuid
-// const&)> finder)
-//{
-//  if (auto model = std::dynamic_pointer_cast<shopping_lists::data_model>(_model)) {
-//    return model->setFinder(finder);
-//  }
-//}
-
-// bool shopping_list_model::lessThan(QModelIndex const& lhs, QModelIndex const& rhs) const
-//{
-//  if (auto model = std::dynamic_pointer_cast<shopping_lists::data_model>(_model)) {
-//    return model->lessThan(lhs, rhs);
-//  }
-//  return false;
-//}
+shopping_list_model::shopping_list_model() : _data(nullptr) {}
 
 int shopping_list_model::rowCount(QModelIndex const&) const
 {
-  return std::distance(std::begin(_data), std::end(_data));
+  if (!_data) {
+    return 0;
+  }
+  return std::distance(std::begin(*_data), std::end(*_data));
 }
 
 QVariant shopping_list_model::data(QModelIndex const& index, int role) const
 {
+  if (!_data) {
+    return {};
+  }
   if (!index.isValid()) {
     return {};
   }
   if (role == shopping_list_model::Roles::title_role) {
-    auto element = std::begin(_data);
+    auto element = std::begin(*_data);
     std::advance(element, index.row());
-    if (element >= std::end(_data)) {
+    if (element >= std::end(*_data)) {
       return {};
     }
     return QString::fromStdString(element->name());
@@ -137,12 +68,15 @@ QHash<int, QByteArray> shopping_list_model::roleNames() const
 
 Qt::ItemFlags shopping_list_model::flags(QModelIndex const& index) const
 {
+  if (!_data) {
+    return Qt::ItemFlag::NoItemFlags;
+  }
   if (!index.isValid()) {
     return Qt::ItemFlag::NoItemFlags;
   }
-  auto element = std::begin(_data);
+  auto element = std::begin(*_data);
   std::advance(element, index.row());
-  if (element >= std::end(_data)) {
+  if (element >= std::end(*_data)) {
     return Qt::ItemFlag::NoItemFlags;
   }
 
@@ -152,12 +86,15 @@ Qt::ItemFlags shopping_list_model::flags(QModelIndex const& index) const
 
 bool shopping_list_model::setData(QModelIndex const& index, QVariant const& value, int role)
 {
+  if (!_data) {
+    return false;
+  }
   if (!index.isValid() || role != shopping_list_model::Roles::title_role) {
     return false;
   }
-  auto element = std::begin(_data);
+  auto element = std::begin(*_data);
   std::advance(element, index.row());
-  if (element >= std::end(_data)) {
+  if (element >= std::end(*_data)) {
     return false;
   }
 
@@ -183,12 +120,7 @@ void shopping_list_model::loadLast()
     return;
   }
 
-  beginResetModel();
-  _data = *data;
-  _days.clear();
-  std::transform(std::begin(*data), std::end(*data), std::back_inserter(_days),
-                 [](auto& item) { return std::make_shared<shopping_day_model>(item); });
-  endResetModel();
+  generated(*data);
 }
 
 void shopping_list_model::load(QUrl const& url)
@@ -209,16 +141,14 @@ void shopping_list_model::load(QUrl const& url)
   settings.setValue(::shoppingListFile, url.path());
   _database_path = path.parent_path();
 
-  beginResetModel();
-  _data = *data;
-  _days.clear();
-  std::transform(std::begin(*data), std::end(*data), std::back_inserter(_days),
-                 [](auto& item) { return std::make_shared<shopping_day_model>(item); });
-  endResetModel();
+  generated(*data);
 }
 
 void shopping_list_model::storeLast()
 {
+  if (!_data) {
+    return;
+  }
   QSettings settings;
   auto path = std::filesystem::path{settings.value(::shoppingListFile).toString().toStdString()};
   if (!std::filesystem::exists(path)) {
@@ -229,22 +159,82 @@ void shopping_list_model::storeLast()
   _database_path = path.parent_path();
   io::io_provider provider;
   provider.setup();
-  provider.shopping(provider.installed_shopping().begin()->first)->write(_data, path);
+  provider.shopping(provider.installed_shopping().begin()->first)->write(*_data, path);
 }
 
 void shopping_list_model::store(QUrl const& url)
 {
+  if (!_data) {
+    return;
+  }
   std::filesystem::path path = url.path().toStdString();
   io::io_provider provider;
   provider.setup();
-  provider.shopping(provider.installed_shopping().begin()->first)->write(_data, path);
+  provider.shopping(provider.installed_shopping().begin()->first)->write(*_data, path);
   QSettings settings;
   settings.setValue(::shoppingListFile, url.path());
+}
+
+QStringList shopping_list_model::exportFormats() const
+{
+  io::io_provider provider;
+  provider.setup();
+
+  auto installed = provider.installed_shopping();
+  QStringList result;
+
+  std::for_each(std::begin(installed), std::end(installed), [&result](auto const& element) {
+    result.append(QString::fromStdString(element.second.first));
+  });
+
+  return result;
+}
+
+void shopping_list_model::exportList(QUrl const& url, int format) const
+{
+  if (!_data) {
+    return;
+  }
+  std::filesystem::path path = url.path().toStdString();
+  io::io_provider provider;
+  provider.setup();
+
+  auto installedShopping = provider.installed_shopping();
+  if (format < 0 || static_cast<size_t>(format) >= installedShopping.size()) {
+    std::cout << "Export shopping-list not possible, bad format specifier:" << format << std::endl;
+    return;
+  }
+  auto usedExporter = installedShopping.begin();
+  std::advance(usedExporter, format);
+  std::cout << "Exporting shopping-list to file " << path.native() << " in format "
+            << usedExporter->second.first << std::endl;
+  usedExporter->second.second->write(*_data, path);
 }
 
 QString shopping_list_model::databasePath() const
 {
   return QString::fromStdString(_database_path.native());
 }
+
+void shopping_list_model::setPlan(plan_model* planModel) { _planModel = planModel; }
+
+void shopping_list_model::generate() { generated(_planModel->generateList()); }
+
+void shopping_list_model::generated(shopping_list const& shopping)
+{
+  beginResetModel();
+  _data = std::make_unique<shopping_list>(shopping);
+  _days.clear();
+  std::transform(std::begin(*_data), std::end(*_data), std::back_inserter(_days), [](auto& item) {
+    auto newModel = std::make_shared<shopping_day_model>(item);
+    newModel->setSortRole(::recipe::gui::shopping_day_model::Roles::category_role);
+    newModel->setDynamicSortFilter(true);
+    newModel->sort(0);
+
+    return newModel;
+  });
+  endResetModel();
+}
+
 } // namespace gui
 } // namespace recipe

@@ -35,7 +35,13 @@ void plan_item::remove(iterator item)
 
 std::vector<std::string> const& plan_item::subscribers() const { return _subscribers; }
 
-void plan_item::add(std::string const& subscriber) { _subscribers.push_back(subscriber); }
+void plan_item::add(std::string const& subscriber)
+{
+  auto found = std::find(std::begin(_subscribers), std::end(_subscribers), subscriber);
+  if (found == std::end(_subscribers)) {
+    _subscribers.push_back(subscriber);
+  }
+}
 
 void plan_item::remove(std::vector<std::string>::iterator item)
 {

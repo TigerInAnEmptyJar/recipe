@@ -27,6 +27,7 @@ QString const key_ingredients{"ingredients"};
 QString const key_ingredient{"ingredient"};
 QString const key_at_home_unit{"unit"};
 QString const key_at_home_value{"value"};
+QString const key_at_home_all{"has-all"};
 } // namespace
 
 namespace recipe::io {
@@ -94,9 +95,10 @@ QJsonObject shopping_json_io::to_object(shopping_day const& day) const
   io::amounted_json_io io;
   for (auto const& element : day) {
     QJsonObject ing;
-    ing.insert(key_ingredient, io.toJsonObject(element.first));
-    ing.insert(key_at_home_unit, static_cast<uint16_t>(element.second.first));
-    ing.insert(key_at_home_value, element.second.second);
+    ing.insert(key_ingredient, io.toJsonObject(std::get<0>(element)));
+    ing.insert(key_at_home_unit, static_cast<uint16_t>(std::get<1>(element)));
+    ing.insert(key_at_home_value, std::get<2>(element));
+    ing.insert(key_at_home_all, std::get<3>(element));
     ingredients.append(ing);
   }
   item.insert(key_ingredients, ingredients);
@@ -152,10 +154,13 @@ std::optional<shopping_day> shopping_json_io::day_from_object(QJsonObject const&
     if (!ingredient.has_value()) {
       continue;
     }
-    items.push_back(std::make_pair(
-        *ingredient,
-        std::make_pair(static_cast<amounted_ingredient::amount_t>(item[key_at_home_unit].toInt()),
-                       static_cast<float>(item[key_at_home_value].toDouble()))));
+    bool has_all = false;
+    if (item.contains(key_at_home_all)) {
+      has_all = item[key_at_home_all].toBool();
+    }
+    items.push_back(std::make_tuple(
+        *ingredient, static_cast<amounted_ingredient::amount_t>(item[key_at_home_unit].toInt()),
+        static_cast<float>(item[key_at_home_value].toDouble()), has_all));
   }
   shopping_day_generator generator;
   auto day = generator.generate(items);

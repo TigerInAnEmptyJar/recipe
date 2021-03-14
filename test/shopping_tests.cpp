@@ -8,8 +8,8 @@ using day_iterator = recipe::shopping_day::iterator;
 MATCHER_P3(IsIngredient1, id, am, val, "Ingredient is id %(id): %(val) %(am)")
 {
   auto object = static_cast<day_iterator>(arg);
-  recipe::amounted_ingredient& ing = object->first;
-  EXPECT_EQ(object->first.base_ingredient().id(), id) << "Bad id of ingredient";
+  recipe::amounted_ingredient& ing = std::get<0>(*object);
+  EXPECT_EQ(std::get<0>(*object).base_ingredient().id(), id) << "Bad id of ingredient";
   if (std::distance(std::begin(ing), std::end(ing)) < 1) {
     return false;
   }
@@ -25,8 +25,8 @@ MATCHER_P3(IsIngredient1, id, am, val, "Ingredient is id %(id): %(val) %(am)")
 MATCHER_P5(IsIngredient2, id, am1, val1, am2, val2, "Ingredient is id %(id): %(val) %(am)")
 {
   auto object = static_cast<day_iterator>(arg);
-  recipe::amounted_ingredient& ing = object->first;
-  EXPECT_EQ(object->first.base_ingredient().id(), id) << "Bad id of ingredient";
+  recipe::amounted_ingredient& ing = std::get<0>(*object);
+  EXPECT_EQ(std::get<0>(*object).base_ingredient().id(), id) << "Bad id of ingredient";
   if (std::distance(std::begin(ing), std::end(ing)) < 2) {
     return false;
   }

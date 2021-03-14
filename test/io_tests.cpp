@@ -602,6 +602,10 @@ TEST_F(shopping_io_test, shopping_rw)
     return {};
   };
 
+  std::get<3>(*shopping.begin()->begin()) = true;
+  std::get<2>(*(shopping.begin()->begin() + 1)) = 10.;
+  std::get<1>(*(shopping.begin()->begin() + 1)) = recipe::amounted_ingredient::amount_t::piece;
+
   io.write(shopping, file);
   EXPECT_TRUE(std::filesystem::exists(file));
   auto read = io.read(file, finder);

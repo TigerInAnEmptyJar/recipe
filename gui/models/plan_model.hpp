@@ -1,6 +1,7 @@
 #pragma once
 
 #include "plan.h"
+#include "shopping_list.h"
 
 #include <QAbstractListModel>
 
@@ -56,6 +57,8 @@ public:
   Q_INVOKABLE void addSubscriber(int index, QString const& eater);
   Q_INVOKABLE void removeSubscriber(int index, QString const& eater);
   Q_INVOKABLE bool subscribed(int index, QString const& eater);
+
+  Q_INVOKABLE shopping_list generateList() const;
 
   int getDays() const;
   int getMeals() const;
