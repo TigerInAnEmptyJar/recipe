@@ -26,7 +26,7 @@ public:
   QStringList amount_types() const;
 
 private:
-  shopping_day _data;
+  shopping_day& _data;
   enum_adapter<amounted_ingredient::amount_t> _amounts_adapter;
   enum_adapter<ingredient::category_t> _category_adapter;
 };

@@ -38,7 +38,8 @@ void tex_writer::writeHeader(std::ostream& output) const
   output << "\\usepackage{float}\n";
   output << "\\usepackage{graphicx}\n";
   output << "\\usepackage{amsmath}\n";
-  output << "\\geometry{bmargin=3cm,tmargin=2cm,lmargin=2cm,rmargin=2cm}\n";
+  output << "\\usepackage{soul}\n";
+  output << "\\geometry{bmargin=3cm,tmargin=2cm,lmargin=0cm,rmargin=0cm}\n";
   output << "\\begin{document}\n";
   output.flush();
 }

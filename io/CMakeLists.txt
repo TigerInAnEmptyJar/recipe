@@ -13,6 +13,7 @@ my_add_library(inpput_output
     src/plan_tex_writer.hpp
     src/tex_writer.hpp
     include/recipe_tex_output.h
+    src/shopping_list_tex_writer.hpp
   SOURCE
     src/io_provider.cpp
     src/amounted_json_io.cpp
@@ -24,6 +25,7 @@ my_add_library(inpput_output
     src/tex_writer.cpp
     src/shopping_json_io.cpp
     src/shopping_day_generator.cpp
+    src/shopping_list_tex_writer.cpp
   DEPENDS
     PUBLIC recipe::Recipe
     PRIVATE Qt5::Core

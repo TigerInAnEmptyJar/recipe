@@ -7,6 +7,7 @@
 #include "recipe_json_io.hpp"
 #include "recipe_tex_writer.hpp"
 #include "shopping_json_io.h"
+#include "shopping_list_tex_writer.hpp"
 
 #include <boost/uuid/string_generator.hpp>
 
@@ -36,6 +37,8 @@ void io_provider::setup()
           std::make_shared<plan_tex_writer_with_recipes>());
   install(gen("15971d37-e72c-4c16-a16c-9596c6ff0518"), "Json Shopping-list Format (*.json)",
           std::make_shared<shopping_json_io>());
+  install(gen("d4b01713-6653-46e9-85d4-62ebf739328a"), "LaTeX-export Shopping-list (*.tex)",
+          std::make_shared<shopping_tex_writer>());
 }
 
 std::shared_ptr<amounted_io> io_provider::amounted(boost::uuids::uuid id) const
