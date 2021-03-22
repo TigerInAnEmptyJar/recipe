@@ -65,6 +65,8 @@ public:
    */
   const_iterator end() const;
 
+  boost::uuids::uuid id() const;
+
   /*!
    * \brief update_from_plan
    * This method applies changes made in a meal-plan to the shopping-list. In order not to loose
@@ -90,6 +92,7 @@ private:
 
   std::vector<value_type> _list;
   std::string _name;
+  boost::uuids::uuid _id;
 
   friend class io::shopping_day_generator;
 };

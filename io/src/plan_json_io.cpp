@@ -4,6 +4,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+#include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/string_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
@@ -21,6 +22,7 @@ QString const key_item_recipes{"recipe"};
 QString const key_item_subscriber{"subscribers"};
 QString const key_item_before{"doShopBefore"};
 QString const key_plan_name{"plan-name"};
+QString const key_plan_id{"id"};
 QString const key_plan_days{"days"};
 QString const key_plan_meals{"meals"};
 QString const key_plan_items{"items"};
@@ -154,6 +156,7 @@ QJsonObject plan_json_io::toJsonObject(plan const& i) const
   object.insert(key_plan_name, QString::fromStdString(i.name()));
   object.insert(key_plan_days, static_cast<int>(i.days()));
   object.insert(key_plan_meals, static_cast<int>(i.meals()));
+  object.insert(key_plan_id, QString::fromStdString(boost::uuids::to_string(i.id())));
   QJsonArray eaters;
   for (auto const& item : i.eaterList()) {
     eaters.append(QString::fromStdString(item));
@@ -179,6 +182,15 @@ std::optional<plan> plan_json_io::planFromJsonObject(QJsonObject const& i,
   plan object{i[key_plan_name].toString().toStdString(),
               static_cast<size_t>(i[key_plan_days].toInt()),
               static_cast<size_t>(i[key_plan_meals].toInt())};
+
+  if (i.contains(key_plan_id)) {
+    boost::uuids::string_generator gen;
+    auto id = gen(i[key_plan_id].toString().toStdString());
+    if (id.is_nil()) {
+      id = boost::uuids::random_generator{}();
+    }
+    object.id(id);
+  }
 
   QJsonArray items = i[key_plan_items].toArray();
   if (items.size() != object.days() * object.meals()) {

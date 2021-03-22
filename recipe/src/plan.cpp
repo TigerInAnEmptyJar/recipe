@@ -68,4 +68,12 @@ void plan::removeEater(std::string const& eater)
   }
 }
 
+boost::uuids::uuid plan::id() const { return _id; }
+
+plan& plan::id(boost::uuids::uuid const& id)
+{
+  _id = id;
+  return *this;
+}
+
 } // namespace recipe

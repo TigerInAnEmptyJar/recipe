@@ -640,6 +640,7 @@ TEST_F(shopping_io_test, shopping_version)
   };
   SetUpStuff(ids);
   auto plan = prepare_plan();
+  plan.id(gen("902b8cd8-3f56-0000-602a-8cd83f560000"));
   auto shopping = recipe::shopping_list::generate(plan);
   auto finder = [this](auto id) -> std::optional<recipe::ingredient> {
     auto item = std::find_if(std::begin(_ingredients), std::end(_ingredients),
@@ -654,6 +655,8 @@ TEST_F(shopping_io_test, shopping_version)
   auto read = io.read(file, finder);
 
   ASSERT_TRUE(read.has_value());
+  std::cout << boost::uuids::to_string(shopping.id()) << std::endl;
+  EXPECT_EQ(read->id(), shopping.id());
   EXPECT_EQ(*read, shopping);
 }
 
@@ -668,5 +671,6 @@ TEST_F(io_test, provider_setup)
   EXPECT_EQ(provider.installed_recipe().size(), 2);
   // One for Json export, three for LaTeX export
   EXPECT_EQ(provider.installed_plan().size(), 4);
-  EXPECT_EQ(provider.installed_shopping().size(), 1);
+  // One for Json export, one for LaTeX export
+  EXPECT_EQ(provider.installed_shopping().size(), 2);
 }

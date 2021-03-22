@@ -99,12 +99,16 @@ public:
    */
   void removeEater(std::string const& eater);
 
+  boost::uuids::uuid id() const;
+  plan& id(boost::uuids::uuid const& id);
+
 private:
   std::string _name{"New plan"};
   std::vector<plan_item> _items;
   std::size_t _days;
   std::size_t _meals;
   std::vector<std::string> _eaters;
+  boost::uuids::uuid _id;
 };
 
 } // namespace recipe

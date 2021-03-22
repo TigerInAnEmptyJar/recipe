@@ -7,6 +7,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 
+#include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/string_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
@@ -20,6 +21,7 @@ constexpr int const version_value{0};
 QString const content_key{"content"};
 
 QString const key_list_name{"list-name"};
+QString const key_list_id{"id"};
 QString const key_days_item{"days"};
 
 QString const key_day_name{"day-name"};
@@ -79,6 +81,7 @@ QJsonObject shopping_json_io::to_object(shopping_list const& out) const
 {
   QJsonObject item;
   item.insert(key_list_name, QString::fromStdString(out.name()));
+  item.insert(key_list_id, QString::fromStdString(boost::uuids::to_string(out.id())));
   QJsonArray days;
   for (auto const& element : out) {
     days.append(to_object(element));
@@ -122,8 +125,17 @@ std::optional<shopping_list> shopping_json_io::list_from_object(QJsonObject cons
       shoppingDays.push_back(*day);
     }
   }
+  boost::uuids::uuid id;
+  if (object.contains(key_list_id)) {
+    boost::uuids::string_generator gen;
+    id = gen(object[key_list_id].toString().toStdString());
+    if (id.is_nil()) {
+      id = boost::uuids::random_generator{}();
+    }
+  }
+
   shopping_day_generator generator;
-  auto list = generator.generate(shoppingDays);
+  auto list = generator.generate(shoppingDays, id);
   list.name(object[key_list_name].toString().toStdString());
   return list;
 }

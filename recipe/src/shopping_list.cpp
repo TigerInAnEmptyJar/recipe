@@ -68,8 +68,13 @@ shopping_list::iterator shopping_list::end() { return _list.end(); }
 
 shopping_list::const_iterator shopping_list::end() const { return _list.end(); }
 
+boost::uuids::uuid shopping_list::id() const { return _id; }
+
 void shopping_list::update_from_plan(plan const& from)
 {
+  if (_id != from.id()) {
+    return;
+  }
   auto in_plan = ::list_from_plan(from);
 
   while (_list.size() < in_plan.size()) {
@@ -93,6 +98,7 @@ shopping_list shopping_list::generate(plan const& from)
   std::transform(std::begin(in_plan), std::end(in_plan), std::back_inserter(result._list),
                  [](auto element) { return shopping_day(element); });
   result.assign_names(from);
+  result._id = from.id();
 
   return result;
 }
