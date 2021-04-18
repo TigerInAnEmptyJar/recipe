@@ -1,0 +1,781 @@
+---
+swagger: "2.0"
+info:
+  description: "This is the distribution server for recipes and meal plans."
+  version: "1.0.0"
+  title: "Recipes"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "recipe-dev@yahoo.de"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "localhost:8080"
+basePath: "/v1"
+tags:
+- name: "recipe"
+  description: "All about recipes"
+- name: "plan"
+  description: "Our weekly plans"
+- name: "shopping"
+  description: "The shopping lists corresponding to the weekly plans"
+schemes:
+- "https"
+- "http"
+paths:
+  /recipe:
+    get:
+      tags:
+      - "recipe"
+      summary: "Get a list of available recipes"
+      description: "Here we return a list of all available recipes on the server.\
+        \ The list itself only contains ID and name of the recipe. Use the ID to get\
+        \ all details about the recipe."
+      operationId: "get_recipe_list"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Recipelist"
+      x-swagger-router-controller: "swagger_server.controllers.recipe_controller"
+    post:
+      tags:
+      - "recipe"
+      summary: "Add a recipe"
+      description: "Use this to add a recipe to the list of available recipes on the\
+        \ server"
+      operationId: "add_recipe"
+      consumes:
+      - "application/json"
+      produces:
+      - "appliaction/json"
+      parameters:
+      - in: "body"
+        name: "recipe"
+        description: "Recipe to add to the server"
+        required: true
+        schema:
+          $ref: "#/definitions/Recipe"
+      responses:
+        "200":
+          description: "Successful operation"
+        "405":
+          description: "Invalid input"
+      security:
+      - recipe_auth: []
+      x-swagger-router-controller: "swagger_server.controllers.recipe_controller"
+  /recipe/{recipeId}:
+    get:
+      tags:
+      - "recipe"
+      summary: "Retrieve a recipe"
+      description: "Retrieve detailed information about a single recipe."
+      operationId: "get_recipe"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "recipeId"
+        in: "path"
+        description: "ID of recipe to return"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Recipe"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Recipe not found"
+      x-swagger-router-controller: "swagger_server.controllers.recipe_controller"
+    put:
+      tags:
+      - "recipe"
+      summary: "Change an existing recipe"
+      description: "Here we change a recipe that already exists on the server."
+      operationId: "change_recipe"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "recipeId"
+        in: "path"
+        description: "ID of recipe to change"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "recipe"
+        description: "The changed recipe"
+        required: true
+        schema:
+          $ref: "#/definitions/Recipe"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Recipe"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Recipe not found"
+      security:
+      - recipe_auth: []
+      x-swagger-router-controller: "swagger_server.controllers.recipe_controller"
+    delete:
+      tags:
+      - "recipe"
+      summary: "Deletes a recipe"
+      description: "Here a recipe is deleted from the server"
+      operationId: "delete_recipe"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "recipeId"
+        in: "path"
+        description: "Id of recipe to delete"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Recipelist"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Recipe not found"
+      security:
+      - recipe_auth: []
+      x-swagger-router-controller: "swagger_server.controllers.recipe_controller"
+  /recipe/image/{recipeId}:
+    get:
+      tags:
+      - "recipe"
+      summary: "Retrieve the image of a recipe"
+      description: "Retrieve the image of a single recipe."
+      operationId: "get_recipe_image"
+      produces:
+      - "image/image"
+      parameters:
+      - name: "recipeId"
+        in: "path"
+        description: "ID of recipe to return the image of"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            type: "file"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Recipe not found"
+      x-swagger-router-controller: "swagger_server.controllers.recipe_controller"
+    put:
+      tags:
+      - "recipe"
+      summary: "Upload the image of a recipe"
+      description: "Upload the image of a recipe on the server."
+      operationId: "set_recipe_image"
+      consumes:
+      - "multipart/form-data"
+      parameters:
+      - name: "recipeId"
+        in: "path"
+        description: "ID of recipe to change"
+        required: true
+        type: "string"
+        format: "uuid"
+      - name: "file"
+        in: "formData"
+        description: "Image of recipe to upload"
+        required: false
+        type: "file"
+      responses:
+        "200":
+          description: "Successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Recipe not found"
+      security:
+      - recipe_auth: []
+      x-swagger-router-controller: "swagger_server.controllers.recipe_controller"
+  /plan:
+    get:
+      tags:
+      - "plan"
+      summary: "Get list of available meal plans"
+      description: "Here we return a list of all available meal plans on the server.\
+        \ The list itself only contains ID and name of the plan. Use the ID to get\
+        \ all details about the plan."
+      operationId: "get_plan_list"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Planlist"
+      x-swagger-router-controller: "swagger_server.controllers.plan_controller"
+    post:
+      tags:
+      - "plan"
+      summary: "Add a plan"
+      description: "Use this to add a meal plan to the list of available meal plans\
+        \ on the server"
+      operationId: "add_plan"
+      consumes:
+      - "application/json"
+      produces:
+      - "appliaction/json"
+      parameters:
+      - in: "body"
+        name: "plan"
+        description: "Meal plan to add to the server"
+        required: true
+        schema:
+          $ref: "#/definitions/Plan"
+      responses:
+        "200":
+          description: "Successful operation"
+        "405":
+          description: "Invalid input"
+      security:
+      - recipe_auth: []
+      x-swagger-router-controller: "swagger_server.controllers.plan_controller"
+  /plan/{planId}:
+    get:
+      tags:
+      - "plan"
+      summary: "Retrieve a meal plan"
+      description: "Retrieve detailed information about a single meal plan."
+      operationId: "get_plan"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "planId"
+        in: "path"
+        description: "ID of meal plan to return"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Plan"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Plan not found"
+      x-swagger-router-controller: "swagger_server.controllers.plan_controller"
+    put:
+      tags:
+      - "plan"
+      summary: "Change an existing meal plan"
+      description: "Here we change a meal plan that already exists on the server."
+      operationId: "change_plan"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "planId"
+        in: "path"
+        description: "ID of meal plan to change"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "plan"
+        description: "The changed meal plan"
+        required: true
+        schema:
+          $ref: "#/definitions/Plan"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Plan"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Plan not found"
+      security:
+      - recipe_auth: []
+      x-swagger-router-controller: "swagger_server.controllers.plan_controller"
+    delete:
+      tags:
+      - "plan"
+      summary: "Deletes a meal plan"
+      description: "Here a meal plan is deleted from the server"
+      operationId: "delete_plan"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "planId"
+        in: "path"
+        description: "Id of meal plan to delete"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Planlist"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Plan not found"
+      security:
+      - recipe_auth: []
+      x-swagger-router-controller: "swagger_server.controllers.plan_controller"
+  /plan/subscribe/{planId}:
+    put:
+      tags:
+      - "plan"
+      summary: "Subscribe to a day in a meal plan"
+      description: "Subscribe"
+      operationId: "subscribe"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "planId"
+        in: "path"
+        description: "Id of the meal plan to subscribe to"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "subscriber"
+        description: "The name of the person subscribing to the meal"
+        required: true
+        schema:
+          $ref: "#/definitions/Subscription"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Plan"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Plan not found"
+      x-swagger-router-controller: "swagger_server.controllers.plan_controller"
+  /plan/unsubscribe/{planId}:
+    put:
+      tags:
+      - "plan"
+      summary: "Unsubscribe from a day in a meal plan"
+      description: "Unsubscribe"
+      operationId: "unsubscribe"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "planId"
+        in: "path"
+        description: "Id of the meal plan to unsubscribe from"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "subscriber"
+        description: "The name of the person unsubscribing from the meal"
+        required: true
+        schema:
+          $ref: "#/definitions/Subscription"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Plan"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Plan not found"
+      x-swagger-router-controller: "swagger_server.controllers.plan_controller"
+  /shopping:
+    get:
+      tags:
+      - "shopping"
+      summary: "Get the list of shopping-lists"
+      description: "Retrieve the list of shopping lists on the server."
+      operationId: "get_shoppinglists"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Shoppinglist"
+      x-swagger-router-controller: "swagger_server.controllers.shopping_controller"
+    put:
+      tags:
+      - "shopping"
+      summary: "Add a shopping list"
+      description: "Adds a shopping list on the server. Note: this is only possible\
+        \ for an already existing meal-plan."
+      operationId: "add_shoppinglist"
+      consumes:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "shopping_list"
+        description: "The shopping list for one existing meal-plan"
+        required: true
+        schema:
+          $ref: "#/definitions/Shopping"
+      responses:
+        "200":
+          description: "Successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Plan not found"
+      security:
+      - recipe_auth: []
+      x-swagger-router-controller: "swagger_server.controllers.shopping_controller"
+  /shopping/{shoppingId}:
+    get:
+      tags:
+      - "shopping"
+      summary: "Get a shopping list"
+      description: "Retrieve a shopping list from the server"
+      operationId: "get_shoppinglist"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "shoppingId"
+        in: "path"
+        description: "The Id of the shopping list to retrieve"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Shopping"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Shopping list not found"
+      x-swagger-router-controller: "swagger_server.controllers.shopping_controller"
+  /shopping/{shoppingId}/{listId}/found:
+    put:
+      tags:
+      - "shopping"
+      summary: "Set the amounts found on the shelves"
+      description: "For a specified ingredient on the list, this function here sets\
+        \ the amount that is found at home."
+      operationId: "set_available"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: "shoppingId"
+        in: "path"
+        description: "The Id of the shopping list to modify"
+        required: true
+        type: "string"
+        format: "uuid"
+      - name: "listId"
+        in: "path"
+        description: "The Id of the item of the shopping list to modify"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "ingredient"
+        description: "This is the ingredient and its amount, which is found at home"
+        required: true
+        schema:
+          $ref: "#/definitions/ShoppingIngredient"
+      responses:
+        "200":
+          description: "Successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Shopping list not found"
+      x-swagger-router-controller: "swagger_server.controllers.shopping_controller"
+  /user/login:
+    get:
+      tags:
+      - "user"
+      summary: "Logs user into the system"
+      description: ""
+      operationId: "login_user"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "username"
+        in: "query"
+        description: "The user name for login"
+        required: true
+        type: "string"
+      - name: "password"
+        in: "query"
+        description: "The password for login in clear text"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          headers:
+            X-Rate-Limit:
+              type: "integer"
+              format: "int32"
+              description: "calls per hour allowed by the user"
+            X-Expires-After:
+              type: "string"
+              format: "date-time"
+              description: "date in UTC when token expires"
+          schema:
+            type: "string"
+        "400":
+          description: "Invalid username/password supplied"
+      x-swagger-router-controller: "swagger_server.controllers.user_controller"
+securityDefinitions:
+  recipe_auth:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+  Recipelist:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+        id:
+          type: "string"
+          format: "uuid"
+  Recipe:
+    type: "object"
+    properties:
+      title:
+        type: "string"
+      id:
+        type: "string"
+        format: "uuid"
+      ingredients:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+            id:
+              type: "string"
+              format: "uuid"
+            value:
+              type: "number"
+            unit:
+              type: "integer"
+              format: "int32"
+      instructions:
+        type: "string"
+      preparation:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+      servings:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+      mealType:
+        type: "integer"
+        format: "int32"
+      calories:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+      joules:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+      fat:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+      protein:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+      carbs:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+    example:
+      instructions: "instructions"
+      servings: 1
+      carbs: 0
+      protein: 0
+      mealType: 1
+      fat: 0
+      ingredients:
+      - "{}"
+      - "{}"
+      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      calories: 0
+      title: "title"
+      joules: 0
+      preparation: 0
+  Planlist:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+        id:
+          type: "string"
+          format: "uuid"
+  Plan:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      id:
+        type: "string"
+        format: "uuid"
+      meals:
+        type: "integer"
+        format: "int32"
+      days:
+        type: "integer"
+        format: "int32"
+      eaters:
+        type: "array"
+        items:
+          type: "string"
+      items:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            shoppingBefore:
+              type: "boolean"
+            recipes:
+              type: "array"
+              items:
+                type: "object"
+                properties:
+                  name:
+                    type: "string"
+                  id:
+                    type: "string"
+                    format: "uuid"
+            subscribers:
+              type: "array"
+              items:
+                type: "string"
+    example:
+      name: "name"
+      eaters:
+      - "eaters"
+      - "eaters"
+      days: 6
+      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      items:
+      - "{}"
+      - "{}"
+      meals: 0
+  Subscription:
+    type: "object"
+    properties:
+      subscriber:
+        type: "string"
+      day:
+        type: "integer"
+        format: "int32"
+  Shoppinglist:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        id:
+          type: "string"
+          format: "uuid"
+  ShoppingIngredient:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      hasAll:
+        type: "boolean"
+      valueAtHome:
+        type: "number"
+      unitAtHome:
+        type: "integer"
+        format: "int32"
+    example:
+      unitAtHome: 6
+      hasAll: true
+      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      valueAtHome: 0.80082819046101150206595775671303272247314453125
+  Shopping:
+    type: "object"
+    properties:
+      title:
+        type: "string"
+      id:
+        type: "string"
+        format: "uuid"
+      days:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+            id:
+              type: "string"
+              format: "uuid"
+            ingredients:
+              type: "array"
+              items:
+                type: "object"
+                properties:
+                  name:
+                    type: "string"
+                  list:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        unit:
+                          type: "integer"
+                          format: "int32"
+                        value:
+                          type: "number"
+    example:
+      days:
+      - "{}"
+      - "{}"
+      id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
+      title: "title"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"

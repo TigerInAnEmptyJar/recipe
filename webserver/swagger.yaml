@@ -1,0 +1,728 @@
+swagger: "2.0"
+info:
+  description: "This is the distribution server for recipes and meal plans."
+  version: "1.0.0"
+  title: "Recipes"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "recipe-dev@yahoo.de"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "127.0.0.1"
+basePath: "/v1"
+tags:
+- name: "recipe"
+  description: "All about recipes"
+- name: "plan"
+  description: "Our weekly plans"
+- name: "shopping"
+  description: "The shopping lists corresponding to the weekly plans"
+schemes:
+- "https"
+- "http"
+paths:
+  /recipe:
+    get:
+      tags:
+      - "recipe"
+      summary: "Get a list of available recipes"
+      description: "Here we return a list of all available recipes on the server. The list itself only contains ID and name of the recipe. Use the ID to get all details about the recipe."
+      operationId: "getRecipeList"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Recipelist"
+    post:
+      tags:
+      - "recipe"
+      summary: "Add a recipe"
+      description: "Use this to add a recipe to the list of available recipes on the server"
+      operationId: "addRecipe"
+      consumes:
+      - "application/json"
+      produces:
+      - "appliaction/json"
+      parameters:
+      - in: "body"
+        name: "recipe"
+        description: "Recipe to add to the server"
+        required: true
+        schema:
+          $ref: "#/definitions/Recipe"
+      responses:
+        "200":
+          description: "Successful operation"
+        "405":
+          description: "Invalid input"
+      security:
+      - recipe_auth: []
+#        - "write:recipe"
+#        - "read:recipe"
+  /recipe/{recipeId}:
+    get:
+      tags:
+      - "recipe"
+      summary: "Retrieve a recipe"
+      description: "Retrieve detailed information about a single recipe."
+      operationId: "getRecipe"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "recipeId"
+        description: "ID of recipe to return"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Recipe"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Recipe not found"
+    put:
+      tags:
+      - "recipe"
+      summary: "Change an existing recipe"
+      description: "Here we change a recipe that already exists on the server."
+      operationId: "changeRecipe"
+      parameters:
+      - name: "recipeId"
+        in: "path"
+        description: "ID of recipe to change"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "recipe"
+        description: "The changed recipe"
+        required: true
+        schema:
+          $ref: "#/definitions/Recipe"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Recipe"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Recipe not found"
+      security:
+      - recipe_auth: []
+#        - "write:recipe"
+    delete:
+      tags:
+      - "recipe"
+      summary: "Deletes a recipe"
+      description: "Here a recipe is deleted from the server"
+      operationId: "deleteRecipe"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "recipeId"
+        in: "path"
+        description: "Id of recipe to delete"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Recipelist"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Recipe not found"
+      security:
+      - recipe_auth: []
+#        - "write:recipe"
+  /recipe/image/{recipeId}:
+    get:
+      tags:
+      - "recipe"
+      summary: "Retrieve the image of a recipe"
+      description: "Retrieve the image of a single recipe."
+      operationId: "getRecipeImage"
+      produces:
+      - "image/image"
+      parameters:
+      - in: "path"
+        name: "recipeId"
+        description: "ID of recipe to return the image of"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            type: "file"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Recipe not found"
+    put:
+      tags:
+      - "recipe"
+      summary: "Upload the image of a recipe"
+      description: "Upload the image of a recipe on the server."
+      operationId: "setRecipeImage"
+      consumes:
+      - "multipart/form-data"
+      parameters:
+      - name: "recipeId"
+        in: "path"
+        description: "ID of recipe to change"
+        required: true
+        type: "string"
+        format: "uuid"
+      - name: "file"
+        in: "formData"
+        description: "Image of recipe to upload"
+        required: false
+        type: "file"
+      responses:
+        "200":
+          description: "Successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Recipe not found"
+      security:
+      - recipe_auth: []
+#        - "write:recipe"
+  /plan:
+    get:
+      tags:
+      - "plan"
+      summary: "Get list of available meal plans"
+      description: "Here we return a list of all available meal plans on the server. The list itself only contains ID and name of the plan. Use the ID to get all details about the plan."
+      operationId: "getPlanList"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Planlist"
+    post:
+      tags:
+      - "plan"
+      summary: "Add a plan"
+      description: "Use this to add a meal plan to the list of available meal plans on the server"
+      operationId: "addPlan"
+      consumes:
+      - "application/json"
+      produces:
+      - "appliaction/json"
+      parameters:
+      - in: "body"
+        name: "plan"
+        description: "Meal plan to add to the server"
+        required: true
+        schema:
+          $ref: "#/definitions/Plan"
+      responses:
+        "200":
+          description: "Successful operation"
+        "405":
+          description: "Invalid input"
+      security:
+      - recipe_auth: []
+#        - "write:plan"
+  /plan/{planId}:
+    get:
+      tags:
+      - "plan"
+      summary: "Retrieve a meal plan"
+      description: "Retrieve detailed information about a single meal plan."
+      operationId: "getPlan"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "planId"
+        description: "ID of meal plan to return"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Plan"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Plan not found"
+    put:
+      tags:
+      - "plan"
+      summary: "Change an existing meal plan"
+      description: "Here we change a meal plan that already exists on the server."
+      operationId: "changePlan"
+      parameters:
+      - name: "planId"
+        in: "path"
+        description: "ID of meal plan to change"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "plan"
+        description: "The changed meal plan"
+        required: true
+        schema:
+          $ref: "#/definitions/Plan"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Plan"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Plan not found"
+      security:
+      - recipe_auth: []
+#        - "write:plan"
+    delete:
+      tags:
+      - "plan"
+      summary: "Deletes a meal plan"
+      description: "Here a meal plan is deleted from the server"
+      operationId: "deletePlan"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "planId"
+        in: "path"
+        description: "Id of meal plan to delete"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Planlist"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Plan not found"
+      security:
+      - recipe_auth: []
+#        - "write:plan"
+  /plan/subscribe/{planId}:
+    put:
+      tags:
+      - "plan"
+      summary: "Subscribe to a day in a meal plan"
+      description: "Subscribe"
+      operationId: "subscribe"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "planId"
+        required: true
+        in: "path"
+        description: "Id of the meal plan to subscribe to"
+        type: "string"
+        format: "uuid"
+      - name: "subscriber"
+        required: true
+        schema:
+          $ref: "#/definitions/Subscription"
+        in: "body"
+        description: "The name of the person subscribing to the meal"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Plan"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Plan not found"
+  /plan/unsubscribe/{planId}:
+    put:
+      tags:
+      - "plan"
+      summary: "Unsubscribe from a day in a meal plan"
+      description: "Unsubscribe"
+      operationId: "unsubscribe"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "planId"
+        required: true
+        in: "path"
+        description: "Id of the meal plan to unsubscribe from"
+        type: "string"
+        format: "uuid"
+      - name: "subscriber"
+        required: true
+        schema:
+          $ref: "#/definitions/Subscription"
+        in: "body"
+        description: "The name of the person unsubscribing from the meal"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Plan"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Plan not found"
+  /shopping:
+    get:
+      tags:
+      - "shopping"
+      summary: "Get the list of shopping-lists"
+      description: "Retrieve the list of shopping lists on the server."
+      operationId: "getShoppinglists"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Shoppinglist"
+    put:
+      tags:
+      - "shopping"
+      summary: "Add a shopping list"
+      description: "Adds a shopping list on the server. Note: this is only possible for an already existing meal-plan."
+      operationId: "addShoppinglist"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: "shopping list"
+        required: true
+        in: "body"
+        description: "The shopping list for one existing meal-plan"
+        schema:
+          $ref: "#/definitions/Shopping"
+      responses:
+        "200":
+          description: "Successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Plan not found"
+      security:
+      - recipe_auth: []
+#        - "write:plan"
+  /shopping/{shoppingId}:
+    get:
+      tags:
+      - "shopping"
+      summary: "Get a shopping list"
+      description: "Retrieve a shopping list from the server"
+      operationId: "getShoppinglist"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "shoppingId"
+        required: true
+        in: "path"
+        description: "The Id of the shopping list to retrieve"
+        type: "string"
+        format: "uuid"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Shopping"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Shopping list not found"
+  /shopping/{shoppingId}/{listId}/found:
+    put:
+      tags:
+      - "shopping"
+      summary: "Set the amounts found on the shelves"
+      description: "For a specified ingredient on the list, this function here sets the amount that is found at home."
+      operationId: "setAvailable"
+      consumes:
+      - "application/json"
+      parameters:
+      - name: "shoppingId"
+        required: true
+        in: "path"
+        description: "The Id of the shopping list to modify"
+        type: "string"
+        format: "uuid"
+      - name: listId
+        required: true
+        in: "path"
+        description: "The Id of the item of the shopping list to modify"
+        type: "string"
+        format: "uuid"
+      - name: "ingredient"
+        in: "body"
+        description: "This is the ingredient and its amount, which is found at home"
+        required: true
+        schema:
+          $ref: "#/definitions/ShoppingIngredient"
+      responses:
+        "200":
+          description: "Successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Shopping list not found"
+  /user/login:
+    get:
+      tags:
+      - "user"
+      summary: "Logs user into the system"
+      description: ""
+      operationId: "loginUser"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "username"
+        in: "query"
+        description: "The user name for login"
+        required: true
+        type: "string"
+      - name: "password"
+        in: "query"
+        description: "The password for login in clear text"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "string"
+          headers:
+            X-Rate-Limit:
+              type: "integer"
+              format: "int32"
+              description: "calls per hour allowed by the user"
+            X-Expires-After:
+              type: "string"
+              format: "date-time"
+              description: "date in UTC when token expires"
+        "400":
+          description: "Invalid username/password supplied"
+securityDefinitions:
+  recipe_auth:
+    type: "apiKey"
+    name: api_key
+    in: header
+#    scopes:
+#      write:recipe: "Modify the recipes on the server"
+#      read:recipe: "Read recipes from the server"
+#      write:plan: "Modify the meal-plans on the server"
+definitions:
+  Recipelist:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+        id:
+          type: "string"
+          format: "uuid"
+  Recipe:
+    type: "object"
+    properties:
+      title:
+        type: "string"
+      id:
+        type: "string"
+        format: "uuid"
+      ingredients:
+        type: "array"
+        items:
+          properties:
+            name:
+              type: "string"
+            id:
+              type: "string"
+              format: "uuid"
+            value:
+              type: "number"
+            unit:
+              type: "integer"
+              format: "int32"
+      instructions:
+        type: "string"
+      preparation:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+      servings:
+        type: "integer"
+        format: "int32"
+        minimum: 1
+      mealType:
+        type: "integer"
+        format: "int32"
+      calories:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+      joules:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+      fat:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+      protein:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+      carbs:
+        type: "integer"
+        format: "int32"
+        minimum: 0
+  Planlist:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        title:
+          type: "string"
+        id:
+          type: "string"
+          format: "uuid"
+  Plan:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      id:
+        type: "string"
+        format: "uuid"
+      meals:
+        type: "integer"
+        format: "int32"
+      days:
+        type: "integer"
+        format: "int32"
+      eaters:
+        type: "array"
+        items:
+          type: "string"
+      items:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            shoppingBefore:
+              type: "boolean"
+            recipes:
+              type: "array"
+              items:
+                type: "object"
+                properties:
+                  name:
+                    type: "string"
+                  id:
+                    type: "string"
+                    format: "uuid"
+            subscribers:
+              type: array
+              items:
+                type: "string"
+  Subscription:
+    type: "object"
+    properties:
+      subscriber:
+        type: "string"
+      day:
+        type: integer
+        format: "int32"
+  Shoppinglist:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+        id:
+          type: "string"
+          format: "uuid"
+  ShoppingIngredient:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      hasAll:
+        type: "boolean"
+      valueAtHome:
+        type: "number"
+      unitAtHome:
+        type: "integer"
+        format: "int32"
+  Shopping:
+    type: "object"
+    properties:
+      title:
+        type: "string"
+      id:
+        type: "string"
+        format: "uuid"
+      days:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+            id:
+              type: "string"
+              format: "uuid"
+            ingredients:
+              type: "array"
+              items:
+                type: "object"
+                allOf:
+                - $ref: '#/definitions/ShoppingIngredient'
+                - type: object
+                properties:
+                  name:
+                    type: "string"
+                  list:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        unit:
+                          type: "integer"
+                          format: "int32"
+                        value:
+                          type: "number"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"
