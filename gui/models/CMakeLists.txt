@@ -1,0 +1,32 @@
+my_add_library(recipe-gui-models
+  HEADER
+    include/amounted_list_model.hpp
+    include/ingredient_model.hpp
+    include/plan_item_model.hpp
+    include/plan_model.hpp
+    include/recipe_model.hpp
+    include/shopping_day_model.hpp
+    include/shopping_list_model.hpp
+    include/enum_adapter.hpp
+  SOURCE
+    src/amounted_list_model.cpp
+    src/ingredient_model.cpp
+    src/plan_item_model.cpp
+    src/plan_model.cpp
+    src/shopping_day_model.cpp
+    src/shopping_list_model.cpp
+    src/recipe_model.cpp
+    src/enum_adapter.cpp
+  INCLUDES
+    PUBLIC include/
+  DEPENDS
+    recipe::Recipe
+    recipe::IO
+    recipe::Communication
+    Qt5::Core
+    Qt5::Gui
+  ALIAS
+    recipe::Gui::Models
+  AUTORCC
+  AUTOMOC
+)

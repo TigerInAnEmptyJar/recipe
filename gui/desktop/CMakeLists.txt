@@ -1,0 +1,13 @@
+my_add_executable(recipe-gui
+  SOURCE
+    src/main.cpp
+    qml/qml.qrc
+  DEPENDS
+    recipe::Gui::Models
+    Qt5::Core
+    Qt5::Qml
+    Qt5::Quick
+    Qt5::Gui
+  AUTORCC
+  AUTOMOC
+)
