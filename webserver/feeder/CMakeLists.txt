@@ -1,0 +1,10 @@
+my_add_executable(webserver-feeder
+  SOURCE
+    main.cpp
+    feeder_application.cpp
+  DEPENDS
+    recipe::Communication
+    recipe::IO
+    Qt5::Core
+    Qt5::Network
+)

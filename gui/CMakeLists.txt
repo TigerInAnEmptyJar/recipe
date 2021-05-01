@@ -24,6 +24,7 @@ my_add_executable(recipe-gui
   DEPENDS
     recipe::Recipe
     recipe::IO
+    recipe::Communication
     Qt5::Core
     Qt5::Qml
     Qt5::Quick

@@ -13,6 +13,8 @@ find_package(Qt5 COMPONENTS Core Quick Qml Gui REQUIRED)
 add_subdirectory(recipe)
 add_subdirectory(io)
 add_subdirectory(gui)
+add_subdirectory(communication)
+add_subdirectory(webserver/feeder)
 add_subdirectory(documentation)
 
 enable_testing()
