@@ -65,6 +65,7 @@ private:
   struct recipe_data
   {
     recipe object;
+    bool favorite{false};
     std::shared_ptr<amounted_list_model> ingredient_model;
     recipe_data(recipe input, std::filesystem::path const& database_path);
   };
@@ -305,6 +306,8 @@ QVariant data_model::data(QModelIndex const& index, int role) const
   }
   case recipe_model::RecipeRoles::id_role:
     return QString::fromStdString(boost::uuids::to_string(_data[index.row()]->object.id()));
+  case recipe_model::RecipeRoles::favorite_role:
+    return _data[index.row()]->favorite;
   }
   return {};
 }
@@ -343,6 +346,7 @@ QHash<int, QByteArray> data_model::roleNames() const
   roles.insert(recipe_model::RecipeRoles::tag_role, "tags");
   roles.insert(recipe_model::RecipeRoles::eater_role, "eaters");
   roles.insert(recipe_model::RecipeRoles::id_role, "id");
+  roles.insert(recipe_model::RecipeRoles::favorite_role, "sessionFavorite");
   return roles;
 }
 
@@ -471,6 +475,14 @@ bool data_model::setData(QModelIndex const& index, QVariant const& value, int ro
   case recipe_model::RecipeRoles::eater_role:
   case recipe_model::RecipeRoles::id_role:
     break;
+  case recipe_model::RecipeRoles::favorite_role: {
+    if (value.type() != QVariant::Bool) {
+      return false;
+    }
+    _data[position]->favorite = value.toBool();
+    dataChanged(index, index, {role});
+    return true;
+  }
   }
   return false;
 }

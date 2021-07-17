@@ -10,6 +10,7 @@ Rectangle {
   property var currentObject
   property int context: Common.context_recipe
   property int currentIndex: -1
+  property bool filterFavorites: false
   function unsetCurrentObject(){
     currentIndex = -1
     currentObject = undefined
@@ -25,7 +26,8 @@ Rectangle {
   Component {
     id: recipeDelegate
     Rectangle {
-      height: Common.textHeight + 2
+      visible: !filterFavorites || sessionFavorite
+      height: visible ? Common.textHeight + 2 : 0
       width: iView.width
       border {
         width: iView.currentIndex == index ? Common.borderWidth : 0
@@ -48,12 +50,21 @@ Rectangle {
           fillMode: Image.PreserveAspectFit
           sourceSize.width: 256
         }
-        Text {
-          text: model.title
-          color: Common.textColor[context]
-          font.pointSize: Common.fontSize
+        Rectangle {
           Layout.fillHeight: true
           Layout.fillWidth: true
+          color: Common.backgroundColor[context]
+          border{
+            color: Common.borderColor[context]
+            width: sessionFavorite ? Common.borderWidth : 0
+          }
+          Text {
+            anchors.fill: parent
+            anchors.margins: parent.border.width
+            text: model.title
+            color: Common.textColor[context]
+            font.pointSize: Common.fontSize
+          }
         }
       }
       MouseArea {
@@ -66,6 +77,7 @@ Rectangle {
           recipeList.currentIndex = index
           recipeList.currentObject = model
         }
+        onDoubleClicked: sessionFavorite = !sessionFavorite
       }
     }
   }

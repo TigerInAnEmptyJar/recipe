@@ -25,6 +25,7 @@ Rectangle {
       width: 200
       Layout.fillHeight: true
       context: Common.context_recipe
+      filterFavorites: true
     }
     PlanControls{
       Layout.fillHeight: true

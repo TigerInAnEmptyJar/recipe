@@ -37,6 +37,7 @@ public:
     tag_role,
     eater_role,
     id_role,
+    favorite_role,
   };
 
 public:

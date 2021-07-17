@@ -57,6 +57,7 @@ Rectangle {
         id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
+        onDoubleClicked: planView.model.deleteRecipe(model.index)
       }
       Image {
         anchors.fill: parent
