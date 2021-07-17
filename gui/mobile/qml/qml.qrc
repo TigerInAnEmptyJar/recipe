@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>RecipeList.qml</file>
+        <file>RecipeView.qml</file>
+        <file>RText.qml</file>
+        <file>common/Common.qml</file>
+        <file>common/qmldir</file>
+        <file>PlanList.qml</file>
+        <file>RBorderedText.qml</file>
+        <file>PlanView.qml</file>
+    </qresource>
+</RCC>

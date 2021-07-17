@@ -3,7 +3,6 @@ my_add_executable(recipe-mobile
     src/main.cpp
     qml/qml.qrc
   DEPENDS
-    recipe::Gui::Models
     Qt5::Core
     Qt5::Qml
     Qt5::Quick
