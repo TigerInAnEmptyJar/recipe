@@ -26,8 +26,6 @@ int main(int argc, char** argv)
   recipes.setFinder(std::bind(&recipe::gui::ingredient_model::findIngredient, &ingredients,
                               std::placeholders::_1));
   recipes.loadLast();
-  recipes.setSortRole(recipe::gui::recipe_model::RecipeRoles::type_role);
-  recipes.setDynamicSortFilter(true);
   recipes.sort(0);
 
   recipe::gui::plan_model plan(

@@ -1,4 +1,8 @@
 #pragma once
+#include "amount_list_adapter.hpp"
+#include "amounted_list_model.hpp"
+#include "enum_adapter.hpp"
+#include "recipe.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -13,7 +17,7 @@ class recipe;
 class ingredient;
 namespace gui {
 
-class recipe_model : public QSortFilterProxyModel
+class recipe_model : public QAbstractListModel
 {
   Q_OBJECT
 
@@ -43,6 +47,12 @@ public:
 public:
   recipe_model();
 
+  int rowCount(QModelIndex const& parent = QModelIndex()) const override;
+
+  QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const override;
+  bool setData(QModelIndex const& index, QVariant const& value, int role) override;
+  QHash<int, QByteArray> roleNames() const override;
+  Qt::ItemFlags flags(QModelIndex const& index) const override;
   Q_INVOKABLE QStringList meal_types() const;
   Q_INVOKABLE QStringList amount_types() const;
 
@@ -63,10 +73,20 @@ public:
 
   void setFinder(std::function<std::optional<ingredient>(boost::uuids::uuid const&)> finder);
   std::optional<recipe> findRecipe(boost::uuids::uuid const& id) const;
-  bool lessThan(QModelIndex const& lhs, QModelIndex const& rhs) const override;
 
 private:
-  std::shared_ptr<QAbstractListModel> _model;
+  struct recipe_data
+  {
+    recipe object;
+    bool favorite{false};
+    std::shared_ptr<amounted_list_model> ingredient_model;
+    recipe_data(recipe input, std::filesystem::path const& database_path);
+  };
+  std::vector<std::shared_ptr<recipe_data>> _data;
+  std::filesystem::path _database_path;
+  std::function<std::optional<ingredient>(boost::uuids::uuid const&)> _finder;
+  enum_adapter<meal_t> _adapter;
+  enum_adapter<amounted_ingredient::amount_t> _amounts_adapter;
 };
 
 } // namespace gui

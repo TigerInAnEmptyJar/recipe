@@ -11,6 +11,7 @@ Item {
   property bool readonly: true
   signal remove(string element)
   signal add(string element)
+  property var getDisplay: function(item){return model[item];}
 
   Layout.fillWidth: true
   Layout.maximumHeight: Common.controlHeight
@@ -35,7 +36,7 @@ Item {
           Layout.fillWidth: true
           horizontalAlignment: Text.AlignHCenter
           verticalAlignment: Text.AlignVCenter
-          text: modelData
+          text: getDisplay(index)
           color: Common.buttonTextColor[rStringlistView.context]
         }
         RButton {

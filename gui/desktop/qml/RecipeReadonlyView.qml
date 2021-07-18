@@ -346,6 +346,9 @@ Item {
   }
 
   onObjectChanged: {
+    if (object === null) {
+      return
+    }
     if (object !== undefined) {
       objectTitle.text = object.title
       objectType.text = object.meal_type

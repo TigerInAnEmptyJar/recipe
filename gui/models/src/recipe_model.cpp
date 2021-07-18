@@ -23,60 +23,6 @@ QString const recipeFile = "last_recipe_file";
 
 namespace recipe {
 namespace gui {
-namespace recipes {
-class data_model : public QAbstractListModel
-{
-  Q_OBJECT
-
-public:
-  using QAbstractListModel::QAbstractListModel;
-
-  int rowCount(QModelIndex const& parent = QModelIndex()) const override;
-
-  QVariant data(QModelIndex const& index, int role = Qt::DisplayRole) const override;
-  QHash<int, QByteArray> roleNames() const override;
-
-  Q_INVOKABLE QStringList meal_types() const;
-  Q_INVOKABLE QStringList amount_types() const;
-
-  Qt::ItemFlags flags(QModelIndex const& index) const override;
-  bool setData(QModelIndex const& index, QVariant const& value, int role = Qt::EditRole) override;
-
-  Q_INVOKABLE void addItem();
-  Q_INVOKABLE void deleteItem(int index);
-  Q_INVOKABLE void addTag(int index, QString const& tag);
-  Q_INVOKABLE void removeTag(int index, QString const& tag);
-  Q_INVOKABLE void addEater(int index, QString const& eater);
-  Q_INVOKABLE void removeEater(int index, QString const& eater);
-  Q_INVOKABLE void addIngredient(int index, QString const& id);
-
-  Q_INVOKABLE void loadLast();
-  Q_INVOKABLE void load(QUrl const& url);
-  Q_INVOKABLE void storeLast();
-  Q_INVOKABLE void store(QUrl const& url);
-
-  Q_INVOKABLE QString databasePath() const;
-
-  void setFinder(std::function<std::optional<ingredient>(boost::uuids::uuid const&)> finder);
-  std::optional<recipe> findRecipe(boost::uuids::uuid const& id) const;
-  bool lessThan(QModelIndex const& lhs, QModelIndex const& rhs) const;
-
-private:
-  struct recipe_data
-  {
-    recipe object;
-    bool favorite{false};
-    std::shared_ptr<amounted_list_model> ingredient_model;
-    recipe_data(recipe input, std::filesystem::path const& database_path);
-  };
-  std::vector<std::shared_ptr<recipe_data>> _data;
-  std::filesystem::path _database_path;
-  std::function<std::optional<ingredient>(boost::uuids::uuid const&)> _finder;
-  enum_adapter<meal_t> _adapter;
-  enum_adapter<amounted_ingredient::amount_t> _amounts_adapter;
-};
-
-} // namespace recipes
 
 template <>
 class amount_list_adapter_impl<recipe> : public amount_list_adapter
@@ -100,148 +46,18 @@ private:
   recipe& _object;
 };
 
-recipe_model::recipe_model()
-    : QSortFilterProxyModel(), _model(std::make_shared<recipes::data_model>())
-{
-  setSourceModel(_model.get());
-}
+recipe_model::recipe_model() = default;
 
-QStringList recipe_model::meal_types() const
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->meal_types();
-  }
-  return {};
-}
-
-QStringList recipe_model::amount_types() const
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->amount_types();
-  }
-  return {};
-}
-
-void recipe_model::addItem()
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->addItem();
-  }
-}
-
-void recipe_model::deleteItem(int index)
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->deleteItem(mapToSource(this->index(index, 0)).row());
-  }
-}
-
-void recipe_model::addTag(int index, QString const& tag)
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->addTag(mapToSource(this->index(index, 0)).row(), tag);
-  }
-}
-
-void recipe_model::removeTag(int index, QString const& tag)
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->removeTag(mapToSource(this->index(index, 0)).row(), tag);
-  }
-}
-
-void recipe_model::addEater(int index, QString const& eater)
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->addEater(mapToSource(this->index(index, 0)).row(), eater);
-  }
-}
-
-void recipe_model::removeEater(int index, QString const& eater)
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->removeEater(mapToSource(this->index(index, 0)).row(), eater);
-  }
-}
-
-void recipe_model::addIngredient(int index, QString const& id)
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->addIngredient(mapToSource(this->index(index, 0)).row(), id);
-  }
-}
-
-void recipe_model::loadLast()
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->loadLast();
-  }
-}
-
-void recipe_model::load(QUrl const& url)
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->load(url);
-  }
-}
-
-void recipe_model::storeLast()
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->storeLast();
-  }
-}
-
-void recipe_model::store(QUrl const& url)
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    model->store(url);
-  }
-}
-
-QString recipe_model::databasePath() const
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->databasePath();
-  }
-  return {};
-}
-
-void recipe_model::setFinder(
-    std::function<std::optional<ingredient>(boost::uuids::uuid const&)> finder)
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->setFinder(finder);
-  }
-}
-
-std::optional<recipe> recipe_model::findRecipe(boost::uuids::uuid const& id) const
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->findRecipe(id);
-  }
-  return {};
-}
-
-bool recipe_model::lessThan(QModelIndex const& lhs, QModelIndex const& rhs) const
-{
-  if (auto model = std::dynamic_pointer_cast<recipes::data_model>(_model)) {
-    return model->lessThan(lhs, rhs);
-  }
-  return false;
-}
-
-namespace recipes {
-data_model::recipe_data::recipe_data(recipe input, std::filesystem::path const& database_path)
+recipe_model::recipe_data::recipe_data(recipe input, std::filesystem::path const& database_path)
     : object(input)
 {
   auto adapter = std::make_shared<amount_list_adapter_impl<recipe>>(object);
   ingredient_model = std::make_shared<amounted_list_model>(adapter, database_path);
 }
 
-int data_model::rowCount(QModelIndex const&) const { return _data.size(); }
+int recipe_model::rowCount(QModelIndex const&) const { return _data.size(); }
 
-QVariant data_model::data(QModelIndex const& index, int role) const
+QVariant recipe_model::data(QModelIndex const& index, int role) const
 {
   if (!index.isValid() || static_cast<size_t>(index.row()) >= _data.size()) {
     return {};
@@ -312,21 +128,7 @@ QVariant data_model::data(QModelIndex const& index, int role) const
   return {};
 }
 
-bool data_model::lessThan(QModelIndex const& lhs, QModelIndex const& rhs) const
-{
-  if (!lhs.isValid() || !rhs.isValid() || static_cast<size_t>(lhs.row()) > _data.size() ||
-      static_cast<size_t>(rhs.row()) > _data.size()) {
-    return false;
-  }
-  auto& left = _data[lhs.row()];
-  auto& right = _data[rhs.row()];
-  if (left->object.meal_type() != right->object.meal_type()) {
-    return left->object.meal_type() < right->object.meal_type();
-  }
-  return left->object.title() < right->object.title();
-}
-
-QHash<int, QByteArray> data_model::roleNames() const
+QHash<int, QByteArray> recipe_model::roleNames() const
 {
   QHash<int, QByteArray> roles;
   roles.insert(recipe_model::RecipeRoles::title_role, "title");
@@ -350,11 +152,11 @@ QHash<int, QByteArray> data_model::roleNames() const
   return roles;
 }
 
-QStringList data_model::meal_types() const { return _adapter.all(); }
+QStringList recipe_model::meal_types() const { return _adapter.all(); }
 
-QStringList data_model::amount_types() const { return _amounts_adapter.all(); }
+QStringList recipe_model::amount_types() const { return _amounts_adapter.all(); }
 
-Qt::ItemFlags data_model::flags(QModelIndex const& index) const
+Qt::ItemFlags recipe_model::flags(QModelIndex const& index) const
 {
   size_t const position = static_cast<size_t>(index.row());
   if (position >= _data.size()) {
@@ -364,7 +166,7 @@ Qt::ItemFlags data_model::flags(QModelIndex const& index) const
          Qt::ItemFlag::ItemIsEditable;
 }
 
-bool data_model::setData(QModelIndex const& index, QVariant const& value, int role)
+bool recipe_model::setData(QModelIndex const& index, QVariant const& value, int role)
 {
   size_t const position = static_cast<size_t>(index.row());
   if (position >= _data.size()) {
@@ -487,7 +289,7 @@ bool data_model::setData(QModelIndex const& index, QVariant const& value, int ro
   return false;
 }
 
-void data_model::addItem()
+void recipe_model::addItem()
 {
   beginInsertRows({}, _data.size(), _data.size());
   _data.push_back(std::make_shared<recipe_data>(recipe{}, _database_path));
@@ -495,7 +297,7 @@ void data_model::addItem()
   endInsertRows();
 }
 
-void data_model::deleteItem(int index)
+void recipe_model::deleteItem(int index)
 {
   if (static_cast<size_t>(index) >= _data.size() || index < 0) {
     return;
@@ -505,7 +307,7 @@ void data_model::deleteItem(int index)
   endRemoveRows();
 }
 
-void data_model::addTag(int index, QString const& tag)
+void recipe_model::addTag(int index, QString const& tag)
 {
   if (static_cast<size_t>(index) >= _data.size() || index < 0) {
     return;
@@ -515,7 +317,7 @@ void data_model::addTag(int index, QString const& tag)
   dataChanged(this->index(index), this->index(index), {recipe_model::RecipeRoles::tag_role});
 }
 
-void data_model::removeTag(int index, QString const& tag)
+void recipe_model::removeTag(int index, QString const& tag)
 {
   if (static_cast<size_t>(index) >= _data.size() || index < 0) {
     return;
@@ -525,7 +327,7 @@ void data_model::removeTag(int index, QString const& tag)
   dataChanged(this->index(index), this->index(index), {recipe_model::RecipeRoles::tag_role});
 }
 
-void data_model::addEater(int index, QString const& eater)
+void recipe_model::addEater(int index, QString const& eater)
 {
   if (static_cast<size_t>(index) >= _data.size() || index < 0) {
     return;
@@ -535,7 +337,7 @@ void data_model::addEater(int index, QString const& eater)
   dataChanged(this->index(index), this->index(index), {recipe_model::RecipeRoles::eater_role});
 }
 
-void data_model::removeEater(int index, QString const& eater)
+void recipe_model::removeEater(int index, QString const& eater)
 {
   if (static_cast<size_t>(index) >= _data.size() || index < 0) {
     return;
@@ -545,7 +347,7 @@ void data_model::removeEater(int index, QString const& eater)
   dataChanged(this->index(index), this->index(index), {recipe_model::RecipeRoles::eater_role});
 }
 
-void data_model::addIngredient(int index, QString const& id)
+void recipe_model::addIngredient(int index, QString const& id)
 {
   if (static_cast<size_t>(index) >= _data.size() || index < 0) {
     return;
@@ -574,7 +376,7 @@ void data_model::addIngredient(int index, QString const& id)
   }
 }
 
-void data_model::loadLast()
+void recipe_model::loadLast()
 {
   QSettings settings;
   auto path = std::filesystem::path{settings.value(::recipeFile).toString().toStdString()};
@@ -599,7 +401,7 @@ void data_model::loadLast()
   endResetModel();
 }
 
-void data_model::load(QUrl const& url)
+void recipe_model::load(QUrl const& url)
 {
   std::filesystem::path path = url.path().toStdString();
 
@@ -625,7 +427,7 @@ void data_model::load(QUrl const& url)
   endResetModel();
 }
 
-void data_model::storeLast()
+void recipe_model::storeLast()
 {
   QSettings settings;
   auto path = std::filesystem::path{settings.value(::recipeFile).toString().toStdString()};
@@ -643,7 +445,7 @@ void data_model::storeLast()
   provider.recipe(provider.installed_recipe().begin()->first)->write(out, path);
 }
 
-void data_model::store(QUrl const& url)
+void recipe_model::store(QUrl const& url)
 {
   std::filesystem::path path = url.path().toStdString();
   io::io_provider provider;
@@ -656,15 +458,18 @@ void data_model::store(QUrl const& url)
   settings.setValue(::recipeFile, url.path());
 }
 
-QString data_model::databasePath() const { return QString::fromStdString(_database_path.native()); }
+QString recipe_model::databasePath() const
+{
+  return QString::fromStdString(_database_path.native());
+}
 
-void data_model::setFinder(
+void recipe_model::setFinder(
     std::function<std::optional<ingredient>(boost::uuids::uuid const&)> finder)
 {
   _finder = finder;
 }
 
-std::optional<recipe> data_model::findRecipe(boost::uuids::uuid const& id) const
+std::optional<recipe> recipe_model::findRecipe(boost::uuids::uuid const& id) const
 {
   auto element = std::find_if(std::begin(_data), std::end(_data),
                               [id](auto item) { return item->object.id() == id; });
@@ -673,7 +478,5 @@ std::optional<recipe> data_model::findRecipe(boost::uuids::uuid const& id) const
   }
   return {};
 }
-} // namespace recipes
 } // namespace gui
 } // namespace recipe
-#include "recipe_model.moc"

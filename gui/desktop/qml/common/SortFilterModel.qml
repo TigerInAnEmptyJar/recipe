@@ -65,12 +65,15 @@ DelegateModel {
   onLessThanChanged: sort(lessThan)
   onFilterAcceptsItemChanged: sort(lessThan)
 
-  groups: DelegateModelGroup {
+  groups: [ DelegateModelGroup {
      id: unsortedItems
      name: "unsorted"
-
      includeByDefault: true
      onChanged: sort(lessThan)
-  }
+   },DelegateModelGroup {
+      id: visibleItems
+      name: "visible"
+      includeByDefault: true
+   }]
   filterOnGroup: "visible"
 }

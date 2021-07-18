@@ -26,8 +26,7 @@ Rectangle {
   Component {
     id: recipeDelegate
     Rectangle {
-      visible: !filterFavorites || sessionFavorite
-      height: visible ? Common.textHeight + 2 : 0
+      height: Common.textHeight + Common.borderWidth*2
       width: iView.width
       border {
         width: iView.currentIndex == index ? Common.borderWidth : 0
@@ -111,19 +110,50 @@ Rectangle {
     }
   }
 
-  ListView {
-    id: iView
+  RecipeFilterDialog {
+    id: filterDialog
+    visible: false
+    onAccepted: {
+      sortModel.lessThan = filterDialog.lessThan
+      sortModel.filterAcceptsItem = filterDialog.filterAcceptsItem
+      sortModel.update()
+    }
+  }
+
+  ColumnLayout {
     anchors.fill: parent
     anchors.margins: Common.borderWidth
-    clip: true
-    model: recipes
-    delegate: recipeDelegate
-    highlight: highlightDelegate
-    highlightFollowsCurrentItem: true
-    focus: true
-    section {
-      property: "meal_type"
-      delegate: sectionDelegate
+    RowLayout {
+      RButton {
+        id: enableFilter
+        context: recipeList.context
+        Layout.fillWidth: true
+        text: qsTr("Filter & Sort")
+        onClicked: {
+          filterDialog.open()
+        }
+      }
+    }
+    ListView {
+      id: iView
+      clip: true
+      Layout.fillHeight: true
+      Layout.fillWidth: true
+      model: SortFilterModel{
+        id: sortModel
+        model: recipes
+        delegate: recipeDelegate
+        lessThan: (a, b) => (a.meal_type === b.meal_type ? a.title < b.title : a.meal_type < b.meal_type)
+        filterAcceptsItem: (a) => (enableFilter.checked ? a.tags.includes(tagFilter.text) && !filterFavorites || a.sessionFavorite : !filterFavorites || a.sessionFavorite)
+        Component.onCompleted: update()
+      }
+      highlight: highlightDelegate
+      highlightFollowsCurrentItem: true
+      focus: true
+      section {
+        property: "meal_type"
+        delegate: sectionDelegate
+      }
     }
   }
 }

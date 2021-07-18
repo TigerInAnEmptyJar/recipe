@@ -24,5 +24,6 @@
         <file>ShoppingControls.qml</file>
         <file>ShoppingListView.qml</file>
         <file>ShoppingPage.qml</file>
+        <file>RecipeFilterDialog.qml</file>
     </qresource>
 </RCC>

@@ -426,6 +426,10 @@ Item {
     }
   }
   onObjectChanged: {
+    if (object === null) {
+      return
+    }
+
     if (object !== undefined) {
       objectTitleInput.text = object.title
 
