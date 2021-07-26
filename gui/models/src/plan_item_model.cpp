@@ -2,6 +2,8 @@
 
 #include <boost/uuid/string_generator.hpp>
 
+#include <optional>
+
 namespace recipe {
 namespace gui {
 

@@ -5,6 +5,8 @@
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 
+#include <optional>
+
 namespace recipe {
 namespace gui {
 

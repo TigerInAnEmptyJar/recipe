@@ -42,13 +42,13 @@ Rectangle {
       RowLayout {
         anchors.fill: parent
         anchors.margins: Common.borderWidth
-        Image {
-          source: image !== undefined ? image : ""
-          Layout.maximumHeight: Common.textHeight
-          Layout.maximumWidth: Common.textHeight
-          fillMode: Image.PreserveAspectFit
-          sourceSize.width: 256
-        }
+//        Image {
+//          source: image !== undefined ? image : ""
+//          Layout.maximumHeight: Common.textHeight
+//          Layout.maximumWidth: Common.textHeight
+//          fillMode: Image.PreserveAspectFit
+//          sourceSize.width: 256
+//        }
         Rectangle {
           Layout.fillHeight: true
           Layout.fillWidth: true

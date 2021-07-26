@@ -4,6 +4,8 @@
 
 #include <QAbstractListModel>
 
+#include <optional>
+
 namespace recipe {
 namespace gui {
 
