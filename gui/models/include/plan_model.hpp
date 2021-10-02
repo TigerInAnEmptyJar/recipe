@@ -56,9 +56,9 @@ public:
   Q_INVOKABLE void removeEater(QString const& eater);
   Q_INVOKABLE QStringList eaters() const;
 
-  Q_INVOKABLE void addSubscriber(int index, QString const& eater);
-  Q_INVOKABLE void removeSubscriber(int index, QString const& eater);
-  Q_INVOKABLE bool subscribed(int index, QString const& eater);
+  Q_INVOKABLE void addSubscriber(int meal_index, int recipe_index, QString const& eater);
+  Q_INVOKABLE void removeSubscriber(int meal_index, int recipe_index, QString const& eater);
+  Q_INVOKABLE bool subscribed(int meal_index, int recipe_index, QString const& eater);
 
   Q_INVOKABLE shopping_list generateList() const;
 

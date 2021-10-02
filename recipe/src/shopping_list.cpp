@@ -28,22 +28,25 @@ auto list_from_plan(recipe::plan const& from)
     if (item.shoppingBefore() || currentSection < 0) {
       currentSection++;
     }
-    auto portionsNeeded = item.subscribers().size();
-    std::for_each(
-        std::begin(item), std::end(item), [&addToList, portionsNeeded, currentSection](auto rec) {
-          float ingredientFactor =
-              static_cast<float>(portionsNeeded) / static_cast<float>(rec.servings());
-          std::for_each(std::begin(rec), std::end(rec),
-                        [ingredientFactor, &addToList, currentSection](auto ingredient) {
-                          auto in{ingredient};
-                          in *= ingredientFactor;
-                          if (in.base_ingredient().sectioned()) {
-                            addToList(in, currentSection);
-                          } else {
-                            addToList(in, 0);
-                          }
-                        });
-        });
+    std::for_each(std::begin(item), std::end(item), [&addToList, currentSection](auto rec) {
+      auto portionsNeeded = rec.subscribers().size();
+      if (portionsNeeded == 0) {
+        return;
+      }
+      auto element = rec.item();
+      float ingredientFactor =
+          static_cast<float>(portionsNeeded) / static_cast<float>(element.servings());
+      std::for_each(std::begin(element), std::end(element),
+                    [ingredientFactor, &addToList, currentSection](auto ingredient) {
+                      auto in{ingredient};
+                      in *= ingredientFactor;
+                      if (in.base_ingredient().sectioned()) {
+                        addToList(in, currentSection);
+                      } else {
+                        addToList(in, 0);
+                      }
+                    });
+    });
   });
   return in_plan;
 }

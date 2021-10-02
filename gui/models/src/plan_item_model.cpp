@@ -2,8 +2,6 @@
 
 #include <boost/uuid/string_generator.hpp>
 
-#include <optional>
-
 namespace recipe {
 namespace gui {
 
@@ -27,24 +25,33 @@ QVariant plan_item_model::data(QModelIndex const& index, int role) const
   }
   switch (role) {
   case ItemRoles::title_role:
-    return QString::fromStdString(item->title());
+    return QString::fromStdString(item->item().title());
   case ItemRoles::image_path_role:
-    if (item->image_path().empty()) {
+    if (item->item().image_path().empty()) {
       return {};
     }
-    if (item->image_path().is_relative()) {
-      return QString::fromStdString((_database_path / item->image_path()).native());
+    if (item->item().image_path().is_relative()) {
+      return QString::fromStdString((_database_path / item->item().image_path()).native());
     }
-    return QString::fromStdString(item->image_path().native());
+    return QString::fromStdString(item->item().image_path().native());
+  case ItemRoles::subscriber_role: {
+    auto const& subscribers = item->subscribers();
+    QStringList result;
+    std::for_each(subscribers.begin(), subscribers.end(), [&result](auto const& element) {
+      result.append(QString::fromStdString(element));
+    });
+    return result;
+  }
+
   case ItemRoles::image_role:
-    if (item->image_path().empty()) {
+    if (item->item().image_path().empty()) {
       return {};
     }
-    if (item->image_path().is_relative()) {
-      return "file://" +
-             QString::fromStdString((_database_path / "recipes" / item->image_path()).native());
+    if (item->item().image_path().is_relative()) {
+      return "file://" + QString::fromStdString(
+                             (_database_path / "recipes" / item->item().image_path()).native());
     }
-    return "file://" + QString::fromStdString(item->image_path().native());
+    return "file://" + QString::fromStdString(item->item().image_path().native());
   }
   return {};
 }
@@ -54,6 +61,7 @@ QHash<int, QByteArray> plan_item_model::roleNames() const
   QHash<int, QByteArray> roles;
   roles.insert(ItemRoles::title_role, "title");
   roles.insert(ItemRoles::image_role, "image");
+  roles.insert(ItemRoles::subscriber_role, "subscribers");
   roles.insert(ItemRoles::image_path_role, "imagePath");
   return roles;
 }

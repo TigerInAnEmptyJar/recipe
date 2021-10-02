@@ -2,6 +2,42 @@
 
 namespace recipe {
 
+meal_item::meal_item(recipe const& element) : _recipe(element) {}
+
+recipe meal_item::item() const { return _recipe; }
+
+meal_item& meal_item::item(recipe const& element)
+{
+  _recipe = element;
+  return *this;
+}
+
+std::vector<std::string> meal_item::subscribers() const { return _subscribers; }
+
+meal_item& meal_item::add(std::string const& subscriber)
+{
+  if (std::find(std::begin(_subscribers), std::end(_subscribers), subscriber) ==
+      std::end(_subscribers)) {
+    _subscribers.push_back(subscriber);
+  }
+  return *this;
+}
+
+meal_item& meal_item::remove(std::string const& subscriber)
+{
+  auto it = std::find(std::begin(_subscribers), std::end(_subscribers), subscriber);
+  if (it != std::end(_subscribers)) {
+    _subscribers.erase(it);
+  }
+  return *this;
+}
+
+meal_item& meal_item::remove(std::vector<std::string>::iterator const& subscriber)
+{
+  _subscribers.erase(subscriber);
+  return *this;
+}
+
 plan_item::plan_item(std::string const& item_name) : _name(item_name) {}
 
 std::string plan_item::name() const { return _name; }
@@ -22,7 +58,13 @@ plan_item::const_iterator plan_item::end() const { return _recipes.end(); }
 
 plan_item& plan_item::add(recipe const& recipe)
 {
-  _recipes.push_back(recipe);
+  _recipes.push_back(meal_item{recipe});
+  return *this;
+}
+
+plan_item& plan_item::add(meal_item const& meal)
+{
+  _recipes.push_back(meal);
   return *this;
 }
 
@@ -30,31 +72,6 @@ void plan_item::remove(iterator item)
 {
   if (item != _recipes.end()) {
     _recipes.erase(item);
-  }
-}
-
-std::vector<std::string> const& plan_item::subscribers() const { return _subscribers; }
-
-void plan_item::add(std::string const& subscriber)
-{
-  auto found = std::find(std::begin(_subscribers), std::end(_subscribers), subscriber);
-  if (found == std::end(_subscribers)) {
-    _subscribers.push_back(subscriber);
-  }
-}
-
-void plan_item::remove(std::vector<std::string>::iterator item)
-{
-  if (item != _subscribers.end()) {
-    _subscribers.erase(item);
-  }
-}
-
-void plan_item::remove(std::string const& item)
-{
-  auto element = std::find(_subscribers.begin(), _subscribers.end(), item);
-  if (element != _subscribers.end()) {
-    _subscribers.erase(element);
   }
 }
 

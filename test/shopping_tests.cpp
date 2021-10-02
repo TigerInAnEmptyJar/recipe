@@ -138,8 +138,8 @@ TEST_F(shoppingTest, generation_singleItem)
     {
       single_item_plan.addEater("Mom");
       single_item_plan.addEater("Dad");
-      std::begin(single_item_plan)->add("Mom");
-      std::begin(single_item_plan)->add("Dad");
+      std::begin(single_item_plan)->begin()->add("Mom");
+      std::begin(single_item_plan)->begin()->add("Dad");
       auto two_eater = recipe::shopping_list::generate(single_item_plan);
 
       ASSERT_EQ(std::distance(std::begin(two_eater), std::end(two_eater)), 1);
@@ -155,6 +155,8 @@ TEST_F(shoppingTest, generation_singleItem)
 
     {
       std::begin(single_item_plan)->add(_recipes[1]);
+      (std::begin(single_item_plan)->begin() + 1)->add("Mom");
+      (std::begin(single_item_plan)->begin() + 1)->add("Dad");
       auto two_recipes = recipe::shopping_list::generate(single_item_plan);
 
       ASSERT_EQ(std::distance(std::begin(two_recipes), std::end(two_recipes)), 1);
@@ -182,10 +184,12 @@ TEST_F(shoppingTest, generation_twoDays_oneShopping)
 
   two_item_plan.addEater("Mom");
   two_item_plan.addEater("Dad");
-  first_day->add("Mom");
-  first_day->add("Dad");
-  second_day->add("Mom");
-  second_day->add("Dad");
+  std::for_each(std::begin(two_item_plan), std::end(two_item_plan), [](auto& day) {
+    std::for_each(std::begin(day), std::end(day), [](auto& meal) {
+      meal.add("Mom");
+      meal.add("Dad");
+    });
+  });
 
   {
     auto two_days = recipe::shopping_list::generate(two_item_plan);
@@ -241,9 +245,11 @@ TEST_F(shoppingTest, generation_twoDays_twoShopping)
   // Cook for Mom and Dad.
   four_item_plan.addEater("Mom");
   four_item_plan.addEater("Dad");
-  for (auto& meal : four_item_plan) {
-    meal.add("Mom");
-    meal.add("Dad");
+  for (auto& day : four_item_plan) {
+    for (auto& meal : day) {
+      meal.add("Mom");
+      meal.add("Dad");
+    }
   }
 
   auto two_days = recipe::shopping_list::generate(four_item_plan);

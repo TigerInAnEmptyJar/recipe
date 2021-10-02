@@ -55,14 +55,6 @@ QVariant plan_model::data(QModelIndex const& index, int role) const
     return QString::fromStdString(element->name());
   case PlanRoles::shopping_role:
     return element->shoppingBefore();
-  case PlanRoles::subscribers_role: {
-    auto const& subscribers = element->subscribers();
-    QStringList result;
-    std::for_each(subscribers.begin(), subscribers.end(), [&result](auto const& element) {
-      result.append(QString::fromStdString(element));
-    });
-    return result;
-  }
   case PlanRoles::item_role:
     return QVariant::fromValue(_items[index.row()].get());
   }
@@ -74,7 +66,6 @@ QHash<int, QByteArray> plan_model::roleNames() const
   QHash<int, QByteArray> roles;
   roles.insert(PlanRoles::name_role, "name");
   roles.insert(PlanRoles::shopping_role, "shoppingBefore");
-  roles.insert(PlanRoles::subscribers_role, "subscribers");
   roles.insert(PlanRoles::item_role, "item");
   return roles;
 }
@@ -129,34 +120,52 @@ QStringList plan_model::eaters() const
   return result;
 }
 
-void plan_model::addSubscriber(int index, QString const& eater)
+void plan_model::addSubscriber(int meal_index, int recipe_index, QString const& eater)
 {
-  auto item = _data.begin();
-  std::advance(item, index);
-  if (item == _data.end()) {
+  auto element = _data.begin();
+  std::advance(element, meal_index);
+  if (element == _data.end()) {
+    return;
+  }
+
+  auto item = element->begin();
+  std::advance(item, recipe_index);
+  if (item == element->end()) {
     return;
   }
   item->add(eater.toStdString());
 }
 
-void plan_model::removeSubscriber(int index, QString const& eater)
+void plan_model::removeSubscriber(int meal_index, int recipe_index, QString const& eater)
 {
-  auto item = _data.begin();
-  std::advance(item, index);
-  if (item == _data.end()) {
+  auto element = _data.begin();
+  std::advance(element, meal_index);
+  if (element == _data.end()) {
+    return;
+  }
+
+  auto item = element->begin();
+  std::advance(item, recipe_index);
+  if (item == element->end()) {
     return;
   }
   item->remove(eater.toStdString());
 }
 
-bool plan_model::subscribed(int index, QString const& eater)
+bool plan_model::subscribed(int meal_index, int recipe_index, QString const& eater)
 {
-  if (index < 0) {
+  auto element = _data.begin();
+  std::advance(element, meal_index);
+  if (element == _data.end()) {
+    return {};
+  }
+
+  if (recipe_index < 0) {
     return false;
   }
-  auto item = _data.begin();
-  std::advance(item, index);
-  if (item == _data.end()) {
+  auto item = element->begin();
+  std::advance(item, recipe_index);
+  if (item == element->end()) {
     return false;
   }
   auto eaters = item->subscribers();
@@ -187,7 +196,7 @@ void plan_model::loadLast()
   auto path = std::filesystem::path{settings.value(::planFile).toString().toStdString()};
   _database_path = path.parent_path();
   if (!std::filesystem::exists(path)) {
-    std::cout << "Loading not possible: url doesn't exist " << path.native() << std::endl;
+    std::cout << "Plan: Loading not possible: url doesn't exist " << path.native() << std::endl;
     return;
   }
   auto provider = ::getDefaultProvider();

@@ -14,10 +14,12 @@ namespace {
 QString const type_key{"file-type"};
 QString const type_value{"plan"};
 QString const version_key{"version"};
-constexpr int const version_value{0};
+constexpr int const version_value{1};
+constexpr std::array<int, 2> supported_versions{0, 1};
 QString const content_key{"content"};
 
 QString const key_item_name{"item-name"};
+QString const key_item_id{"recipe-id"};
 QString const key_item_recipes{"recipe"};
 QString const key_item_subscriber{"subscribers"};
 QString const key_item_before{"doShopBefore"};
@@ -35,7 +37,7 @@ namespace io {
 void plan_json_io::write(plan const& out, std::filesystem::path const& path) const
 {
   QJsonArray array;
-  array.append(toJsonObject(out));
+  array.append(toJsonObject<version_value>(out));
 
   QJsonObject object;
   object.insert(type_key, type_value);
@@ -69,7 +71,13 @@ std::optional<plan> plan_json_io::read(std::filesystem::path const& path,
   if (!object.contains(type_key) || object[type_key].toString() != type_value) {
     return {};
   }
-  if (!object.contains(version_key) || object[version_key].toInt() != version_value) {
+  auto version = version_value;
+  if (!object.contains(version_key)) {
+    return {};
+  }
+  version = object[version_key].toInt();
+  if (std::find(std::begin(supported_versions), std::end(supported_versions), version) ==
+      std::end(supported_versions)) {
     return {};
   }
   if (!object.contains(content_key) || !object[content_key].isArray()) {
@@ -77,9 +85,24 @@ std::optional<plan> plan_json_io::read(std::filesystem::path const& path,
   }
   auto content = object[content_key].toArray();
 
+  auto reader =
+      [version,
+       this]() -> std::function<std::optional<plan>(QJsonObject const& i, finder_t recipe_finder)> {
+    if (version == supported_versions[0]) {
+      return [this](QJsonObject const& i, finder_t recipe_finder) {
+        return planFromJsonObject<0>(i, recipe_finder);
+      };
+    }
+    if (version == supported_versions[1]) {
+      return [this](QJsonObject const& i, finder_t recipe_finder) {
+        return planFromJsonObject<1>(i, recipe_finder);
+      };
+    }
+    return [this](QJsonObject const&, finder_t) { return std::optional<plan>(); };
+  }();
   std::vector<plan> output;
   for (auto element : content) {
-    auto object = planFromJsonObject(element.toObject(), recipe_finder);
+    auto object = reader(element.toObject(), recipe_finder);
     if (object.has_value()) {
       output.push_back(*object);
     }
@@ -91,27 +114,45 @@ std::optional<plan> plan_json_io::read(std::filesystem::path const& path,
   return output[0];
 }
 
+template <int version>
 QJsonObject plan_json_io::toJsonObject(plan_item const& i) const
 {
-  QJsonArray subscribers;
-  for (auto const& sub : i.subscribers()) {
-    subscribers.append(QString::fromStdString(sub));
-  }
-  QJsonArray recipes;
-  for (auto it = i.begin(); it != i.end(); ++it) {
-    recipes.append(QString::fromStdString(boost::uuids::to_string(it->id())));
-  }
-
   QJsonObject object;
+  QJsonArray recipes;
+  QJsonArray subscribers;
+  for (auto it = i.begin(); it != i.end(); ++it) {
+    auto id = QString::fromStdString(boost::uuids::to_string(it->item().id()));
+    if constexpr (version == 0) {
+      recipes.append(id);
+      QJsonArray subscribers;
+      for (auto const& sub : it->subscribers()) {
+        if (!subscribers.contains(QString::fromStdString(sub))) {
+          subscribers.append(QString::fromStdString(sub));
+        }
+      }
+    } else if constexpr (version == 1) {
+      QJsonObject recipeObject;
+      QJsonArray subscribers;
+      for (auto const& sub : it->subscribers()) {
+        subscribers.append(QString::fromStdString(sub));
+      }
+      recipeObject.insert(key_item_subscriber, subscribers);
+      recipeObject.insert(key_item_id, id);
+      recipes.append(recipeObject);
+    }
+  }
+  if constexpr (version == 0) {
+    object.insert(key_item_subscriber, subscribers);
+  }
 
   object.insert(key_item_recipes, recipes);
-  object.insert(key_item_subscriber, subscribers);
   object.insert(key_item_name, QString::fromStdString(i.name()));
   object.insert(key_item_before, i.shoppingBefore());
 
   return object;
 }
 
+template <int version>
 std::optional<plan_item> plan_json_io::itemFromJsonObject(QJsonObject const& i,
                                                           finder_t recipe_finder) const
 {
@@ -127,21 +168,49 @@ std::optional<plan_item> plan_json_io::itemFromJsonObject(QJsonObject const& i,
     item.shoppingBefore(i[key_item_before].toBool());
   }
 
-  if (i.contains(key_item_subscriber) && i[key_item_subscriber].isArray()) {
-    QJsonArray subscribers = i[key_item_subscriber].toArray();
-    for (auto sub : subscribers) {
-      item.add(sub.toString().toStdString());
-    }
-  }
-
   if (i.contains(key_item_recipes) && i[key_item_recipes].isArray()) {
     QJsonArray recipes = i[key_item_recipes].toArray();
     boost::uuids::string_generator gen;
     for (auto rec : recipes) {
-      auto id = gen(rec.toString().toStdString());
-      auto recipe = recipe_finder(id);
-      if (recipe.has_value()) {
-        item.add(*recipe);
+      if constexpr (version == 0) {
+        auto id = gen(rec.toString().toStdString());
+        auto recipe = recipe_finder(id);
+        if (recipe.has_value()) {
+          meal_item meal{*recipe};
+          if (i.contains(key_item_subscriber) && i[key_item_subscriber].isArray()) {
+            QJsonArray subscribers = i[key_item_subscriber].toArray();
+            for (auto sub : subscribers) {
+              meal.add(sub.toString().toStdString());
+            }
+          }
+          item.add(meal);
+        }
+      } else if (version == 1) {
+        QJsonObject recObject = rec.toObject();
+        if (!recObject.contains(key_item_id)) {
+          continue;
+        }
+        auto id = gen(recObject[key_item_id].toString().toStdString());
+        auto recipe = recipe_finder(id);
+        if (recipe.has_value()) {
+          meal_item meal{*recipe};
+          if (recObject.contains(key_item_subscriber) && recObject[key_item_subscriber].isArray()) {
+            QJsonArray subscribers = recObject[key_item_subscriber].toArray();
+            for (auto sub : subscribers) {
+              meal.add(sub.toString().toStdString());
+            }
+          }
+          item.add(meal);
+        }
+      }
+    }
+  }
+
+  if (i.contains(key_item_subscriber) && i[key_item_subscriber].isArray()) {
+    QJsonArray subscribers = i[key_item_subscriber].toArray();
+    for (auto sub : subscribers) {
+      for (auto& rec : item) {
+        rec.add(sub.toString().toStdString());
       }
     }
   }
@@ -149,6 +218,7 @@ std::optional<plan_item> plan_json_io::itemFromJsonObject(QJsonObject const& i,
   return item;
 }
 
+template <int version>
 QJsonObject plan_json_io::toJsonObject(plan const& i) const
 {
   QJsonObject object;
@@ -165,13 +235,14 @@ QJsonObject plan_json_io::toJsonObject(plan const& i) const
 
   QJsonArray items;
   for (auto const& item : i) {
-    items.append(toJsonObject(item));
+    items.append(toJsonObject<version>(item));
   }
   object.insert(key_plan_items, items);
 
   return object;
 }
 
+template <int version>
 std::optional<plan> plan_json_io::planFromJsonObject(QJsonObject const& i,
                                                      finder_t recipe_finder) const
 {
@@ -206,7 +277,7 @@ std::optional<plan> plan_json_io::planFromJsonObject(QJsonObject const& i,
 
   int count = 0;
   for (auto& item : object) {
-    auto element = itemFromJsonObject(items.at(count++).toObject(), recipe_finder);
+    auto element = itemFromJsonObject<version>(items.at(count++).toObject(), recipe_finder);
     if (element.has_value()) {
       item = *element;
     }
@@ -215,5 +286,12 @@ std::optional<plan> plan_json_io::planFromJsonObject(QJsonObject const& i,
   return object;
 }
 
+template QJsonObject plan_json_io::toJsonObject<0>(plan_item const& i) const;
+template QJsonObject plan_json_io::toJsonObject<1>(plan_item const& i) const;
+template QJsonObject plan_json_io::toJsonObject<1>(plan const& i) const;
+template std::optional<plan_item> plan_json_io::itemFromJsonObject<0>(QJsonObject const& i,
+                                                                      finder_t recipe_finder) const;
+template std::optional<plan_item> plan_json_io::itemFromJsonObject<1>(QJsonObject const& i,
+                                                                      finder_t recipe_finder) const;
 } // namespace io
 } // namespace recipe

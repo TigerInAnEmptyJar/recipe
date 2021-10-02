@@ -26,6 +26,7 @@ Rectangle {
   Component {
     id: recipeDelegate
     Rectangle {
+      focus: ListView.isCurrentItem
       height: Common.textHeight + Common.borderWidth*2
       width: iView.width
       border {
@@ -149,11 +150,14 @@ Rectangle {
       }
       highlight: highlightDelegate
       highlightFollowsCurrentItem: true
+      boundsBehavior: Flickable.StopAtBounds
+      boundsMovement: Flickable.StopAtBounds
       focus: true
       section {
         property: "meal_type"
         delegate: sectionDelegate
       }
+      maximumFlickVelocity: 1000
     }
   }
 }

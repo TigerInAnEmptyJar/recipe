@@ -18,6 +18,7 @@ class plan_item_model : public QAbstractListModel
     title_role = Qt::UserRole + 1,
     image_path_role,
     image_role,
+    subscriber_role,
   };
 
 public:

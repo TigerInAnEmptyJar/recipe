@@ -7,14 +7,14 @@ namespace {
 std::vector<std::vector<std::string>> generateTable(recipe::plan const& out, bool filled)
 {
   auto eaters = out.eaterList();
-  std::function<std::vector<std::string>(recipe::plan_item const&, recipe::recipe const&)>
-      createLine = [eaters](recipe::plan_item const& element, recipe::recipe const& recipe) {
+  std::function<std::vector<std::string>(recipe::plan_item const&, recipe::meal_item const&)>
+      createLine = [eaters](recipe::plan_item const& element, recipe::meal_item const& recipe) {
         std::vector<std::string> line;
         line.push_back(element.name());
-        line.push_back(recipe.title());
+        line.push_back(recipe.item().title());
         std::transform(std::begin(eaters), std::end(eaters), std::back_inserter(line),
-                       [&element](auto const& eater) -> std::string {
-                         auto const& subscribers = element.subscribers();
+                       [&recipe](auto const& eater) -> std::string {
+                         auto const& subscribers = recipe.subscribers();
                          if (std::find(std::begin(subscribers), std::end(subscribers), eater) !=
                              std::end(subscribers)) {
                            return "X";
@@ -26,10 +26,10 @@ std::vector<std::vector<std::string>> generateTable(recipe::plan const& out, boo
 
   if (!filled) {
     createLine = [columns = eaters.size()](recipe::plan_item const& element,
-                                           recipe::recipe const& recipe) {
+                                           recipe::meal_item const& recipe) {
       std::vector<std::string> line(columns + 2, "");
       line[0] = element.name();
-      line[1] = recipe.title();
+      line[1] = recipe.item().title();
       return line;
     };
   }
@@ -105,11 +105,11 @@ void plan_tex_writer_with_recipes::write(plan const& out, std::filesystem::path 
                 [&output, &recipe_writer, &written_ids, &path](auto const& element) {
                   std::for_each(std::begin(element), std::end(element),
                                 [&output, &recipe_writer, &written_ids, &path](auto const& recipe) {
-                                  if (written_ids.find(recipe.id()) == written_ids.end()) {
-                                    recipe_writer.write(recipe, output,
+                                  if (written_ids.find(recipe.item().id()) == written_ids.end()) {
+                                    recipe_writer.write(recipe.item(), output,
                                                         path.parent_path() / "recipes");
                                     output << "\\pagebreak\n";
-                                    written_ids.insert(recipe.id());
+                                    written_ids.insert(recipe.item().id());
                                   }
                                 });
                 });

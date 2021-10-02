@@ -302,9 +302,11 @@ public:
     // Cook for Mom and Dad.
     four_item_plan.addEater("Mom");
     four_item_plan.addEater("Dad");
-    for (auto& meal : four_item_plan) {
-      meal.add("Mom");
-      meal.add("Dad");
+    for (auto& day : four_item_plan) {
+      for (auto& meal : day) {
+        meal.add("Mom");
+        meal.add("Dad");
+      }
     }
 
     return four_item_plan;

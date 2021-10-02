@@ -166,21 +166,21 @@ void serialize_plan(Writer& writer, recipe::plan const& input)
         writer.String(key_plan_shopping_before);
         writer.Bool(item.shoppingBefore());
 
-        writer.String(key_plan_subscribers);
-        writer.StartArray();
-        for(auto const& eater: item.subscribers()) {
-            writer.String(eater);
-        }
-        writer.EndArray();
+        //        writer.String(key_plan_subscribers);
+        //        writer.StartArray();
+        //        for(auto const& eater: item.subscribers()) {
+        //            writer.String(eater);
+        //        }
+        //        writer.EndArray();
 
         writer.String(key_plan_recipes);
         writer.StartArray();
         for(auto const& rec: item) {
             writer.StartObject();
             writer.String(key_plan_recipe_name);
-            writer.String(rec.title());
+            writer.String(rec.item().title());
             writer.String(key_plan_recipe_id);
-            writer.String(boost::uuids::to_string(rec.id()));
+            writer.String(boost::uuids::to_string(rec.item().id()));
             writer.EndObject();
         }
         writer.EndArray();
