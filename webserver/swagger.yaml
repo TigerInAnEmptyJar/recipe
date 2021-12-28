@@ -615,6 +615,32 @@ definitions:
         id:
           type: "string"
           format: "uuid"
+  PlanRecipeItem:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      id:
+        type: "string"
+        format: "uuid"
+      subscribers:
+        type: array
+        items:
+          type: "string"
+  PlanItem:
+    type: "object"
+    properties:
+      shoppingBefore:
+        type: "boolean"
+      name:
+        type: "string"
+      recipes:
+        type: "array"
+        items:
+          type: "object"
+          allOf:
+          - $ref: '#/definitions/PlanRecipeItem'
+          - type: object
   Plan:
     type: "object"
     properties:
@@ -637,29 +663,18 @@ definitions:
         type: "array"
         items:
           type: "object"
-          properties:
-            shoppingBefore:
-              type: "boolean"
-            recipes:
-              type: "array"
-              items:
-                type: "object"
-                properties:
-                  name:
-                    type: "string"
-                  id:
-                    type: "string"
-                    format: "uuid"
-            subscribers:
-              type: array
-              items:
-                type: "string"
+          allOf:
+          - $ref: '#/definitions/PlanItem'
+          - type: object
   Subscription:
     type: "object"
     properties:
       subscriber:
         type: "string"
       day:
+        type: integer
+        format: "int32"
+      recipe:
         type: integer
         format: "int32"
   Shoppinglist:

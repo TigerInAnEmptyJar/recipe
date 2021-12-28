@@ -4,6 +4,8 @@
 from __future__ import absolute_import
 # import models into model package
 from swagger_server.models.plan import Plan
+from swagger_server.models.plan_item import PlanItem
+from swagger_server.models.plan_recipe_item import PlanRecipeItem
 from swagger_server.models.planlist import Planlist
 from swagger_server.models.recipe import Recipe
 from swagger_server.models.recipelist import Recipelist

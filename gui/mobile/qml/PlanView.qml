@@ -9,6 +9,7 @@ Item {
   id: planViewWidget
   property int context: 2
   property var object:{"name": "", "items": [], "eaters": []}
+  property real relativeSize: 1
 
   signal back()
 
@@ -25,24 +26,73 @@ Item {
   }
 
   function myFunction(response) {
+    var current = view.currentIndex
+    dayModel.clear()
     var obj = JSON.parse(response);
-    console.log(response)
     object = obj
-    console.log(obj.items.length)
     eatersBox.model = obj.eaters
     for(var i = 0; i < obj.items.length; i++) {
-      var s = new Array(0)
-      for (var j = 0; j < obj.items[i].subscribers.length; j++)
-        s.push({"name":obj.items[i].subscribers[j]})
       var rec = new Array(0)
-      for (var j = 0; j < obj.items[i].recipes.length; j++)
-        rec.push({"title": obj.items[i].recipes[j].name, "recipeId": obj.items[i].recipes[j].id})
-      dayModel.append( {title: qsTr("Meal %1").arg(i),
+      for (var j = 0; j < obj.items[i].recipes.length; j++) {
+        var s = []
+        for (var k = 0; k < obj.items[i].recipes[j].subscribers.length; k++)
+          s.push({"name":obj.items[i].recipes[j].subscribers[k]})
+
+        rec.push({"title": obj.items[i].recipes[j].name, "recipeId": obj.items[i].recipes[j].id, "subscribers": s})
+      }
+      dayModel.append( {title: obj.items[i].name,
                      shopping: obj.items[i].shoppingBefore,
-                     subscribers: s,
                      recipes: rec
                    });
     }
+    view.setCurrentIndex(current)
+  }
+
+  function requestSubscribe(meal, recipe, subscriber) {
+    var xmlhttp = new XMLHttpRequest();
+    var url = "http://localhost:8080/v1/plan/subscribe/" + object.id;
+    let json = JSON.stringify({
+      day: meal,
+      recipe: recipe,
+      subscriber: subscriber
+    });
+    xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status == 200) {
+          myFunction(xmlhttp.responseText);
+      }
+    }
+    xmlhttp.open("PUT", url, true);
+    xmlhttp.setRequestHeader("Content-type", "application/json")
+    xmlhttp.setRequestHeader("Accept", "application/problem+json")
+    xmlhttp.send(json);
+  }
+
+  function requestUnsubscribe(meal, recipe, subscriber) {
+    var xmlhttp = new XMLHttpRequest();
+    var url = "http://localhost:8080/v1/plan/unsubscribe/" + object.id;
+    let json = JSON.stringify({
+      day: meal,
+      recipe: recipe,
+      subscriber: subscriber
+    });
+    xmlhttp.onreadystatechange = function() {
+      if (xmlhttp.readyState === XMLHttpRequest.DONE && xmlhttp.status == 200) {
+          myFunction(xmlhttp.responseText);
+      }
+    }
+    xmlhttp.open("PUT", url, true);
+    xmlhttp.setRequestHeader("Content-type", "application/json")
+    xmlhttp.setRequestHeader("Accept", "application/problem+json")
+    xmlhttp.send(json);
+  }
+
+  function containsSubscriber(list, item) {
+    for (var i = 0; i < list.count; i++) {
+      if (list.get(i).name === item) {
+        return true
+      }
+    }
+    return false
   }
 
   signal daySelected(var dayObject)
@@ -50,6 +100,51 @@ Item {
 
   ListModel {
     id: dayModel
+  }
+
+  Component {
+    id: recipeDelegate
+    Rectangle {
+      width: parent.width
+      height: Common.controlHeight * planViewWidget.relativeSize * 1.5
+      border {
+        width: Common.borderWidth
+        color: Common.borderColor[planViewWidget.context]
+      }
+      color: Common.backgroundColor[planViewWidget.context]
+      RowLayout {
+        anchors.fill: parent
+        CheckBox {
+          id: subscribedBox
+          Layout.fillHeight: true
+          onClicked: {
+            if (checked) {
+              requestSubscribe(view.currentIndex, index, eatersBox.currentText)
+            } else {
+              requestUnsubscribe(view.currentIndex, index, eatersBox.currentText)
+            }
+          }
+        }
+        Text {
+          Layout.fillHeight: true
+          Layout.fillWidth: true
+          color: Common.textColor[planViewWidget.context]
+          text: title
+          verticalAlignment: Text.AlignVCenter
+          MouseArea {
+            anchors.fill: parent
+            onClicked: recipeSelected(model.recipeId)
+          }
+        }
+      }
+      Component.onCompleted: subscribedBox.checked = containsSubscriber(model.subscribers, eatersBox.currentText)
+      Connections {
+        target: eatersBox
+        function onCurrentTextChanged(text) {
+          subscribedBox.checked = containsSubscriber(model.subscribers, eatersBox.currentText)
+        }
+      }
+    }
   }
 
   ColumnLayout{
@@ -121,26 +216,9 @@ Item {
                 Layout.fillWidth: true
               }
               ListView {
-                id: d_subscribers
-                model: subscribers
-                delegate: RText {
-                  context: planViewWidget.context
-                  text: name
-                }
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-              }
-              ListView {
                 id: d_recipes
                 model: recipes
-                delegate: RText {
-                  context: planViewWidget.context
-                  text: title
-                  MouseArea {
-                    anchors.fill: parent
-                    onClicked: recipeSelected(model.recipeId)
-                  }
-                }
+                delegate: recipeDelegate
                 Layout.fillHeight: true
                 Layout.fillWidth: true
               }

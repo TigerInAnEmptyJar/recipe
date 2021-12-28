@@ -15,26 +15,31 @@ class Subscription(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, subscriber: str=None, day: int=None):  # noqa: E501
+    def __init__(self, subscriber: str=None, day: int=None, recipe: int=None):  # noqa: E501
         """Subscription - a model defined in Swagger
 
         :param subscriber: The subscriber of this Subscription.  # noqa: E501
         :type subscriber: str
         :param day: The day of this Subscription.  # noqa: E501
         :type day: int
+        :param recipe: The recipe of this Subscription.  # noqa: E501
+        :type recipe: int
         """
         self.swagger_types = {
             'subscriber': str,
-            'day': int
+            'day': int,
+            'recipe': int
         }
 
         self.attribute_map = {
             'subscriber': 'subscriber',
-            'day': 'day'
+            'day': 'day',
+            'recipe': 'recipe'
         }
 
         self._subscriber = subscriber
         self._day = day
+        self._recipe = recipe
 
     @classmethod
     def from_dict(cls, dikt) -> 'Subscription':
@@ -88,3 +93,24 @@ class Subscription(Model):
         """
 
         self._day = day
+
+    @property
+    def recipe(self) -> int:
+        """Gets the recipe of this Subscription.
+
+
+        :return: The recipe of this Subscription.
+        :rtype: int
+        """
+        return self._recipe
+
+    @recipe.setter
+    def recipe(self, recipe: int):
+        """Sets the recipe of this Subscription.
+
+
+        :param recipe: The recipe of this Subscription.
+        :type recipe: int
+        """
+
+        self._recipe = recipe

@@ -10,7 +10,7 @@ info:
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "localhost:8080"
+host: "127.0.0.1:8080"
 basePath: "/v1"
 tags:
 - name: "recipe"
@@ -61,13 +61,13 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/Recipe"
+      security:
+      - recipe_auth: []
       responses:
         "200":
           description: "Successful operation"
         "405":
           description: "Invalid input"
-      security:
-      - recipe_auth: []
       x-swagger-router-controller: "swagger_server.controllers.recipe_controller"
   /recipe/{recipeId}:
     get:
@@ -118,6 +118,8 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/Recipe"
+      security:
+      - recipe_auth: []
       responses:
         "200":
           description: "Successful operation"
@@ -127,8 +129,6 @@ paths:
           description: "Invalid ID supplied"
         "404":
           description: "Recipe not found"
-      security:
-      - recipe_auth: []
       x-swagger-router-controller: "swagger_server.controllers.recipe_controller"
     delete:
       tags:
@@ -145,6 +145,8 @@ paths:
         required: true
         type: "string"
         format: "uuid"
+      security:
+      - recipe_auth: []
       responses:
         "200":
           description: "Successful operation"
@@ -154,8 +156,6 @@ paths:
           description: "Invalid ID supplied"
         "404":
           description: "Recipe not found"
-      security:
-      - recipe_auth: []
       x-swagger-router-controller: "swagger_server.controllers.recipe_controller"
   /recipe/image/{recipeId}:
     get:
@@ -203,6 +203,8 @@ paths:
         description: "Image of recipe to upload"
         required: false
         type: "file"
+      security:
+      - recipe_auth: []
       responses:
         "200":
           description: "Successful operation"
@@ -210,8 +212,6 @@ paths:
           description: "Invalid ID supplied"
         "404":
           description: "Recipe not found"
-      security:
-      - recipe_auth: []
       x-swagger-router-controller: "swagger_server.controllers.recipe_controller"
   /plan:
     get:
@@ -249,13 +249,13 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/Plan"
+      security:
+      - recipe_auth: []
       responses:
         "200":
           description: "Successful operation"
         "405":
           description: "Invalid input"
-      security:
-      - recipe_auth: []
       x-swagger-router-controller: "swagger_server.controllers.plan_controller"
   /plan/{planId}:
     get:
@@ -306,6 +306,8 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/Plan"
+      security:
+      - recipe_auth: []
       responses:
         "200":
           description: "Successful operation"
@@ -315,8 +317,6 @@ paths:
           description: "Invalid ID supplied"
         "404":
           description: "Plan not found"
-      security:
-      - recipe_auth: []
       x-swagger-router-controller: "swagger_server.controllers.plan_controller"
     delete:
       tags:
@@ -333,6 +333,8 @@ paths:
         required: true
         type: "string"
         format: "uuid"
+      security:
+      - recipe_auth: []
       responses:
         "200":
           description: "Successful operation"
@@ -342,8 +344,6 @@ paths:
           description: "Invalid ID supplied"
         "404":
           description: "Plan not found"
-      security:
-      - recipe_auth: []
       x-swagger-router-controller: "swagger_server.controllers.plan_controller"
   /plan/subscribe/{planId}:
     put:
@@ -441,6 +441,8 @@ paths:
         required: true
         schema:
           $ref: "#/definitions/Shopping"
+      security:
+      - recipe_auth: []
       responses:
         "200":
           description: "Successful operation"
@@ -448,8 +450,6 @@ paths:
           description: "Invalid ID supplied"
         "404":
           description: "Plan not found"
-      security:
-      - recipe_auth: []
       x-swagger-router-controller: "swagger_server.controllers.shopping_controller"
   /shopping/{shoppingId}:
     get:
@@ -649,6 +649,33 @@ definitions:
         id:
           type: "string"
           format: "uuid"
+  PlanRecipeItem:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      id:
+        type: "string"
+        format: "uuid"
+      subscribers:
+        type: "array"
+        items:
+          type: "string"
+  PlanItem:
+    type: "object"
+    properties:
+      shoppingBefore:
+        type: "boolean"
+      name:
+        type: "string"
+      recipes:
+        type: "array"
+        items:
+          type: "object"
+          allOf:
+          - $ref: "#/definitions/PlanRecipeItem"
+          - type: "object"
+            properties: {}
   Plan:
     type: "object"
     properties:
@@ -671,23 +698,10 @@ definitions:
         type: "array"
         items:
           type: "object"
-          properties:
-            shoppingBefore:
-              type: "boolean"
-            recipes:
-              type: "array"
-              items:
-                type: "object"
-                properties:
-                  name:
-                    type: "string"
-                  id:
-                    type: "string"
-                    format: "uuid"
-            subscribers:
-              type: "array"
-              items:
-                type: "string"
+          allOf:
+          - $ref: "#/definitions/PlanItem"
+          - type: "object"
+            properties: {}
     example:
       name: "name"
       eaters:
@@ -696,8 +710,8 @@ definitions:
       days: 6
       id: "046b6c7f-0b8a-43b9-b35d-6489e6daee91"
       items:
-      - "{}"
-      - "{}"
+      - ""
+      - ""
       meals: 0
   Subscription:
     type: "object"
@@ -705,6 +719,9 @@ definitions:
       subscriber:
         type: "string"
       day:
+        type: "integer"
+        format: "int32"
+      recipe:
         type: "integer"
         format: "int32"
   Shoppinglist:

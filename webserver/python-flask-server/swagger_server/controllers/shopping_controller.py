@@ -35,7 +35,7 @@ def get_shoppinglist(shoppingId):  # noqa: E501
     Retrieve a shopping list from the server # noqa: E501
 
     :param shoppingId: The Id of the shopping list to retrieve
-    :type shoppingId:
+    :type shoppingId: 
 
     :rtype: Shopping
     """
@@ -61,9 +61,9 @@ def set_available(shoppingId, listId, ingredient):  # noqa: E501
     For a specified ingredient on the list, this function here sets the amount that is found at home. # noqa: E501
 
     :param shoppingId: The Id of the shopping list to modify
-    :type shoppingId:
+    :type shoppingId: 
     :param listId: The Id of the item of the shopping list to modify
-    :type listId:
+    :type listId: 
     :param ingredient: This is the ingredient and its amount, which is found at home
     :type ingredient: dict | bytes
 

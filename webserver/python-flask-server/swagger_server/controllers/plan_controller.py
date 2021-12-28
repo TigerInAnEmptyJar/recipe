@@ -35,7 +35,7 @@ def change_plan(planId, plan):  # noqa: E501
     Here we change a meal plan that already exists on the server. # noqa: E501
 
     :param planId: ID of meal plan to change
-    :type planId:
+    :type planId: 
     :param plan: The changed meal plan
     :type plan: dict | bytes
 
@@ -55,7 +55,7 @@ def delete_plan(planId):  # noqa: E501
     Here a meal plan is deleted from the server # noqa: E501
 
     :param planId: Id of meal plan to delete
-    :type planId:
+    :type planId: 
 
     :rtype: Planlist
     """
@@ -72,7 +72,7 @@ def get_plan(planId):  # noqa: E501
     Retrieve detailed information about a single meal plan. # noqa: E501
 
     :param planId: ID of meal plan to return
-    :type planId:
+    :type planId: 
 
     :rtype: Plan
     """
@@ -98,7 +98,7 @@ def subscribe(planId, subscriber):  # noqa: E501
     Subscribe # noqa: E501
 
     :param planId: Id of the meal plan to subscribe to
-    :type planId:
+    :type planId: 
     :param subscriber: The name of the person subscribing to the meal
     :type subscriber: dict | bytes
 
@@ -110,10 +110,13 @@ def subscribe(planId, subscriber):  # noqa: E501
     if connexion.request.is_json:
         subs = Subscription.from_dict(connexion.request.get_json())  # noqa: E501
         dayId = subs.day
+        recipeIndex = subs.recipe
     if len(allPlans[planId].items) <= dayId:
         return 'Day not found', 404
-    if subs.subscriber not in allPlans[planId].items[dayId]["subscribers"]:
-        allPlans[planId].items[dayId]["subscribers"].append(subs.subscriber)
+    if len(allPlans[planId].items[dayId]["recipes"]) <= recipeIndex:
+        return 'Recipe not found for day', 404
+    if subs.subscriber not in allPlans[planId].items[dayId]["recipes"][recipeIndex]["subscribers"]:
+        allPlans[planId].items[dayId]["recipes"][recipeIndex]["subscribers"].append(subs.subscriber)
         return allPlans[planId], 200
     return 'Subscriber already added', 400
 
@@ -124,7 +127,7 @@ def unsubscribe(planId, subscriber):  # noqa: E501
     Unsubscribe # noqa: E501
 
     :param planId: Id of the meal plan to unsubscribe from
-    :type planId:
+    :type planId: 
     :param subscriber: The name of the person unsubscribing from the meal
     :type subscriber: dict | bytes
 
@@ -135,9 +138,12 @@ def unsubscribe(planId, subscriber):  # noqa: E501
     if connexion.request.is_json:
         subs = Subscription.from_dict(connexion.request.get_json())  # noqa: E501
         dayId = subs.day
+        recipeIndex = subs.recipe
     if len(allPlans[planId].items) <= dayId:
         return 'Day not found', 404
-    if subscriber not in allPlans[planId].items[dayId]["subscribers"]:
-        allPlans[planId].items[dayId]["subscribers"].remove(subs.subscriber)
+    if len(allPlans[planId].items[dayId]["recipes"]) <= recipeIndex:
+        return 'Recipe not found for day', 404
+    if subscriber not in allPlans[planId].items[dayId]["recipes"][recipeIndex]["subscribers"]:
+        allPlans[planId].items[dayId]["recipes"][recipeIndex]["subscribers"].remove(subs.subscriber)
         return allPlans[planId], 200
     return 'Subscriber not found', 400
