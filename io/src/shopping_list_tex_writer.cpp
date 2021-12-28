@@ -130,7 +130,8 @@ std::string shopping_tex_writer::serialize(shopping_list const& out) const
                         name + " & " + needed + " & " + atHome + " \\\\ \n");
                   });
     std::for_each(std::begin(sorted), std::end(sorted), [&output](auto const& singleList) {
-      output << "\\hline \\\\ \n\\textbf{" << ::to_string(singleList.first) << "} & & \\\\ \n";
+      output << "\\hline \n\\end{tabular}\\\\ \n\\begin{tabular}{l r l}\n \\textbf{"
+             << ::to_string(singleList.first) << "} & & \\\\ \n";
       std::for_each(std::begin(singleList.second), std::end(singleList.second),
                     [&output](auto const& element) { output << element; });
     });
