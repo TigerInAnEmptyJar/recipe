@@ -1,13 +1,17 @@
 #include "feeder_application.hpp"
 
-#include "web_serializer.h"
 #include "io_provider.h"
 
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QCoreApplication>
-#include <QNetworkRequest>
+#include <QFile>
+#include <QHttpMultiPart>
 #include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QProcess>
+
+#include <boost/uuid/uuid_io.hpp>
 
 #include <iostream>
 #include <filesystem>
@@ -46,19 +50,8 @@ feeder_application::~feeder_application() = default;
 
 void feeder_application::start()
 {
-  _manager = std::make_unique<QNetworkAccessManager>();
-  connect(_manager.get(), &QNetworkAccessManager::finished, this, [this](QNetworkReply* reply) {
-    if (reply->error() == QNetworkReply::NoError) {
-      std::cout << "    finished successfully. Send next." << std::endl;
-    } else {
-      std::cout << "    finished with error: " << reply->error() << std::endl;
-    }
-    _uploads.pop_back();
-    std::cout << "send: " << _uploads.back().first << " " << std::setfill('.') << std::setw(_formatting_length - _uploads.back().first.length()) << " " << std::flush;
-    _uploads.back().second();
-  });
-
-  std::cout << "send: " << _uploads.back().first << " " << std::setfill('.') << std::setw(_formatting_length - _uploads.back().first.length()) << " " << std::flush;
+  _webAccess = std::make_unique<communication::webserver_access>("http://localhost", "8080");
+  std::cout << std::left << std::setfill('.');
   _uploads.back().second();
 }
 
@@ -193,62 +186,74 @@ void feeder_application::parseCommandline()
     this->quit();
   }});
 
-  auto web_serializer = communication::create_web_serializer();
-  auto commandCreator = [this](auto body, std::string const& target) {
-      return [this, body, target]() {
-        QNetworkRequest request {QUrl{QString::fromStdString("http://localhost:8080/v1/" + target)}};
-        request.setRawHeader("Content-Type", "application/json");
-        request.setRawHeader("Accept", "application/problem+json");
-        request.setRawHeader("api_key", "12345");
-
-        _manager->post(request, QByteArray::fromStdString(body));
-      };
-  };
-  auto createRecipeCommand = [&web_serializer, &commandCreator](recipe const& r) {
-    auto body = web_serializer->serialize(r);
-    return commandCreator(body, "recipe");
-  };
-
-  auto createPlanCommand = [&web_serializer, &commandCreator](plan const& p) {
-    auto body = web_serializer->serialize(p);
-    return commandCreator(body, "plan");
-  };
-
-  auto createShoppingCommand = [&web_serializer, &commandCreator](shopping_list const& s) {
-    auto body = web_serializer->serialize(s);
-    return commandCreator(body, "shopping");
-  };
-
   // commands for recipes
   if (parser.isSet(doUploadRecipes)) {
-      std::for_each(std::begin(recipes), std::end(recipes), [&createRecipeCommand, this](auto const& single){
-          std::cout << "create command for recipe: " << single.title() << std::endl;
-          _uploads.push_back({single.title(),createRecipeCommand(single)});
-          if (_formatting_length < single.title().length()) {
-              _formatting_length = single.title().length();
+    std::for_each(
+        std::begin(recipes), std::end(recipes),
+        [this, database_path = recipePath.parent_path()](auto const& single) {
+          if (!single.image_path().empty()) {
+            _uploads.push_back({single.title() + " image",
+                                [single, this, database_path, last = _uploads.back().second]() {
+                                  std::cout << "send: " << std::setw(_formatting_length)
+                                            << single.title() + " image " << std::flush;
+                                  _webAccess->sendRecipeImage(single, database_path, [last]() {
+                                    std::cout << " finished" << std::endl;
+                                    last();
+                                  });
+                                }});
+            if (_formatting_length < single.title().length() + 6) {
+              _formatting_length = single.title().length() + 6;
+            }
           }
-      });
+          std::cout << "create command for recipe: " << single.title() << std::endl;
+          _uploads.push_back({single.title(), [single, this, last = _uploads.back().second]() {
+                                std::cout << "send: " << std::setw(_formatting_length)
+                                          << single.title() + " " << std::flush;
+                                _webAccess->sendRecipe(single, [last]() {
+                                  std::cout << " finished" << std::endl;
+                                  last();
+                                });
+                              }});
+          if (_formatting_length < single.title().length()) {
+            _formatting_length = single.title().length();
+          }
+        });
   }
 
   // commands for paths
   if (parser.isSet(doUploadPlans)) {
-      std::for_each(std::begin(allPlans), std::end(allPlans), [&createPlanCommand, this](auto const& single){
-          std::cout << "create command for plan: " << single.name() << std::endl;
-          _uploads.push_back({single.name(), createPlanCommand(single)});
-          if (_formatting_length < single.name().length()) {
-              _formatting_length = single.name().length();
-          }
-      });
+    std::for_each(std::begin(allPlans), std::end(allPlans), [this](auto const& single) {
+      std::cout << "create command for plan: " << single.name() << std::endl;
+      _uploads.push_back({single.name(), [single, this, last = _uploads.back().second]() {
+                            std::cout << "send: " << std::setw(_formatting_length)
+                                      << single.name() + " " << std::flush;
+                            _webAccess->sendPlan(single, [last]() {
+                              std::cout << " finished" << std::endl;
+                              last();
+                            });
+                          }});
+      if (_formatting_length < single.name().length()) {
+        _formatting_length = single.name().length();
+      }
+    });
   }
   // commands for shoppinglists
   if (parser.isSet(doUploadShopping)) {
-    std::for_each(std::begin(allShoppingLists), std::end(allShoppingLists), [&createShoppingCommand, this](auto const& single){
-        std::cout << "create command for shopping-list: " << single.name() << std::endl;
-        _uploads.push_back({single.name(),createShoppingCommand(single)});
-        if (_formatting_length < single.name().length()) {
+    std::for_each(
+        std::begin(allShoppingLists), std::end(allShoppingLists), [this](auto const& single) {
+          std::cout << "create command for shopping-list: " << single.name() << std::endl;
+          _uploads.push_back({single.name(), [single, this, last = _uploads.back().second]() {
+                                std::cout << "send: " << std::setw(_formatting_length)
+                                          << single.name() + " " << std::flush;
+                                _webAccess->sendShopping(single, [last]() {
+                                  std::cout << " finished" << std::endl;
+                                  last();
+                                });
+                              }});
+          if (_formatting_length < single.name().length()) {
             _formatting_length = single.name().length();
-        }
-    });
+          }
+        });
   }
 }
 

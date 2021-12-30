@@ -94,7 +94,7 @@ class TestRecipeController(BaseTestCase):
         data = dict(file=(BytesIO(b'some file data'), 'file.txt'))
         response = self.client.open(
             '/v1/recipe/image/{recipeId}'.format(recipeId='recipeId_example'),
-            method='PUT',
+            method='POST',
             data=data,
             content_type='multipart/form-data')
         self.assert200(response,

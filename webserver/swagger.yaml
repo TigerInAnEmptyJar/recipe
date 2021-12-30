@@ -176,7 +176,7 @@ paths:
           description: "Invalid ID supplied"
         "404":
           description: "Recipe not found"
-    put:
+    post:
       tags:
       - "recipe"
       summary: "Upload the image of a recipe"

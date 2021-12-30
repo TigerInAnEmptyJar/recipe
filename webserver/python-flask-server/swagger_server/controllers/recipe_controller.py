@@ -116,4 +116,6 @@ def set_recipe_image(recipeId, file=None):  # noqa: E501
 
     :rtype: None
     """
+    print(file)
+    print(connexion.request.files.getlist('file'))
     return 'do some magic!'
