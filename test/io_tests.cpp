@@ -203,6 +203,7 @@ public:
     it->name("item 3");
     it->shoppingBefore(true);
     (++it)->add(_recipes[1]);
+    it->addFullRecipe(_recipes[0]);
     it->name("item 4");
     it->shoppingBefore(false);
     _plan.addEater("Alice");
@@ -564,7 +565,7 @@ TEST_F(io_test, plan_rw)
   EXPECT_EQ(*read, _plan);
 }
 
-TEST_F(io_test, plan_version)
+TEST_F(io_test, plan_version0)
 {
   recipe::io::plan_json_io io;
   std::filesystem::path file{"data/plan_version0.json"};
@@ -579,6 +580,29 @@ TEST_F(io_test, plan_version)
   setupPlan();
   _plan.removeEater("Alice");
   _plan.removeEater("Bob");
+  auto meal = _plan.begin() + 3;
+  meal->removeFullRecipe(meal->begin_full());
+
+  EXPECT_TRUE(std::filesystem::exists(file));
+  auto read = io.read(file, _recipe_finder_good);
+
+  ASSERT_TRUE(read.has_value());
+  EXPECT_EQ(*read, _plan);
+}
+
+TEST_F(io_test, plan_version1)
+{
+  recipe::io::plan_json_io io;
+  std::filesystem::path file{"data/plan_version1.json"};
+
+  // for the member recipes, the ids are generated randomly with every execution, but the ids
+  // in the file stay the same: set ids to allow comparison.
+  boost::uuids::string_generator gen;
+  setupAmounted();
+  setupRecipe();
+  _recipes[0].id(gen("0001a75f-0872-5500-0068-5798ddfd7f00"));
+  _recipes[1].id(gen("00011685-0672-5500-0070-5498ddfd7f00"));
+  setupPlan();
 
   EXPECT_TRUE(std::filesystem::exists(file));
   auto read = io.read(file, _recipe_finder_good);

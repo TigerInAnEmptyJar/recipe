@@ -75,6 +75,28 @@ void plan_item::remove(iterator item)
   }
 }
 
+plan_item::const_full_iterator plan_item::begin_full() const { return _full_recipe.begin(); }
+
+plan_item::full_iterator plan_item::begin_full() { return _full_recipe.begin(); }
+
+plan_item::const_full_iterator plan_item::end_full() const { return _full_recipe.end(); }
+
+plan_item::full_iterator plan_item::end_full() { return _full_recipe.end(); }
+
+plan_item& plan_item::addFullRecipe(const recipe& recipe)
+{
+  _full_recipe.push_back(recipe);
+  return *this;
+}
+
+plan_item& plan_item::removeFullRecipe(full_iterator item)
+{
+  if (item != _full_recipe.end()) {
+    _full_recipe.erase(item);
+  }
+  return *this;
+}
+
 bool plan_item::shoppingBefore() const { return _shoppingBefore; }
 
 plan_item& plan_item::shoppingBefore(bool value)

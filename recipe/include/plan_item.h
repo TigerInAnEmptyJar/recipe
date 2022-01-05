@@ -80,6 +80,9 @@ private:
  * This class defines a single meal within a meal-plan.
  * A meal consists of one or more recipes to be cooked and a list of persons that intend to eat the
  * meal.
+ * Sometimes, it makes sense to only have a list of recipes without subscribers added to it, because
+ * it needs to be cooked fully, like a cake for example. These recipes are stored with the full
+ * recipes list.
  * The shopping-before flag determines, whether the cook intends to go shopping before this meal is
  * cooked (used for determining which fresh ingredients need to be bought on which occation).
  */
@@ -89,6 +92,9 @@ public:
   //! Iterators to iterate over the recipes in this meal.
   using iterator = std::vector<meal_item>::iterator;
   using const_iterator = std::vector<meal_item>::const_iterator;
+
+  using full_iterator = std::vector<recipe>::iterator;
+  using const_full_iterator = std::vector<recipe>::const_iterator;
 
 public:
   plan_item(std::string const& item_name);
@@ -164,6 +170,46 @@ public:
   void remove(iterator item);
 
   /*!
+   * \brief begin_full
+   * \return an iterator to the start element of the recipe-list.
+   */
+  const_full_iterator begin_full() const;
+
+  /*!
+   * \brief begin_full
+   * \return an iterator to the start element of the recipe-list.
+   */
+  full_iterator begin_full();
+
+  /*!
+   * \brief end_full
+   * \return an iterator beyond the last element of the recipe-list
+   */
+  const_full_iterator end_full() const;
+
+  /*!
+   * \brief end_full
+   * \return an iterator beyond the last element of the recipe-list
+   */
+  full_iterator end_full();
+
+  /*!
+   * \brief addFullRecipe
+   * Adds a recipe to the list of recipes to cook fully, with no subscribers.
+   * \param recipe the recipe to add.
+   * \return the plan-item.
+   */
+  plan_item& addFullRecipe(recipe const& recipe);
+
+  /*!
+   * \brief removeFullRecipe
+   * Removes a recipe from the list of recipes to cook fully, without subscribers.
+   * \param item the item to remove.
+   * \return the plan-item.
+   */
+  plan_item& removeFullRecipe(full_iterator item);
+
+  /*!
    * \brief shoppingBefore-getter
    * \return true if it is intended to go shopping before this meal.
    */
@@ -179,6 +225,7 @@ public:
 private:
   std::string _name{"New meal"};
   std::vector<meal_item> _recipes;
+  std::vector<recipe> _full_recipe;
   bool _shoppingBefore{false};
 };
 

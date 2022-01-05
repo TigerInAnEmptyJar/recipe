@@ -33,7 +33,9 @@ plan_model::plan_model(std::function<std::optional<recipe>(boost::uuids::uuid co
     : _data(tr("New plan").toStdString(), 7, 3), _finder(finder)
 {
   std::transform(_data.begin(), _data.end(), std::back_inserter(_items), [this](auto& element) {
-    return std::make_shared<plan_item_model>(&element, _finder);
+    return std::make_pair(
+        std::make_shared<plan_item_model>(&element, _finder),
+        std::make_shared<FullRecipeModel>(&element, std::filesystem::path{}, _finder));
   });
 }
 
@@ -56,7 +58,9 @@ QVariant plan_model::data(QModelIndex const& index, int role) const
   case PlanRoles::shopping_role:
     return element->shoppingBefore();
   case PlanRoles::item_role:
-    return QVariant::fromValue(_items[index.row()].get());
+    return QVariant::fromValue(_items[index.row()].first.get());
+  case PlanRoles::full_recipe_role:
+    return QVariant::fromValue(_items[index.row()].second.get());
   }
   return {};
 }
@@ -67,6 +71,7 @@ QHash<int, QByteArray> plan_model::roleNames() const
   roles.insert(PlanRoles::name_role, "name");
   roles.insert(PlanRoles::shopping_role, "shoppingBefore");
   roles.insert(PlanRoles::item_role, "item");
+  roles.insert(PlanRoles::full_recipe_role, "fullRecipes");
   return roles;
 }
 
@@ -183,7 +188,8 @@ void plan_model::newPlan(int ndays, int nmeals)
   std::transform(_data.begin(), _data.end(), std::back_inserter(_items), [this](auto& element) {
     auto item = std::make_shared<plan_item_model>(&element, _finder);
     item->setDatabasePath(_database_path);
-    return item;
+    auto fitem = std::make_shared<FullRecipeModel>(&element, _database_path, _finder);
+    return std::make_pair(item, fitem);
   });
   endResetModel();
   Q_EMIT daysChanged(_data.days());
@@ -214,7 +220,8 @@ void plan_model::loadLast()
   std::transform(_data.begin(), _data.end(), std::back_inserter(_items), [this](auto& element) {
     auto item = std::make_shared<plan_item_model>(&element, _finder);
     item->setDatabasePath(_database_path);
-    return item;
+    auto fitem = std::make_shared<FullRecipeModel>(&element, _database_path, _finder);
+    return std::make_pair(item, fitem);
   });
   endResetModel();
   Q_EMIT daysChanged(_data.days());
@@ -248,7 +255,8 @@ void plan_model::load(QUrl const& url)
   std::transform(_data.begin(), _data.end(), std::back_inserter(_items), [this](auto& element) {
     auto item = std::make_shared<plan_item_model>(&element, _finder);
     item->setDatabasePath(_database_path);
-    return item;
+    auto fitem = std::make_shared<FullRecipeModel>(&element, _database_path, _finder);
+    return std::make_pair(item, fitem);
   });
   endResetModel();
   Q_EMIT daysChanged(_data.days());
@@ -322,14 +330,6 @@ void plan_model::exportPlan(QUrl const& url, int format)
   std::cout << "Exporting plan to file " << path.native() << " in format "
             << usedExporter->second.first << std::endl;
   usedExporter->second.second->write(_data, path);
-}
-
-void plan_model::addRecipe(int index, QString const& id)
-{
-  if (index < 0 || static_cast<size_t>(index) >= _items.size()) {
-    return;
-  }
-  _items[index]->addRecipe(id);
 }
 
 int plan_model::getDays() const { return _data.days(); }

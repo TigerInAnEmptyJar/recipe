@@ -38,7 +38,16 @@ Rectangle {
       color: Common.backgroundColor[context]
       DropArea {
         anchors.fill: parent
-        onDropped: plan.addRecipe(index, drag.source.id)
+        onDropped: {
+          if (drop.proposedAction == Qt.MoveAction) {
+            planView.model.addRecipe(drag.source.id)
+            drop.acceptProposedAction()
+          }
+          if (drop.proposedAction == Qt.CopyAction){
+            planFullView.model.addRecipe(drag.source.id)
+            drop.acceptProposedAction()
+          }
+        }
       }
       ColumnLayout {
         anchors.fill: parent
@@ -55,10 +64,53 @@ Rectangle {
           clip: true
           model: object.item
           focus: true
+          visible: count > 0
           delegate: PlanMealView {
             dayIndex: objectIndex
             mealIndex: model.index
             context: planItemList.context
+          }
+        }
+        ListView {
+          id: planFullView
+          Layout.fillHeight: true
+          Layout.fillWidth: true
+          clip: true
+          model: object.fullRecipes
+          visible: count > 0
+          focus: true
+          delegate:   Rectangle {
+            width: planFullView.width
+            height: Math.min(planFullView.width /2, planFullView.height)
+            color: Common.backgroundColor[context]
+            clip: true
+            MouseArea {
+              id: mouseArea
+              anchors.fill: parent
+              hoverEnabled: true
+              onDoubleClicked: model.deleteRecipe(model.index)
+            }
+            Image {
+              anchors.fill: parent
+              source: image
+              fillMode: Image.PreserveAspectFit
+            }
+            Rectangle {
+              id: description
+              anchors.top: parent.top
+              anchors.left: parent.left
+              anchors.right: parent.right
+              height: Common.textHeight
+              visible: mouseArea.containsMouse
+              color: Common.backgroundColor[context]
+              Text {
+                anchors.fill: parent
+                horizontalAlignment: Text.AlignHCenter
+                text: model.title
+                color: Common.textColor[context]
+                font.pointSize: Common.fontSize
+              }
+            }
           }
         }
       }

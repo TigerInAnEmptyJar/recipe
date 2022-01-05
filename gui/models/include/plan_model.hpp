@@ -22,6 +22,7 @@ class plan_model : public QAbstractListModel
     shopping_role,
     subscribers_role,
     item_role,
+    full_recipe_role,
   };
 
 public:
@@ -50,8 +51,6 @@ public:
 
   Q_INVOKABLE QString databasePath() const;
 
-  Q_INVOKABLE void addRecipe(int index, QString const& id);
-
   Q_INVOKABLE void addEater(QString const& eater);
   Q_INVOKABLE void removeEater(QString const& eater);
   Q_INVOKABLE QStringList eaters() const;
@@ -75,7 +74,8 @@ Q_SIGNALS:
 private:
   plan _data;
   std::filesystem::path _database_path;
-  std::vector<std::shared_ptr<plan_item_model>> _items;
+  std::vector<std::pair<std::shared_ptr<plan_item_model>, std::shared_ptr<QAbstractListModel>>>
+      _items;
 
   std::function<std::optional<recipe>(boost::uuids::uuid const&)> _finder;
 };

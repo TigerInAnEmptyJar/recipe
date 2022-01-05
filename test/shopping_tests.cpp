@@ -124,15 +124,7 @@ TEST_F(shoppingTest, generation_singleItem)
     {
       auto no_eater = recipe::shopping_list::generate(single_item_plan);
 
-      ASSERT_EQ(std::distance(std::begin(no_eater), std::end(no_eater)), 1);
-      auto day = std::begin(no_eater);
-      EXPECT_EQ(day->name(), "Monday");
-      auto day_it = std::begin(*day);
-      ASSERT_EQ(std::distance(day_it, std::end(*day)), 4);
-      EXPECT_THAT(day_it, IsIngredient1(_ingredients[0].id(), amount::grams, 0));
-      EXPECT_THAT(day_it + 1, IsIngredient1(_ingredients[1].id(), amount::grams, 0));
-      EXPECT_THAT(day_it + 2, IsIngredient1(_ingredients[2].id(), amount::grams, 0));
-      EXPECT_THAT(day_it + 3, IsIngredient1(_ingredients[3].id(), amount::piece, 0));
+      ASSERT_EQ(std::distance(std::begin(no_eater), std::end(no_eater)), 0);
     }
 
     {
@@ -170,6 +162,72 @@ TEST_F(shoppingTest, generation_singleItem)
       EXPECT_THAT(day_it + 3, IsIngredient1(_ingredients[3].id(), amount::piece, 1 / 3.));
       EXPECT_THAT(day_it + 4, IsIngredient1(_ingredients[8].id(), amount::grams, 200.));
       EXPECT_THAT(day_it + 5, IsIngredient1(_ingredients[7].id(), amount::grams, 400.));
+    }
+  }
+}
+
+TEST_F(shoppingTest, generation_singleItem_nonSubscribable)
+{
+  {
+    recipe::plan single_item_plan{"single", 1, 1};
+    auto item = single_item_plan.begin();
+    item->name("Monday").shoppingBefore(true).add(_recipes[1]);
+    item->addFullRecipe(_recipes[0]);
+
+    {
+      auto no_eater = recipe::shopping_list::generate(single_item_plan);
+
+      ASSERT_EQ(std::distance(std::begin(no_eater), std::end(no_eater)), 1);
+      auto day = std::begin(no_eater);
+      EXPECT_EQ(day->name(), "Monday");
+      auto day_it = std::begin(*day);
+      ASSERT_EQ(std::distance(day_it, std::end(*day)), 4);
+      EXPECT_THAT(day_it, IsIngredient1(_ingredients[0].id(), amount::grams, 100));
+      EXPECT_THAT(day_it + 1, IsIngredient1(_ingredients[1].id(), amount::grams, 100));
+      EXPECT_THAT(day_it + 2, IsIngredient1(_ingredients[2].id(), amount::grams, 200));
+      EXPECT_THAT(day_it + 3, IsIngredient1(_ingredients[3].id(), amount::piece, 2));
+    }
+
+    {
+      single_item_plan.addEater("Mom");
+      single_item_plan.addEater("Dad");
+      std::begin(single_item_plan)->begin()->add("Mom");
+      std::begin(single_item_plan)->begin()->add("Dad");
+      auto two_eater = recipe::shopping_list::generate(single_item_plan);
+
+      ASSERT_EQ(std::distance(std::begin(two_eater), std::end(two_eater)), 1);
+      auto day = std::begin(two_eater);
+      EXPECT_EQ(day->name(), "Monday");
+      auto day_it = std::begin(*day);
+      ASSERT_EQ(std::distance(day_it, std::end(*day)), 6);
+      EXPECT_THAT(day_it + 0, IsIngredient1(_ingredients[8].id(), amount::grams, 200.));
+      EXPECT_THAT(day_it + 1, IsIngredient1(_ingredients[7].id(), amount::grams, 400.));
+      EXPECT_THAT(day_it + 2, IsIngredient1(_ingredients[0].id(), amount::grams, 100 + 20));
+      EXPECT_THAT(day_it + 3, IsIngredient1(_ingredients[1].id(), amount::grams, 100));
+      EXPECT_THAT(day_it + 4, IsIngredient1(_ingredients[2].id(), amount::grams, 200));
+      EXPECT_THAT(day_it + 5, IsIngredient1(_ingredients[3].id(), amount::piece, 2));
+    }
+
+    {
+      std::begin(single_item_plan)->add(_recipes[2]);
+      (std::begin(single_item_plan)->begin() + 1)->add("Mom");
+      (std::begin(single_item_plan)->begin() + 1)->add("Dad");
+      auto two_recipes = recipe::shopping_list::generate(single_item_plan);
+
+      ASSERT_EQ(std::distance(std::begin(two_recipes), std::end(two_recipes)), 1);
+      auto day = std::begin(two_recipes);
+      EXPECT_EQ(day->name(), "Monday");
+      auto day_it = std::begin(*day);
+      ASSERT_EQ(std::distance(day_it, std::end(*day)), 9);
+      EXPECT_THAT(day_it + 0, IsIngredient1(_ingredients[8].id(), amount::grams, 200.));
+      EXPECT_THAT(day_it + 1, IsIngredient1(_ingredients[7].id(), amount::grams, 400.));
+      EXPECT_THAT(day_it + 2, IsIngredient1(_ingredients[0].id(), amount::grams, 100 + 20));
+      EXPECT_THAT(day_it + 3, IsIngredient1(_ingredients[11].id(), amount::grams, 250));
+      EXPECT_THAT(day_it + 4, IsIngredient1(_ingredients[10].id(), amount::grams, 150));
+      EXPECT_THAT(day_it + 5, IsIngredient1(_ingredients[6].id(), amount::grams, 100));
+      EXPECT_THAT(day_it + 6, IsIngredient1(_ingredients[1].id(), amount::grams, 100));
+      EXPECT_THAT(day_it + 7, IsIngredient1(_ingredients[2].id(), amount::grams, 200));
+      EXPECT_THAT(day_it + 8, IsIngredient1(_ingredients[3].id(), amount::piece, 2));
     }
   }
 }

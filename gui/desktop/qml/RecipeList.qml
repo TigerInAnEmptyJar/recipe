@@ -37,9 +37,13 @@ Rectangle {
       clip: true
       Drag.active: mouseArea.drag.active
       Drag.dragType: Drag.Automatic
-      Drag.supportedActions: Qt.LinkAction
+      Drag.supportedActions: Qt.LinkAction | Qt.CopyAction | Qt.MoveAction
       Drag.source: model
       Drag.mimeData: {"text/plain": "Copied recipe: " + title}
+      Drag.hotSpot.x: 0
+      Drag.hotSpot.y: 0
+      Drag.onDragStarted: {}
+      Drag.onDragFinished: {}
       RowLayout {
         anchors.fill: parent
         anchors.margins: Common.borderWidth

@@ -47,6 +47,15 @@ auto list_from_plan(recipe::plan const& from)
                       }
                     });
     });
+    std::for_each(item.begin_full(), item.end_full(), [&addToList, currentSection](auto rec) {
+      std::for_each(std::begin(rec), std::end(rec), [&addToList, currentSection](auto ingredient) {
+        if (ingredient.base_ingredient().sectioned()) {
+          addToList(ingredient, currentSection);
+        } else {
+          addToList(ingredient, 0);
+        }
+      });
+    });
   });
   return in_plan;
 }

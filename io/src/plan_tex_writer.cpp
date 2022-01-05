@@ -23,6 +23,16 @@ std::vector<std::vector<std::string>> generateTable(recipe::plan const& out, boo
                        });
         return line;
       };
+  std::function<std::vector<std::string>(recipe::plan_item const&, recipe::recipe const&)>
+      createLineFullRecipe =
+          [eaters](recipe::plan_item const& element, recipe::recipe const& recipe) {
+            std::vector<std::string> line;
+            line.push_back(element.name());
+            line.push_back(recipe.title());
+            std::transform(std::begin(eaters), std::end(eaters), std::back_inserter(line),
+                           [&recipe](auto const& eater) -> std::string { return "-"; });
+            return line;
+          };
 
   if (!filled) {
     createLine = [columns = eaters.size()](recipe::plan_item const& element,
@@ -41,12 +51,17 @@ std::vector<std::vector<std::string>> generateTable(recipe::plan const& out, boo
   std::vector<std::vector<std::string>> table;
   table.push_back(header);
   table.push_back(eaters);
-  std::for_each(std::begin(out), std::end(out), [&table, &eaters, createLine](auto const& element) {
-    std::for_each(std::begin(element), std::end(element),
-                  [&table, element, eaters, createLine](auto const& recipe) {
-                    table.push_back(createLine(element, recipe));
-                  });
-  });
+  std::for_each(std::begin(out), std::end(out),
+                [&table, &eaters, createLine, createLineFullRecipe](auto const& element) {
+                  std::for_each(std::begin(element), std::end(element),
+                                [&table, element, eaters, createLine](auto const& recipe) {
+                                  table.push_back(createLine(element, recipe));
+                                });
+                  std::for_each(element.begin_full(), element.end_full(),
+                                [&table, element, createLineFullRecipe](auto const& recipe) {
+                                  table.push_back(createLineFullRecipe(element, recipe));
+                                });
+                });
   return table;
 }
 } // namespace

@@ -21,6 +21,7 @@ QString const content_key{"content"};
 QString const key_item_name{"item-name"};
 QString const key_item_id{"recipe-id"};
 QString const key_item_recipes{"recipe"};
+QString const key_item_full_recipes{"full-recipe"};
 QString const key_item_subscriber{"subscribers"};
 QString const key_item_before{"doShopBefore"};
 QString const key_plan_name{"plan-name"};
@@ -141,11 +142,16 @@ QJsonObject plan_json_io::toJsonObject(plan_item const& i) const
       recipes.append(recipeObject);
     }
   }
+  QJsonArray full_recipes;
+  for (auto it = i.begin_full(); it != i.end_full(); it++) {
+    full_recipes.append(QString::fromStdString(boost::uuids::to_string(it->id())));
+  }
   if constexpr (version == 0) {
     object.insert(key_item_subscriber, subscribers);
   }
 
   object.insert(key_item_recipes, recipes);
+  object.insert(key_item_full_recipes, full_recipes);
   object.insert(key_item_name, QString::fromStdString(i.name()));
   object.insert(key_item_before, i.shoppingBefore());
 
@@ -202,6 +208,18 @@ std::optional<plan_item> plan_json_io::itemFromJsonObject(QJsonObject const& i,
           }
           item.add(meal);
         }
+      }
+    }
+  }
+
+  if (i.contains(key_item_full_recipes) && i[key_item_full_recipes].isArray()) {
+    QJsonArray recipes = i[key_item_full_recipes].toArray();
+    boost::uuids::string_generator gen;
+    for (auto rec : recipes) {
+      auto id = gen(rec.toString().toStdString());
+      auto recipe = recipe_finder(id);
+      if (recipe.has_value()) {
+        item.addFullRecipe(*recipe);
       }
     }
   }
