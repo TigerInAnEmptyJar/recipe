@@ -73,7 +73,7 @@ Rectangle {
         drag.target: parent
         onPressed: parent.grabToImage(function(result){parent.Drag.imageSource = result.url})
         onClicked: {
-          iView.currentIndex = index
+          iView.setActiveIndex(index)
           recipeList.currentIndex = index
           recipeList.currentObject = model
         }
@@ -137,9 +137,16 @@ Rectangle {
     }
     ListView {
       id: iView
+      function setActiveIndex(item) {
+        currentIndex = item
+      }
+
       clip: true
       Layout.fillHeight: true
       Layout.fillWidth: true
+      ScrollBar.vertical: ScrollBar {
+        active: true
+      }
       model: SortFilterModel{
         id: sortModel
         model: recipes
@@ -148,8 +155,8 @@ Rectangle {
         filterAcceptsItem: (a) => (enableFilter.checked ? a.tags.includes(tagFilter.text) && !filterFavorites || a.sessionFavorite : !filterFavorites || a.sessionFavorite)
         Component.onCompleted: update()
       }
-      highlight: highlightDelegate
-      highlightFollowsCurrentItem: true
+      highlightFollowsCurrentItem: false
+      keyNavigationEnabled: true
       boundsBehavior: Flickable.StopAtBounds
       boundsMovement: Flickable.StopAtBounds
       focus: true

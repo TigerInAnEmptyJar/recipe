@@ -70,7 +70,7 @@ DelegateModel {
      name: "unsorted"
      includeByDefault: true
      onChanged: sort(lessThan)
-   },DelegateModelGroup {
+   }, DelegateModelGroup {
       id: visibleItems
       name: "visible"
       includeByDefault: true

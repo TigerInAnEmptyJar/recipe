@@ -115,5 +115,8 @@ Rectangle {
       property: "category"
       delegate: sectionDelegate
     }
+    ScrollBar.vertical: ScrollBar {
+      active: true
+    }
   }
 }
