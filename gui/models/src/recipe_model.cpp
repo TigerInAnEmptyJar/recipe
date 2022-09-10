@@ -156,6 +156,40 @@ QStringList recipe_model::meal_types() const { return _adapter.all(); }
 
 QStringList recipe_model::amount_types() const { return _amounts_adapter.all(); }
 
+QStringList recipe_model::exportFormats() const
+{
+  io::io_provider provider;
+  provider.setup();
+
+  auto installedRecipe = provider.installed_recipe();
+  QStringList result;
+
+  std::for_each(std::begin(installedRecipe), std::end(installedRecipe),
+                [&result](auto const& element) {
+                  result.append(QString::fromStdString(element.second.first));
+                });
+
+  return result;
+}
+
+void recipe_model::exportRecipe(QUrl const& url, int format, int i)
+{
+  std::filesystem::path path = url.path().toStdString();
+  io::io_provider provider;
+  provider.setup();
+
+  auto installedRecipe = provider.installed_recipe();
+  if (format < 0 || static_cast<size_t>(format) >= installedRecipe.size()) {
+    std::cout << "Export recipe not possible, bad format specifier:" << format << std::endl;
+    return;
+  }
+  auto usedExporter = installedRecipe.begin();
+  std::advance(usedExporter, format);
+  std::cout << "Exporting recipe " << _data[i]->object.title() << " (" << i << ") to file "
+            << path.native() << " in format " << usedExporter->second.first << std::endl;
+  usedExporter->second.second->write({_data[i]->object}, path);
+}
+
 Qt::ItemFlags recipe_model::flags(QModelIndex const& index) const
 {
   size_t const position = static_cast<size_t>(index.row());

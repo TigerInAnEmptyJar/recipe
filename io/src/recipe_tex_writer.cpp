@@ -34,9 +34,39 @@ void recipe_tex_writer::write(recipe const& r, std::ostream& output,
   output << "\\subsection*{Zutaten}\n";
   output << "\\begin{multicols}{2}\n";
   output << "\\begin{itemize*}\n";
-  std::for_each(r.begin(), r.end(), [&output](amounted_ingredient const& i) {
-    output << "\\item " << i.base_ingredient().name() << "\n";
-  });
+  auto uniter = [](amounted_ingredient::amount_t a) -> std::string {
+    using T = amounted_ingredient::amount_t;
+    static std::map<T, std::string> const values{
+        {T::liter, "l"},      {T::milliliter, "ml"}, {T::cups, "cups"},      {T::grams, "g"},
+        {T::kg, "kg"},        {T::ounces, "ounce"},  {T::pounds, "Pfund"},   {T::piece, "Stc."},
+        {T::bundle, "Bund"},  {T::can, "Dosen"},     {T::table_spoon, "El"}, {T::tea_spoon, "Tl"},
+        {T::pince, "Priese"},
+    };
+    auto it = values.find(a);
+    if (it != values.end()) {
+      return it->second;
+    }
+    return "";
+  };
+  auto amounter = [uniter = std::move(uniter)](
+                      amounted_ingredient const& ingredient) -> std::optional<std::string> {
+    if (ingredient.begin() == ingredient.end()) {
+      return std::nullopt;
+    }
+    if (std::distance(ingredient.begin(), ingredient.end()) == 1) {
+      std::stringstream s;
+      s << ingredient.begin()->second << " " << uniter(ingredient.begin()->first);
+      return s.str();
+    }
+    return std::nullopt;
+  };
+  std::for_each(r.begin(), r.end(),
+                [&output, amounter = std::move(amounter)](amounted_ingredient const& i) {
+                  auto a = amounter(i);
+                  if (a) {
+                    output << "\\item " << *a << " " << i.base_ingredient().name() << "\n";
+                  }
+                });
   output << "\\end{itemize*}\n";
   output << "\\columnbreak\n";
   if (!r.image_path().empty()) {
@@ -56,6 +86,10 @@ void recipe_tex_writer::write(recipe const& r, std::ostream& output,
   }
   output << "\\item " << std::string{start, end} << "\n";
   output << "\\end{enumerate*}\n";
+  output << "N\\\"ahrwerte: " << r.calories() << " kcal, " << r.joules()
+         << " kJ, Protein: " << static_cast<int>(r.g_proteins())
+         << " g, Fett: " << static_cast<int>(r.g_fat())
+         << " g, Kohlenhydrate: " << static_cast<int>(r.g_carbohydrates()) << "g\n";
 }
 
 } // namespace io

@@ -55,6 +55,8 @@ public:
   Qt::ItemFlags flags(QModelIndex const& index) const override;
   Q_INVOKABLE QStringList meal_types() const;
   Q_INVOKABLE QStringList amount_types() const;
+  Q_INVOKABLE QStringList exportFormats() const;
+  Q_INVOKABLE void exportRecipe(QUrl const& url, int format, int i);
 
   Q_INVOKABLE void addItem();
   Q_INVOKABLE void deleteItem(int index);

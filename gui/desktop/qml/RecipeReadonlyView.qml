@@ -330,6 +330,31 @@ Item {
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignLeft
           }
+          RButton {
+            text: qsTr("Export")
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            context: page.context
+            FileDialog {
+              id: exportDialog
+              title: qsTr("Please choose a file to export %1", page.text)
+              nameFilters: recipes.exportFormats()
+              selectExisting: false
+              selectMultiple: false
+              folder: "file://" + recipes.databasePath() + "/"
+              onAccepted: {
+                recipes.exportRecipe(exportDialog.fileUrl, exportDialog.selectedNameFilterIndex, recipeList.currentIndex)
+                close()
+              }
+              onRejected: {
+                close()
+              }
+            }
+            onClicked: {
+              exportDialog.folder = "file://" + recipes.databasePath() + "/"
+              exportDialog.open()
+            }
+          }
         }
         RStringListView {
           id: tagView
