@@ -67,6 +67,18 @@ function(my_add_executable _NAME)
 
 endfunction()
 
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/71140c3ca7a87bb1b5b9c9f1500fea8858cce344.zip
+)
+FetchContent_MakeAvailable(googletest)
+FetchContent_GetProperties(googletest)
+if(NOT googletest_POPULATED)
+  FetchContent_Populate(googletest)
+  add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+endif()
+
 function(my_add_test _NAME)
   cmake_parse_arguments(A "AUTORCC;AUTOMOC;AUTOUIC" "" "HEADER;SOURCE;DEPENDS;INCLUDES;DEFINES" ${ARGN})
   message(STATUS "Adding tests ${_NAME}")

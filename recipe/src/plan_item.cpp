@@ -1,5 +1,7 @@
 #include "plan_item.h"
 
+#include <algorithm>
+
 namespace recipe {
 
 meal_item::meal_item(recipe const& element) : _recipe(element) {}

@@ -1,5 +1,6 @@
 #include "plan.h"
 
+#include <algorithm>
 #include <iterator>
 #include <sstream>
 

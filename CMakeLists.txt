@@ -26,7 +26,7 @@ else()
   add_subdirectory(documentation)
 
   enable_testing()
-  find_package(GTest REQUIRED)
+  include(GoogleTest)
   add_subdirectory(test)
 endif()
 

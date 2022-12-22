@@ -1,5 +1,6 @@
 #include "tex_writer.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <iterator>
 #include <map>

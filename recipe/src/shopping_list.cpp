@@ -1,5 +1,6 @@
 #include "shopping_list.h"
 
+#include <algorithm>
 #include <iostream>
 namespace {
 

@@ -1,5 +1,6 @@
 #include "shopping_day.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace recipe {
