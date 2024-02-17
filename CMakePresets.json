@@ -1,0 +1,114 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+      "major": 3,
+      "minor": 27,
+      "patch": 0
+    },
+    "configurePresets": [
+      {
+        "name": "basic",
+        "hidden": true,
+        "generator": "Ninja",
+        "cacheVariables": {
+          "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "${sourceParentDir}/cmake-conan/conan_provider.cmake"
+        }
+      },
+      {
+        "name": "debug",
+        "displayName": "Debug Config",
+        "description": "Debug build using Ninja generator",
+        "inherits": ["basic"],
+        "binaryDir": "${sourceDir}/build/${presetName}",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Debug"
+        }
+      },
+      {
+        "name": "release",
+        "displayName": "Release Config",
+        "description": "Releaseg build using Ninja generator",
+        "inherits": ["basic"],
+        "generator": "Ninja",
+        "binaryDir": "${sourceDir}/build/${presetName}",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Release"
+        }
+      }
+    ],
+    "buildPresets": [
+      {
+        "name": "debug",
+        "configurePreset": "debug"
+      },
+      {
+        "name": "release",
+        "configurePreset": "release"
+      }
+    ],
+    "testPresets": [
+      {
+        "name": "basic",
+        "hidden": true,
+        "output": {
+            "outputOnFailure": true
+        },
+        "execution": {
+            "noTestsAction": "error",
+            "stopOnFailure": true,
+            "repeat": {
+                "mode": "until-pass",
+                "count": 5
+            }
+        }
+      },
+      {
+        "name": "debug",
+        "configurePreset": "debug",
+        "inherits":["basic"],
+        "output": {
+            "outputJUnitFile": "${sourceDir}/build/${presetName}/test/test-results.junit"
+        }
+      },
+      {
+        "name": "release",
+        "configurePreset": "release",
+        "inherits":["basic"],
+        "output": {
+            "outputJUnitFile": "${sourceDir}/build/${presetName}/test/test-results.junit"
+        }
+      }
+    ],
+    "packagePresets": [
+      {
+        "name": "release",
+        "configurePreset": "release",
+        "generators": [
+          "TGZ"
+        ]
+      }
+    ],
+    "workflowPresets": [
+      {
+        "name": "deploy",
+        "steps": [
+          {
+            "type": "configure",
+            "name": "release"
+          },
+          {
+            "type": "build",
+            "name": "release"
+          },
+          {
+            "type": "test",
+            "name": "release"
+          },
+          {
+            "type": "package",
+            "name": "release"
+          }
+        ]
+      }
+    ]
+  }

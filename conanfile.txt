@@ -1,0 +1,9 @@
+[requires]
+#qt/6.6.1
+rapidjson/cci.20230929
+doxygen/1.9.4
+gtest/1.14.0
+expat/2.6.0
+
+[generators]
+CMakeDeps

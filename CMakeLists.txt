@@ -26,7 +26,6 @@ else()
   add_subdirectory(documentation)
 
   enable_testing()
-  include(GoogleTest)
   add_subdirectory(test)
 endif()
 

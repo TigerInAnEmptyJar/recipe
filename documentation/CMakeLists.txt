@@ -1,5 +1,4 @@
 find_package(Doxygen
-             REQUIRED dot
              OPTIONAL_COMPONENTS mscgen dia)
 
 set(directories_to_document

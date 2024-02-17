@@ -67,17 +67,8 @@ function(my_add_executable _NAME)
 
 endfunction()
 
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/71140c3ca7a87bb1b5b9c9f1500fea8858cce344.zip
-)
-FetchContent_MakeAvailable(googletest)
-FetchContent_GetProperties(googletest)
-if(NOT googletest_POPULATED)
-  FetchContent_Populate(googletest)
-  add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
-endif()
+find_package(GTest REQUIRED)
+include(GoogleTest)
 
 function(my_add_test _NAME)
   cmake_parse_arguments(A "AUTORCC;AUTOMOC;AUTOUIC" "" "HEADER;SOURCE;DEPENDS;INCLUDES;DEFINES" ${ARGN})
@@ -96,7 +87,7 @@ function(my_add_test _NAME)
     target_compile_definitions(${_NAME} ${A_DEFINES})
   endif()
 
-  target_link_libraries(${_NAME} gtest gmock gtest_main)
+  target_link_libraries(${_NAME} GTest::Main GTest::gmock)
 
   if (A_AUTORCC)
     set_target_properties(${_NAME} PROPERTIES AUTORCC ON)
