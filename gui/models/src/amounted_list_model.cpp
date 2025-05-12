@@ -95,7 +95,7 @@ bool amounted_list_model::setData(QModelIndex const& index, QVariant const& valu
   case IngredientRoles::amounts_role:
     return false;
   case amount_value_role: {
-    if ((value.type() != QVariant::String) || !_adapter->singleAmount() ||
+    if ((value.metaType() != QMetaType{QMetaType::Type::QString}) || !_adapter->singleAmount() ||
         ing.begin() == ing.end()) {
       return false;
     }
@@ -104,7 +104,7 @@ bool amounted_list_model::setData(QModelIndex const& index, QVariant const& valu
     return true;
   }
   case amount_amount_role: {
-    if (value.type() != QVariant::Int || !_adapter->singleAmount() || ing.begin() == ing.end()) {
+    if (value.metaType() != QMetaType{QMetaType::Type::Int} || !_adapter->singleAmount() || ing.begin() == ing.end()) {
       return false;
     }
     if (value.toInt() <= 12) {

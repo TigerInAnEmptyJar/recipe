@@ -139,7 +139,7 @@ bool data_model::setData(QModelIndex const& index, QVariant const& value, int ro
 
   switch (role) {
   case shopping_day_model::Roles::available_value_role:
-    if (value.type() == QVariant::String) {
+    if (value.metaType().id() == QMetaType::Type::QString) {
       bool ok = true;
       auto v = value.toFloat(&ok);
       if (ok) {
@@ -151,14 +151,14 @@ bool data_model::setData(QModelIndex const& index, QVariant const& value, int ro
     }
     break;
   case shopping_day_model::Roles::available_unit_role:
-    if (value.type() == QVariant::Int) {
+    if (value.metaType().id() == QMetaType::Type::Int) {
       std::get<1>(*element) = static_cast<amounted_ingredient::amount_t>(value.toInt());
       dataChanged(index, index, {role});
       return true;
     }
     break;
   case shopping_day_model::Roles::check_all_role:
-    if (value.type() == QVariant::Bool) {
+    if (value.metaType().id() == QMetaType::Type::Bool) {
       std::get<3>(*element) = value.toBool();
       dataChanged(index, index, {role});
       return true;

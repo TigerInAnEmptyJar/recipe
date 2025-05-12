@@ -1,9 +1,34 @@
 [requires]
-#qt/6.6.1
+qt/6.8.2
+boost/1.87.0
+#rapidjson/1.1.0
 rapidjson/cci.20230929
-doxygen/1.9.4
+#doxygen/1.13.2
 gtest/1.14.0
-expat/2.6.0
+
+#util-linux-libuuid/2.39.2
 
 [generators]
 CMakeDeps
+VirtualRunEnv
+CMakeToolchain
+
+[options]
+qt/*:with_harfbuzz=False
+qt/*:with_libjpeg=libjpeg
+qt/*:with_dbus=True
+qt/*:qtcharts=True
+qt/*:qttranslations=True
+qt/*:qtsvg=True
+qt/*:qtmqtt=False
+qt/*:qtquick3d=True
+qt/*:qtdeclarative=True
+qt/*:with_md4c=False
+qt/*:qtquickcontrols=True  # for QQC1
+qt/*:qtquickcontrols2=True # for QQC2
+qt/*:config=-xcb
+qt/*:qttools=True
+qt/*:qtvirtualkeyboard=False
+qt/*:qtx11extras=True
+qt/*:shared=True
+

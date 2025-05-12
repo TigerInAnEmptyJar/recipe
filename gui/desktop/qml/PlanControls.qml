@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import QtQuick.Dialogs 1.2
+import QtQuick.Dialogs 6.8
 
 import "common/"
 
@@ -35,9 +35,9 @@ Rectangle {
         id: loadDialog
         title: qsTr("Please choose a %1 file", page.text)
         nameFilters: [ page.text + " json files (*.json)", "All files (*)" ]
-        selectExisting: true
-        selectMultiple: false
-        folder: "file://" + model.databasePath() + "/"
+        // selectExisting: true
+        // selectMultiple: false
+        currentFolder: "file://" + model.databasePath() + "/"
         onAccepted: {
           page.model.load(loadDialog.fileUrl)
           close()
@@ -47,7 +47,7 @@ Rectangle {
         }
       }
       onClicked: {
-        loadDialog.folder = "file://" + model.databasePath() + "/"
+        loadDialog.currentFolder = "file://" + model.databasePath() + "/"
         loadDialog.visible = true
       }
     }
@@ -67,9 +67,9 @@ Rectangle {
         id: storeDialog
         title: qsTr("Please choose a file to store %1", page.text)
         nameFilters: [ page.text + " json files (*.json)", "All files (*)" ]
-        selectExisting: false
-        selectMultiple: false
-        folder: "file://" + model.databasePath() + "/"
+        // selectExisting: false
+        // selectMultiple: false
+        currentFolder: "file://" + model.databasePath() + "/"
         onAccepted: {
           page.model.storeAs(storeDialog.fileUrl)
           close()
@@ -79,7 +79,7 @@ Rectangle {
         }
       }
       onClicked: {
-        storeDialog.folder = "file://" + model.databasePath() + "/"
+        storeDialog.currentFolder = "file://" + model.databasePath() + "/"
         storeDialog.open()
       }
     }
@@ -92,9 +92,9 @@ Rectangle {
         id: exportDialog
         title: qsTr("Please choose a file to export %1", page.text)
         nameFilters: model.exportFormats()
-        selectExisting: false
-        selectMultiple: false
-        folder: "file://" + model.databasePath() + "/"
+        // selectExisting: false
+        // selectMultiple: false
+        currentFolder: "file://" + model.databasePath() + "/"
         onAccepted: {
           page.model.exportPlan(exportDialog.fileUrl, exportDialog.selectedNameFilterIndex)
           close()
@@ -104,7 +104,7 @@ Rectangle {
         }
       }
       onClicked: {
-        exportDialog.folder = "file://" + model.databasePath() + "/"
+        exportDialog.currentFolder = "file://" + model.databasePath() + "/"
         exportDialog.open()
       }
     }

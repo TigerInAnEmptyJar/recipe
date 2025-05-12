@@ -41,7 +41,7 @@ QString const eater_key{"eaters"};
 namespace recipe {
 namespace io {
 
-void recipe_json_io::write(std::vector<recipe> const& out, std::filesystem::path const& path) const
+void recipe_json_io::write(std::vector<recipe> const& out, std::ostream & path) const
 {
   QJsonArray array;
   for (auto& element : out) {
@@ -53,9 +53,14 @@ void recipe_json_io::write(std::vector<recipe> const& out, std::filesystem::path
   object.insert(content_key, array);
   QJsonDocument document;
   document.setObject(object);
+ 
+  path << document.toJson().toStdString() << std::flush;
+}
 
+void recipe_json_io::write(std::vector<recipe> const& out, std::filesystem::path const& path) const
+{
   std::ofstream output(path);
-  output << document.toJson().toStdString() << std::flush;
+  write(out, output);
 }
 
 std::optional<std::vector<recipe>> recipe_json_io::read(

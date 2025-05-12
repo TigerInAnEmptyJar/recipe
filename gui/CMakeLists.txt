@@ -1,3 +1,11 @@
+if(WIN32)
+  set(QUICK_CONTROLS "QtQuick.Controls.Windows")
+elseif(APPLE)
+  set(QUICK_CONTROLS "QtQuick.Controls.macOS")
+else()
+  set(QUICK_CONTROLS "QtQuick.Controls.Basic")
+endif()
+
 add_subdirectory(models)
 add_subdirectory(desktop)
 add_subdirectory(mobile)

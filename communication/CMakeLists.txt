@@ -10,8 +10,9 @@ my_add_library(communication
     src/webserver_access.cpp
   DEPENDS
     PUBLIC recipe::Recipe
-    PRIVATE Qt5::Core
-    PRIVATE Qt5::Network
+    PRIVATE Qt6::Core
+    PRIVATE Qt6::Network
+    PRIVATE rapidjson
   INCLUDES
     PUBLIC include/
   ALIAS

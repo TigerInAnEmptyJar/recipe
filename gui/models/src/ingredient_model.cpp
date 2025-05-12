@@ -237,7 +237,7 @@ bool data_model::setData(QModelIndex const& index, QVariant const& value, int ro
   }
   switch (role) {
   case ingredient_model::IngredientRoles::name_role: {
-    if (value.type() != QVariant::String) {
+    if (value.metaType() != QMetaType{QMetaType::Type::QString}) {
       return false;
     }
     _data[position].name(value.toString().toStdString());
@@ -263,7 +263,7 @@ bool data_model::setData(QModelIndex const& index, QVariant const& value, int ro
       return false;
   }
   case ingredient_model::IngredientRoles::sectioned_role: {
-    if (value.type() != QVariant::Bool) {
+    if (value.metaType() != QMetaType{QMetaType::Type::Bool}) {
       return false;
     }
     _data[position].sectioned(value.toBool());
@@ -271,7 +271,7 @@ bool data_model::setData(QModelIndex const& index, QVariant const& value, int ro
     return true;
   }
   case ingredient_model::IngredientRoles::image_path_role: {
-    if (value.type() != QVariant::String) {
+    if (value.metaType() != QMetaType{QMetaType::Type::QString}) {
       return false;
     }
     auto val = value.toString().toStdString();

@@ -57,18 +57,18 @@ public:
    */
   std::optional<T> to_enum(QVariant const& value) const
   {
-    switch (value.type()) {
-    case QVariant::Type::Int:
+    switch (value.metaType().id()) {
+    case QMetaType::Type::Int:
       return to_enum(value.toInt());
-    case QVariant::Type::UInt:
+    case QMetaType::Type::UInt:
       return to_enum(value.toUInt());
-    case QVariant::Type::LongLong:
+    case QMetaType::Type::LongLong:
       return to_enum(value.toLongLong());
-    case QVariant::Type::ULongLong:
+    case QMetaType::Type::ULongLong:
       return to_enum(value.toULongLong());
-    case QVariant::Type::String:
+    case QMetaType::Type::QString:
       return to_enum(value.toString());
-    case QVariant::Type::ByteArray:
+    case QMetaType::Type::QByteArray:
       return to_enum(QString::fromStdString(value.toByteArray().toStdString()));
     default:
       break;

@@ -6,6 +6,7 @@
 
 #include "io_provider.h"
 #include "recipe.h"
+#include "recipe_tex_output.h"
 
 #include <QImage>
 #include <QSettings>
@@ -15,6 +16,7 @@
 #include <boost/uuid/string_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include <ranges>
 #include <iostream>
 
 namespace {
@@ -208,7 +210,7 @@ bool recipe_model::setData(QModelIndex const& index, QVariant const& value, int 
   }
   switch (role) {
   case recipe_model::RecipeRoles::title_role:
-    if (value.type() != QVariant::String) {
+    if (value.metaType().id() != QMetaType::Type::QString) {
       return false;
     }
     _data[position]->object.title(value.toString().toStdString());
@@ -222,28 +224,28 @@ bool recipe_model::setData(QModelIndex const& index, QVariant const& value, int 
     }
     return false;
   case recipe_model::RecipeRoles::servings_role:
-    if (value.type() != QVariant::Int) {
+    if (value.metaType().id() != QMetaType::Type::Int) {
       return false;
     }
     _data[position]->object.servings(value.toInt());
     dataChanged(index, index, {role});
     return true;
   case recipe_model::RecipeRoles::time_role:
-    if (value.type() != QVariant::Int) {
+    if (value.metaType().id() != QMetaType::Type::Int) {
       return false;
     }
     _data[position]->object.preparation_time(std::chrono::minutes{value.toInt()});
     dataChanged(index, index, {role});
     return true;
   case recipe_model::RecipeRoles::instructions_role:
-    if (value.type() != QVariant::String) {
+    if (value.metaType().id() != QMetaType::Type::QString) {
       return false;
     }
     _data[position]->object.instructions(value.toString().toStdString());
     dataChanged(index, index, {role});
     return true;
   case recipe_model::RecipeRoles::image_path_role: {
-    if (value.type() != QVariant::String) {
+    if (value.metaType().id() != QMetaType::Type::QString) {
       return false;
     }
     auto val = value.toString().toStdString();
@@ -265,42 +267,42 @@ bool recipe_model::setData(QModelIndex const& index, QVariant const& value, int 
   case recipe_model::RecipeRoles::image_role:
     break;
   case recipe_model::RecipeRoles::fat_role:
-    if (value.type() != QVariant::Int) {
+    if (value.metaType().id() != QMetaType::Type::Int) {
       return false;
     }
     _data[position]->object.g_fat(value.toInt());
     dataChanged(index, index, {role});
     return true;
   case recipe_model::RecipeRoles::protein_role:
-    if (value.type() != QVariant::Int) {
+    if (value.metaType().id() != QMetaType::Type::Int) {
       return false;
     }
     _data[position]->object.g_proteins(value.toInt());
     dataChanged(index, index, {role});
     return true;
   case recipe_model::RecipeRoles::carbo_role:
-    if (value.type() != QVariant::Int) {
+    if (value.metaType().id() != QMetaType::Type::Int) {
       return false;
     }
     _data[position]->object.g_carbohydrates(value.toInt());
     dataChanged(index, index, {role});
     return true;
   case recipe_model::RecipeRoles::calories_role:
-    if (value.type() != QVariant::Int) {
+    if (value.metaType().id() != QMetaType::Type::Int) {
       return false;
     }
     _data[position]->object.calories(value.toInt());
     dataChanged(index, index, {role});
     return true;
   case recipe_model::RecipeRoles::joules_role:
-    if (value.type() != QVariant::Int) {
+    if (value.metaType().id() != QMetaType::Type::Int) {
       return false;
     }
     _data[position]->object.joules(value.toInt());
     dataChanged(index, index, {role});
     return true;
   case recipe_model::RecipeRoles::source_role:
-    if (value.type() != QVariant::String) {
+    if (value.metaType().id() != QMetaType::Type::QString) {
       return false;
     }
     _data[position]->object.source(value.toString().toStdString());
@@ -312,7 +314,7 @@ bool recipe_model::setData(QModelIndex const& index, QVariant const& value, int 
   case recipe_model::RecipeRoles::id_role:
     break;
   case recipe_model::RecipeRoles::favorite_role: {
-    if (value.type() != QVariant::Bool) {
+    if (value.metaType().id() != QMetaType::Type::Bool) {
       return false;
     }
     _data[position]->favorite = value.toBool();
@@ -326,7 +328,9 @@ bool recipe_model::setData(QModelIndex const& index, QVariant const& value, int 
 void recipe_model::addItem()
 {
   beginInsertRows({}, _data.size(), _data.size());
-  _data.push_back(std::make_shared<recipe_data>(recipe{}, _database_path));
+  auto new_recipe = recipe{};
+  new_recipe.id(boost::uuids::random_generator{}());
+  _data.push_back(std::make_shared<recipe_data>(new_recipe, _database_path));
   _data.back()->object.id(boost::uuids::random_generator{}());
   endInsertRows();
 }
@@ -512,5 +516,37 @@ std::optional<recipe> recipe_model::findRecipe(boost::uuids::uuid const& id) con
   }
   return {};
 }
+
+void recipe_model::bookRequested(QUrl const& path)
+{
+  io::io_provider provider;
+  provider.setup();
+
+  std::cout << "export all to file " << path.path().toStdString() << std::endl;
+  auto installedRecipe = provider.installed_recipe();
+  auto usedExporter = installedRecipe.begin();
+  std::advance(usedExporter, 1);
+  std::vector<recipe> recipes;
+  auto isSelected = [this](auto const& element)->bool{
+    return element->favorite;
+  };
+  auto isType = [](auto tpe){
+    return [tpe](auto & e) ->bool {return e->object.meal_type() == tpe;};
+  };
+
+  std::vector<meal_t> types{meal_t::vegetarian, meal_t::vegan, meal_t::fish, meal_t::other, meal_t::sweet, meal_t::baking};
+  for (auto tpe: types){
+    std::ranges::transform(_data|std::views::filter(isSelected)|std::views::filter(isType(tpe)), std::back_inserter(recipes), [](auto &r){return r->object;});
+  }
+  if (recipes.empty()) {
+    std::cout << "    none selected, export all"<<std::endl;
+
+    for (auto tpe: types){
+      std::ranges::transform(_data|std::views::filter(isType(tpe)), std::back_inserter(recipes), [](auto &r){return r->object;});  
+    }
+  }
+  usedExporter->second.second->write(recipes, path.path().toStdString());
+}
+
 } // namespace gui
 } // namespace recipe

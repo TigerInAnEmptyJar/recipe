@@ -94,13 +94,13 @@ bool plan_model::setData(QModelIndex const& index, QVariant const& value, int ro
   }
   switch (role) {
   case PlanRoles::name_role:
-    if (value.type() == QVariant::String) {
+    if (value.metaType().id() == QMetaType::Type::QString) {
       item->name(value.toString().toStdString());
       Q_EMIT dataChanged(index, index, {role});
       return true;
     }
   case PlanRoles::shopping_role:
-    if (value.type() == QVariant::Bool) {
+    if (value.metaType().id() == QMetaType::Type::Bool) {
       item->shoppingBefore(value.toBool());
       Q_EMIT dataChanged(index, index, {role});
       return true;

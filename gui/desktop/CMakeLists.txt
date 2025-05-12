@@ -4,10 +4,13 @@ my_add_executable(recipe-gui
     qml/qml.qrc
   DEPENDS
     recipe::Gui::Models
-    Qt5::Core
-    Qt5::Qml
-    Qt5::Quick
-    Qt5::Gui
+    Qt6::Core
+    Qt6::Qml
+    Qt6::Quick
+    Qt6::Gui
+    Qt6::DBus
   AUTORCC
   AUTOMOC
 )
+
+file(COPY ${qt_PACKAGE_FOLDER_DEBUG}/plugins/platforms DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/plugins/)

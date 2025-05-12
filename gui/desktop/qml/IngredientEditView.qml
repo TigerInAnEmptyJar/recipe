@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import QtQuick.Dialogs 1.2
+import QtQuick.Dialogs 6.8
 
 import "common/"
 
@@ -102,9 +102,9 @@ Item {
             id: loadDialog
             title: qsTr("Please choose an image file")
             nameFilters: ["Image files (*.jpeg, *.jpg)"]
-            folder: "file://" + ingredients.databasePath() + "/"
-            selectExisting: true
-            selectMultiple: false
+            currentFolder: "file://" + ingredients.databasePath() + "/"
+            // selectExisting: true
+            // selectMultiple: false
             onAccepted: {
               objectImagePath.text = loadDialog.fileUrl
               close()
@@ -112,7 +112,7 @@ Item {
             onRejected: close()
           }
           onClicked: {
-            loadDialog.folder = "file://" + ingredients.databasePath() + "/"
+            loadDialog.currentFolder = "file://" + ingredients.databasePath() + "/"
             loadDialog.open()
           }
         }

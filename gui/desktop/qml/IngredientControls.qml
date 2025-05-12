@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import QtQuick.Dialogs 1.2
+import QtQuick.Dialogs 6.8
 
 import "common/"
 
@@ -15,6 +15,7 @@ Rectangle {
   signal editRequested()
   signal newRequested()
   signal deleteRequested()
+  signal bookRequested()
 
   border{
     color: Common.borderColor[context]
@@ -38,9 +39,9 @@ Rectangle {
         id: loadDialog
         title: "Please choose a " + page.text + " file"
         nameFilters: [ page.text + " json files (*.json)", "All files (*)" ]
-        selectExisting: true
-        selectMultiple: false
-        folder: "file://" + model.databasePath() + "/"
+        //selectExisting: true
+        //selectMultiple: false
+        currentFolder: "file://" + model.databasePath() + "/"
         onAccepted: {
           page.model.load(loadDialog.fileUrl)
           close()
@@ -50,7 +51,7 @@ Rectangle {
         }
       }
       onClicked: {
-        loadDialog.folder = "file://" + model.databasePath() + "/"
+        loadDialog.currentFolder = "file://" + model.databasePath() + "/"
         loadDialog.visible = true
       }
     }
@@ -70,9 +71,9 @@ Rectangle {
         id: storeDialog
         title: "Please choose a file to store " + page.text + "s"
         nameFilters: [ page.text + " json files (*.json)", "All files (*)" ]
-        selectExisting: false
-        selectMultiple: false
-        folder: "file://" + model.databasePath() + "/"
+        // selectExisting: false
+        // selectMultiple: false
+        currentFolder: "file://" + model.databasePath() + "/"
         onAccepted: {
           page.model.store(storeDialog.fileUrl)
           close()
@@ -82,7 +83,7 @@ Rectangle {
         }
       }
       onClicked: {
-        storeDialog.folder = "file://" + model.databasePath() + "/"
+        storeDialog.currentFolder = "file://" + model.databasePath() + "/"
         storeDialog.open()
       }
     }
@@ -108,6 +109,14 @@ Rectangle {
       context: page.context
       enabled: page.currentObject !== undefined
       onClicked: deleteRequested()
+    }
+    RButton {
+      text: "Export Cookbook"
+      Layout.fillHeight: true
+      Layout.fillWidth: true
+      context: page.context
+      enabled: page.currentObject !== undefined
+      onClicked: bookRequested()
     }
   }
 }

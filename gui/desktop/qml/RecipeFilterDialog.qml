@@ -1,6 +1,6 @@
 import QtQuick 2.3
 import QtQuick.Controls 2.5
-import QtQuick.Dialogs 1.2
+import QtQuick.Dialogs 6.8
 import QtQuick.Layouts 1.3
 import QtQml.Models 2.3
 
@@ -259,7 +259,7 @@ Dialog {
     }
   }
   standardButtons: StandardButton.Apply | StandardButton.Reset | StandardButton.Cancel
-  onApply: {
+  onAccepted: {
     filterAcceptsItem = function(item) {
       if (!allTags.accepts(item)) return false
       if (!anyTags.accepts(item)) return false

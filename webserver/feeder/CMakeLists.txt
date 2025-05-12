@@ -5,6 +5,6 @@ my_add_executable(webserver-feeder
   DEPENDS
     recipe::Communication
     recipe::IO
-    Qt5::Core
-    Qt5::Network
+    Qt6::Core
+    Qt6::Network
 )

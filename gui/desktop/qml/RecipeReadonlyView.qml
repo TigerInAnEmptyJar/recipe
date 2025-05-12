@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
-import QtQuick.Dialogs 1.2
+import QtQuick.Dialogs 6.8
 
 import "common/"
 
@@ -113,8 +113,8 @@ Item {
                   id: removeDialog
                   property int index
                   title: qsTr("Remove ingredient")
-                  standardButtons: StandardButton.Yes | StandardButton.No
-                  onYes: {
+                  buttons: StandardButton.Yes | StandardButton.No
+                  onAccepted: {
                     visible = false
                     ingredientView.model.deleteItem(index)
                   }
@@ -339,11 +339,15 @@ Item {
               id: exportDialog
               title: qsTr("Please choose a file to export %1", page.text)
               nameFilters: recipes.exportFormats()
-              selectExisting: false
-              selectMultiple: false
-              folder: "file://" + recipes.databasePath() + "/"
+              fileMode: FileDialog.SaveFile
+              // selectExisting: false
+              // selectMultiple: false
+              currentFolder: "file://" + recipes.databasePath() + "/"
               onAccepted: {
-                recipes.exportRecipe(exportDialog.fileUrl, exportDialog.selectedNameFilterIndex, recipeList.currentIndex)
+                console.log(exportDialog.selectedNameFilter.index)
+                console.log(exportDialog.selectedNameFilter.name)
+                console.log(exportDialog.selectedNameFilter.extensions)
+                recipes.exportRecipe(exportDialog.selectedFile, exportDialog.selectedNameFilter.index, recipeList.currentIndex)
                 close()
               }
               onRejected: {
@@ -351,7 +355,7 @@ Item {
               }
             }
             onClicked: {
-              exportDialog.folder = "file://" + recipes.databasePath() + "/"
+              exportDialog.currentFolder = "file://" + recipes.databasePath() + "/"
               exportDialog.open()
             }
           }

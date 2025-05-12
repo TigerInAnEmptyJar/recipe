@@ -27,6 +27,20 @@ std::optional<std::vector<recipe>> recipe_tex_writer::read(std::filesystem::path
   return {};
 }
 
+void recipe_tex_writer::write(std::vector<recipe> const& out, std::ostream & output) const
+{
+  tex_writer tex;
+  std::filesystem::path databasePath = "/home/katharina/Documents/recipes";
+
+  tex.writeHeader(output);
+  std::for_each(std::begin(out), std::end(out), [this, &output, databasePath](auto r) {
+    write(r, output, databasePath);
+    output << "\\pagebreak\n";
+  });
+  tex.writeFooter(output);
+  output << std::flush;
+}
+
 void recipe_tex_writer::write(recipe const& r, std::ostream& output,
                               std::filesystem::path const& databasePath) const
 {
@@ -86,7 +100,7 @@ void recipe_tex_writer::write(recipe const& r, std::ostream& output,
   }
   output << "\\item " << std::string{start, end} << "\n";
   output << "\\end{enumerate*}\n";
-  output << "N\\\"ahrwerte: " << r.calories() << " kcal, " << r.joules()
+  output << "N\\\"ahrwerte (" << static_cast<int>(r.servings()) << "): " << r.calories() << " kcal, " << r.joules()
          << " kJ, Protein: " << static_cast<int>(r.g_proteins())
          << " g, Fett: " << static_cast<int>(r.g_fat())
          << " g, Kohlenhydrate: " << static_cast<int>(r.g_carbohydrates()) << "g\n";

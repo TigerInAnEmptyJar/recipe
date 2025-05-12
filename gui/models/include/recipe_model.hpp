@@ -6,6 +6,7 @@
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
+#include <QUrl>
 
 #include <boost/uuid/uuid.hpp>
 
@@ -71,6 +72,7 @@ public:
   Q_INVOKABLE void storeLast();
   Q_INVOKABLE void store(QUrl const& url);
 
+  Q_INVOKABLE void bookRequested(QUrl const& path);
   Q_INVOKABLE QString databasePath() const;
 
   void setFinder(std::function<std::optional<ingredient>(boost::uuids::uuid const&)> finder);

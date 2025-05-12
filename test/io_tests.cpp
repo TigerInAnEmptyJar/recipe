@@ -11,6 +11,8 @@
 #include <boost/uuid/string_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include <ranges>
+
 class amounted_test : public recipe::io::amounted_io
 {
   void write(std::vector<recipe::amounted_ingredient> const&,
@@ -37,6 +39,7 @@ class ingredient_test : public recipe::io::ingredient_io
 class recipe_test : public recipe::io::recipe_io
 {
   void write(std::vector<recipe::recipe> const&, std::filesystem::path const&) const override {}
+  void write(std::vector<recipe::recipe> const& out, std::ostream & path) const override {}
   std::optional<std::vector<recipe::recipe>> read(
       std::filesystem::path const&,
       std::function<std::optional<recipe::ingredient>(boost::uuids::uuid)>) const override
@@ -144,7 +147,9 @@ public:
 
   void setupRecipe()
   {
+    boost::uuids::random_generator gen;
     auto recipe1 = recipe::recipe{"Recipe 1"}
+                       .id(gen())
                        .g_fat(10)
                        .g_proteins(11)
                        .g_carbohydrates(12)
@@ -164,6 +169,7 @@ public:
     recipe1.add(_amounted[2]);
     recipe1.add(_amounted[3]);
     auto recipe2 = recipe::recipe{"Recipe 2"}
+                       .id(gen())
                        .g_fat(12)
                        .g_proteins(13)
                        .g_carbohydrates(14)
@@ -562,6 +568,12 @@ TEST_F(io_test, plan_rw)
   auto read = io.read(file, _recipe_finder_good);
 
   ASSERT_TRUE(read.has_value());
+  EXPECT_EQ(read->meals(),_plan.meals());
+  EXPECT_EQ(read->days(),_plan.days());
+  EXPECT_EQ(read->eaters(),_plan.eaters());
+  EXPECT_EQ(read->id(),_plan.id());
+  EXPECT_EQ(read->name(),_plan.name());
+
   EXPECT_EQ(*read, _plan);
 }
 

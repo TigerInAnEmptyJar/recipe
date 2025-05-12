@@ -1,3 +1,4 @@
+find_package(Boost REQUIRED)
 my_add_library(recipe
   HEADER
     include/amounted_ingredient.h
@@ -19,4 +20,6 @@ my_add_library(recipe
     PUBLIC include/
   ALIAS
     recipe::Recipe
+  DEPENDS
+    Boost::headers
 )

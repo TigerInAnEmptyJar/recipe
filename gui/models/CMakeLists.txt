@@ -23,8 +23,8 @@ my_add_library(recipe-gui-models
     recipe::Recipe
     recipe::IO
     recipe::Communication
-    Qt5::Core
-    Qt5::Gui
+    Qt6::Core
+    Qt6::Gui
   ALIAS
     recipe::Gui::Models
   AUTORCC

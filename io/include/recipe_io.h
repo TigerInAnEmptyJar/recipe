@@ -28,6 +28,13 @@ public:
    */
   virtual void write(std::vector<recipe> const& out, std::filesystem::path const& path) const = 0;
 
+    /*!
+   * \brief write a list of recipes to a file.
+   * \param out the list of recipes to write,
+   * \param path the stream to write to.
+   */
+  virtual void write(std::vector<recipe> const& out, std::ostream & path) const = 0;
+
   /*!
    * \brief read recipes from file
    * \param path the path to read from,

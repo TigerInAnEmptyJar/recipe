@@ -28,7 +28,7 @@ my_add_library(inpput_output
     src/shopping_list_tex_writer.cpp
   DEPENDS
     PUBLIC recipe::Recipe
-    PRIVATE Qt5::Core
+    PRIVATE Qt6::Core
   INCLUDES
     PUBLIC include/
   ALIAS
